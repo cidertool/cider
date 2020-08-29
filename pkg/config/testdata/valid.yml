@@ -1,0 +1,96 @@
+---
+name: My Project
+testflight:
+  betaGroups:
+    - group: 'My Colleagues'
+      testers:
+        - email: 'jeff@mail.com'
+        - email: 'geoff@mail.com'
+    - group: 'My Friends'
+      testers:
+        - email: 'jeff@mail.com'
+        - email: 'geoff@mail.com'
+  betaTesters:
+    - email: 'jeff@mail.com'
+    - email: 'geoff@mail.com'
+apps:
+  Wayfair:
+    id: com.sky.ProjectApp
+    localizations:
+      en-US:
+        name: My App
+        subtitle: congratulations
+        privacyPolicyText: go away
+        privacyPolicyURL: https://google.com
+      ja:
+        name: 僕のアップ
+        subtitle: おめでとう
+        privacyPolicyText: 消えろ
+        privacyPolicyURL: https://google.co.jp
+    versions:
+      platform: iOS 
+      copyright: 2020 Wayfair LLC
+      earliestReleaseDate: 2020-08-07T14:25:00Z
+      releaseType: afterApproval
+      enablePhasedRelease: true
+      localizations:
+        en-US:
+          description: ''
+          keywords: ''
+          marketingURL: https://google.com
+          promotionalText: ''
+          supportURL: https://google.com
+          whatsNew: ''
+          previewSets:
+            iphone65:
+              - path: ''
+                mimeType: '' 
+                previewFrameTimeCode: ''
+          screenshotSets:
+            iphone65:
+              - path: '' 
+      idfaDeclaration:
+        attributesActionWithPreviousAd: true
+        attributesAppInstallationToPreviousAd: true
+        honorsLimitedAdTracking: true
+        servesAds: true
+      routingCoverages:
+        - path: ''
+      reviewDetails:
+        contact:
+          email: ''
+          firstName: ''
+          lastName: ''
+          phone: ''
+        demoAccount:
+          name: ''
+          password: '' 
+          isRequired: false
+        notes: ''
+        attachments:
+          - path: ''
+    testflight:
+      enableAutoNotify: false
+      betaGroups:
+        - 'My Colleagues'
+      betaTesters:
+        - email: ''
+      localizations:
+        en-US:
+          description: ''
+          feedbackEmail: ''
+          marketingURL: https://google.com
+          privacyPolicyURL: https://google.com
+          tvOSPrivacyPolicy: ''
+          whatsNew: ''
+      reviewDetails:
+        contact:
+          email: ''
+          firstName: ''
+          lastName: ''
+          phone: ''
+        demoAccount:
+          name: ''
+          password: '' 
+          isRequired: false
+        notes: ''

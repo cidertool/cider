@@ -1,0 +1,17 @@
+---
+name: My Project
+apps:
+  Wayfair:
+    id: com.sky.ProjectApp
+    localizations:
+      - name: My App
+        subtitle: congratulations
+        privacyPolicy:
+          text: go away
+          url: https://google.com
+      - name: 僕のアップ
+        subtitle: おめでとう
+        privacyPolicy:
+          text: 消えろ
+          url: https://google.co.jp
+    versions: ~

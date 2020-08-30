@@ -3,6 +3,7 @@ package middleware
 import (
 	"github.com/aaronsky/applereleaser/internal/pipe"
 	"github.com/aaronsky/applereleaser/pkg/context"
+	"github.com/apex/log"
 )
 
 // ErrHandler handles an action error, ignoring and logging pipe skipped
@@ -14,7 +15,7 @@ func ErrHandler(action Action) Action {
 			return nil
 		}
 		if pipe.IsSkip(err) {
-			// log.WithError(err).Warn("pipe skipped")
+			log.WithError(err).Warn("pipe skipped")
 			return nil
 		}
 		return err

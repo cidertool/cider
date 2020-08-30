@@ -1,6 +1,11 @@
 package semver
 
-import "github.com/aaronsky/applereleaser/pkg/context"
+import (
+	"fmt"
+
+	"github.com/Masterminds/semver/v3"
+	"github.com/aaronsky/applereleaser/pkg/context"
+)
 
 // Pipe is a global hook pipe.
 type Pipe struct{}
@@ -12,5 +17,15 @@ func (Pipe) String() string {
 
 // Run executes the hooks.
 func (p Pipe) Run(ctx *context.Context) error {
+	sv, err := semver.NewVersion(ctx.Git.CurrentTag)
+	if err != nil {
+		return fmt.Errorf("failed to parse tag %s as semver: %w", ctx.Git.CurrentTag, err)
+	}
+	ctx.Semver = context.Semver{
+		Major:      sv.Major(),
+		Minor:      sv.Minor(),
+		Patch:      sv.Patch(),
+		Prerelease: sv.Prerelease(),
+	}
 	return nil
 }

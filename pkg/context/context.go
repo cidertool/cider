@@ -9,6 +9,16 @@ import (
 	"github.com/aaronsky/applereleaser/pkg/config"
 )
 
+// GitInfo includes tags and refs
+type GitInfo struct {
+	CurrentTag  string
+	Commit      string
+	ShortCommit string
+	FullCommit  string
+	CommitDate  time.Time
+	URL         string
+}
+
 // Env is the environment variables.
 type Env map[string]string
 
@@ -21,7 +31,18 @@ func (e Env) Copy() Env {
 	return out
 }
 
-type credentials struct {
+// Strings returns the current environment as a list of strings, suitable for
+// os executions.
+func (e Env) Strings() []string {
+	var result = make([]string, 0, len(e))
+	for k, v := range e {
+		result = append(result, k+"="+v)
+	}
+	return result
+}
+
+// Credentials stores credentials used by clients
+type Credentials struct {
 	KeyID      string
 	IssuerID   string
 	PrivateKey string
@@ -33,8 +54,20 @@ type Context struct {
 	Config      config.Project
 	Env         Env
 	Date        time.Time
-	Credentials credentials
+	Credentials Credentials
 	SkipPublish bool
+	Git         GitInfo
+	Version     string
+	Semver      Semver
+}
+
+// Semver represents a semantic version.
+type Semver struct {
+	Major      uint64
+	Minor      uint64
+	Patch      uint64
+	RawVersion string
+	Prerelease string
 }
 
 // New context.

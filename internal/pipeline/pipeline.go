@@ -7,6 +7,8 @@ import (
 
 	"github.com/aaronsky/applereleaser/internal/pipe/build"
 	"github.com/aaronsky/applereleaser/internal/pipe/env"
+	"github.com/aaronsky/applereleaser/internal/pipe/git"
+	"github.com/aaronsky/applereleaser/internal/pipe/semver"
 )
 
 // Piper defines a pipe, which can be part of a pipeline (a serie of pipes).
@@ -21,7 +23,7 @@ type Piper interface {
 // nolint: gochecknoglobals
 var Pipeline = []Piper{
 	env.Pipe{},
-	// git.Pipe{},
-	// semver.Pipe{},
+	git.Pipe{},
+	semver.Pipe{},
 	build.Pipe{},
 }

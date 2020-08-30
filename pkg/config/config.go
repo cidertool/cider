@@ -22,18 +22,6 @@ const (
 	PlatformTvOS platform = "tvOS"
 )
 
-func (p platform) APIValue() (asc.Platform, error) {
-	switch p {
-	case PlatformiOS:
-		return asc.PlatformIOS, nil
-	case PlatformMacOS:
-		return asc.PlatformMACOS, nil
-	case PlatformTvOS:
-		return asc.PlatformTVOS, nil
-	}
-	return asc.Platform(""), fmt.Errorf("could not convert platform %s to asc.Platform type", p)
-}
-
 type releaseType string
 
 const (
@@ -44,18 +32,6 @@ const (
 	// ReleaseTypeScheduled refers to an automatic release type to be completed after a scheduled date
 	ReleaseTypeScheduled releaseType = "scheduled"
 )
-
-func (t releaseType) APIValue() (string, error) {
-	switch t {
-	case ReleaseTypeManual:
-		return "MANUAL", nil
-	case ReleaseTypeAfterApproval:
-		return "AFTER_APPROVAL", nil
-	case ReleaseTypeScheduled:
-		return "SCHEDULED", nil
-	}
-	return "", fmt.Errorf("could not convert releaseType %s to valid release type", t)
-}
 
 type locale string
 
@@ -105,42 +81,6 @@ const (
 	// PreviewTypeWatchSeries4 is a preview type for Watch Series 4
 	PreviewTypeWatchSeries4 previewType = "watchSeries4"
 )
-
-func (t previewType) APIValue() (asc.PreviewType, error) {
-	switch t {
-	case PreviewTypeAppleTV:
-		return asc.PreviewTypeAppleTV, nil
-	case PreviewTypeDesktop:
-		return asc.PreviewTypeDesktop, nil
-	case PreviewTypeiPad105:
-		return asc.PreviewTypeiPad105, nil
-	case PreviewTypeiPad97:
-		return asc.PreviewTypeiPad97, nil
-	case PreviewTypeiPadPro129:
-		return asc.PreviewTypeiPadPro129, nil
-	case PreviewTypeiPadPro3Gen11:
-		return asc.PreviewTypeiPadPro3Gen11, nil
-	case PreviewTypeiPadPro3Gen129:
-		return asc.PreviewTypeiPadPro3Gen129, nil
-	case PreviewTypeiPhone35:
-		return asc.PreviewTypeiPhone35, nil
-	case PreviewTypeiPhone40:
-		return asc.PreviewTypeiPhone40, nil
-	case PreviewTypeiPhone47:
-		return asc.PreviewTypeiPhone47, nil
-	case PreviewTypeiPhone55:
-		return asc.PreviewTypeiPhone55, nil
-	case PreviewTypeiPhone58:
-		return asc.PreviewTypeiPhone58, nil
-	case PreviewTypeiPhone65:
-		return asc.PreviewTypeiPhone65, nil
-	case PreviewTypeWatchSeries3:
-		return asc.PreviewTypeWatchSeries3, nil
-	case PreviewTypeWatchSeries4:
-		return asc.PreviewTypeWatchSeries4, nil
-	}
-	return "", fmt.Errorf("could not convert previewType %s to valid asc.PreviewType", t)
-}
 
 type screenshotType string
 
@@ -197,60 +137,21 @@ const (
 	ScreenshotTypeiMessageiPhone65 screenshotType = "iphone65imessage"
 )
 
-func (t screenshotType) APIValue() (asc.ScreenshotDisplayType, error) {
-	switch t {
-	case ScreenshotTypeAppleTV:
-		return asc.ScreenshotDisplayTypeAppAppleTV, nil
-	case ScreenshotTypeDesktop:
-		return asc.ScreenshotDisplayTypeAppDesktop, nil
-	case ScreenshotTypeiPad105:
-		return asc.ScreenshotDisplayTypeAppiPad105, nil
-	case ScreenshotTypeiPad97:
-		return asc.ScreenshotDisplayTypeAppiPad97, nil
-	case ScreenshotTypeiPadPro129:
-		return asc.ScreenshotDisplayTypeAppiPadPro129, nil
-	case ScreenshotTypeiPadPro3Gen11:
-		return asc.ScreenshotDisplayTypeAppiPadPro3Gen11, nil
-	case ScreenshotTypeiPadPro3Gen129:
-		return asc.ScreenshotDisplayTypeAppiPadPro3Gen129, nil
-	case ScreenshotTypeiPhone35:
-		return asc.ScreenshotDisplayTypeAppiPhone35, nil
-	case ScreenshotTypeiPhone40:
-		return asc.ScreenshotDisplayTypeAppiPhone40, nil
-	case ScreenshotTypeiPhone47:
-		return asc.ScreenshotDisplayTypeAppiPhone47, nil
-	case ScreenshotTypeiPhone55:
-		return asc.ScreenshotDisplayTypeAppiPhone55, nil
-	case ScreenshotTypeiPhone58:
-		return asc.ScreenshotDisplayTypeAppiPhone58, nil
-	case ScreenshotTypeiPhone65:
-		return asc.ScreenshotDisplayTypeAppiPhone65, nil
-	case ScreenshotTypeWatchSeries3:
-		return asc.ScreenshotDisplayTypeAppWatchSeries3, nil
-	case ScreenshotTypeWatchSeries4:
-		return asc.ScreenshotDisplayTypeAppWatchSeries4, nil
-	case ScreenshotTypeiMessageiPad105:
-		return asc.ScreenshotDisplayTypeiMessageAppIPad105, nil
-	case ScreenshotTypeiMessageiPad97:
-		return asc.ScreenshotDisplayTypeiMessageAppIPad97, nil
-	case ScreenshotTypeiMessageiPadPro129:
-		return asc.ScreenshotDisplayTypeiMessageAppIPadPro129, nil
-	case ScreenshotTypeiMessageiPadPro3Gen11:
-		return asc.ScreenshotDisplayTypeiMessageAppIPadPro3Gen11, nil
-	case ScreenshotTypeiMessageiPadPro3Gen129:
-		return asc.ScreenshotDisplayTypeiMessageAppIPadPro3Gen129, nil
-	case ScreenshotTypeiMessageiPhone40:
-		return asc.ScreenshotDisplayTypeiMessageAppIPhone40, nil
-	case ScreenshotTypeiMessageiPhone47:
-		return asc.ScreenshotDisplayTypeiMessageAppIPhone47, nil
-	case ScreenshotTypeiMessageiPhone55:
-		return asc.ScreenshotDisplayTypeiMessageAppIPhone55, nil
-	case ScreenshotTypeiMessageiPhone58:
-		return asc.ScreenshotDisplayTypeiMessageAppIPhone58, nil
-	case ScreenshotTypeiMessageiPhone65:
-		return asc.ScreenshotDisplayTypeiMessageAppIPhone65, nil
-	}
-	return "", fmt.Errorf("could not convert screenshotType %s to valid asc.ScreenshotDisplayType", t)
+// Repo represents any kind of repo (github, gitlab, etc).
+// to upload releases into.
+type Repo struct {
+	Owner string `yaml:",omitempty"`
+	Name  string `yaml:",omitempty"`
+}
+
+// RepoRef represents any kind of repo which may differ
+// from the one we are building from and may therefore
+// also require separate authentication
+// e.g. Homebrew Tap, Scoop bucket.
+type RepoRef struct {
+	Owner string `yaml:",omitempty"`
+	Name  string `yaml:",omitempty"`
+	Token string `yaml:",omitempty"`
 }
 
 // Project is the top level configuration type
@@ -395,4 +296,120 @@ func LoadReader(fd io.Reader) (config Project, err error) {
 	}
 	err = yaml.UnmarshalStrict(data, &config)
 	return config, err
+}
+
+func (p platform) APIValue() (asc.Platform, error) {
+	switch p {
+	case PlatformiOS:
+		return asc.PlatformIOS, nil
+	case PlatformMacOS:
+		return asc.PlatformMACOS, nil
+	case PlatformTvOS:
+		return asc.PlatformTVOS, nil
+	}
+	return asc.Platform(""), fmt.Errorf("could not convert platform %s to asc.Platform type", p)
+}
+
+func (t releaseType) APIValue() (string, error) {
+	switch t {
+	case ReleaseTypeManual:
+		return "MANUAL", nil
+	case ReleaseTypeAfterApproval:
+		return "AFTER_APPROVAL", nil
+	case ReleaseTypeScheduled:
+		return "SCHEDULED", nil
+	}
+	return "", fmt.Errorf("could not convert releaseType %s to valid release type", t)
+}
+
+func (t previewType) APIValue() (asc.PreviewType, error) {
+	switch t {
+	case PreviewTypeAppleTV:
+		return asc.PreviewTypeAppleTV, nil
+	case PreviewTypeDesktop:
+		return asc.PreviewTypeDesktop, nil
+	case PreviewTypeiPad105:
+		return asc.PreviewTypeiPad105, nil
+	case PreviewTypeiPad97:
+		return asc.PreviewTypeiPad97, nil
+	case PreviewTypeiPadPro129:
+		return asc.PreviewTypeiPadPro129, nil
+	case PreviewTypeiPadPro3Gen11:
+		return asc.PreviewTypeiPadPro3Gen11, nil
+	case PreviewTypeiPadPro3Gen129:
+		return asc.PreviewTypeiPadPro3Gen129, nil
+	case PreviewTypeiPhone35:
+		return asc.PreviewTypeiPhone35, nil
+	case PreviewTypeiPhone40:
+		return asc.PreviewTypeiPhone40, nil
+	case PreviewTypeiPhone47:
+		return asc.PreviewTypeiPhone47, nil
+	case PreviewTypeiPhone55:
+		return asc.PreviewTypeiPhone55, nil
+	case PreviewTypeiPhone58:
+		return asc.PreviewTypeiPhone58, nil
+	case PreviewTypeiPhone65:
+		return asc.PreviewTypeiPhone65, nil
+	case PreviewTypeWatchSeries3:
+		return asc.PreviewTypeWatchSeries3, nil
+	case PreviewTypeWatchSeries4:
+		return asc.PreviewTypeWatchSeries4, nil
+	}
+	return "", fmt.Errorf("could not convert previewType %s to valid asc.PreviewType", t)
+}
+
+func (t screenshotType) APIValue() (asc.ScreenshotDisplayType, error) {
+	switch t {
+	case ScreenshotTypeAppleTV:
+		return asc.ScreenshotDisplayTypeAppAppleTV, nil
+	case ScreenshotTypeDesktop:
+		return asc.ScreenshotDisplayTypeAppDesktop, nil
+	case ScreenshotTypeiPad105:
+		return asc.ScreenshotDisplayTypeAppiPad105, nil
+	case ScreenshotTypeiPad97:
+		return asc.ScreenshotDisplayTypeAppiPad97, nil
+	case ScreenshotTypeiPadPro129:
+		return asc.ScreenshotDisplayTypeAppiPadPro129, nil
+	case ScreenshotTypeiPadPro3Gen11:
+		return asc.ScreenshotDisplayTypeAppiPadPro3Gen11, nil
+	case ScreenshotTypeiPadPro3Gen129:
+		return asc.ScreenshotDisplayTypeAppiPadPro3Gen129, nil
+	case ScreenshotTypeiPhone35:
+		return asc.ScreenshotDisplayTypeAppiPhone35, nil
+	case ScreenshotTypeiPhone40:
+		return asc.ScreenshotDisplayTypeAppiPhone40, nil
+	case ScreenshotTypeiPhone47:
+		return asc.ScreenshotDisplayTypeAppiPhone47, nil
+	case ScreenshotTypeiPhone55:
+		return asc.ScreenshotDisplayTypeAppiPhone55, nil
+	case ScreenshotTypeiPhone58:
+		return asc.ScreenshotDisplayTypeAppiPhone58, nil
+	case ScreenshotTypeiPhone65:
+		return asc.ScreenshotDisplayTypeAppiPhone65, nil
+	case ScreenshotTypeWatchSeries3:
+		return asc.ScreenshotDisplayTypeAppWatchSeries3, nil
+	case ScreenshotTypeWatchSeries4:
+		return asc.ScreenshotDisplayTypeAppWatchSeries4, nil
+	case ScreenshotTypeiMessageiPad105:
+		return asc.ScreenshotDisplayTypeiMessageAppIPad105, nil
+	case ScreenshotTypeiMessageiPad97:
+		return asc.ScreenshotDisplayTypeiMessageAppIPad97, nil
+	case ScreenshotTypeiMessageiPadPro129:
+		return asc.ScreenshotDisplayTypeiMessageAppIPadPro129, nil
+	case ScreenshotTypeiMessageiPadPro3Gen11:
+		return asc.ScreenshotDisplayTypeiMessageAppIPadPro3Gen11, nil
+	case ScreenshotTypeiMessageiPadPro3Gen129:
+		return asc.ScreenshotDisplayTypeiMessageAppIPadPro3Gen129, nil
+	case ScreenshotTypeiMessageiPhone40:
+		return asc.ScreenshotDisplayTypeiMessageAppIPhone40, nil
+	case ScreenshotTypeiMessageiPhone47:
+		return asc.ScreenshotDisplayTypeiMessageAppIPhone47, nil
+	case ScreenshotTypeiMessageiPhone55:
+		return asc.ScreenshotDisplayTypeiMessageAppIPhone55, nil
+	case ScreenshotTypeiMessageiPhone58:
+		return asc.ScreenshotDisplayTypeiMessageAppIPhone58, nil
+	case ScreenshotTypeiMessageiPhone65:
+		return asc.ScreenshotDisplayTypeiMessageAppIPhone65, nil
+	}
+	return "", fmt.Errorf("could not convert screenshotType %s to valid asc.ScreenshotDisplayType", t)
 }

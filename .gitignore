@@ -2,6 +2,7 @@
 *
 !*.*
 !*/
+!/LICENSE
 
 # Binaries for programs and plugins
 *.exe

@@ -21,12 +21,20 @@ func (e Env) Copy() Env {
 	return out
 }
 
+type credentials struct {
+	KeyID      string
+	IssuerID   string
+	PrivateKey string
+}
+
 // Context carries along some data through the pipes.
 type Context struct {
 	ctx.Context
-	Config config.Project
-	Env    Env
-	Date   time.Time
+	Config      config.Project
+	Env         Env
+	Date        time.Time
+	Credentials credentials
+	SkipPublish bool
 }
 
 // New context.

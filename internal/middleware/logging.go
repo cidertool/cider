@@ -2,6 +2,9 @@ package middleware
 
 import (
 	"github.com/aaronsky/applereleaser/pkg/context"
+	"github.com/apex/log"
+	"github.com/apex/log/handlers/cli"
+	"github.com/fatih/color"
 )
 
 // Padding is a logging initial padding.
@@ -21,12 +24,12 @@ const ExtraPadding Padding = DefaultInitialPadding * 2
 // The middleware always resets to the default padding.
 func Logging(title string, next Action, padding Padding) Action {
 	return func(ctx *context.Context) error {
-		// defer func() {
-		// 	cli.Default.Padding = int(DefaultInitialPadding)
-		// }()
-		// cli.Default.Padding = int(padding)
-		// log.Infof(color.New(color.Bold).Sprint(title))
-		// cli.Default.Padding = int(padding + DefaultInitialPadding)
+		defer func() {
+			cli.Default.Padding = int(DefaultInitialPadding)
+		}()
+		cli.Default.Padding = int(padding)
+		log.Infof(color.New(color.Bold).Sprint(title))
+		cli.Default.Padding = int(padding + DefaultInitialPadding)
 		return next(ctx)
 	}
 }

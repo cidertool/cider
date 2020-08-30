@@ -49,6 +49,7 @@ func releaseProject(options releaseOpts) (*context.Context, error) {
 	}
 	ctx, cancel := context.NewWithTimeout(cfg, options.timeout)
 	defer cancel()
+	ctx.SkipPublish = options.skipPublish
 	return ctx, context.NewInterrupt().Run(ctx, func() error {
 		for _, pipe := range pipeline.Pipeline {
 			if err := middleware.Logging(

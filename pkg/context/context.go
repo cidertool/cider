@@ -2,11 +2,13 @@ package context
 
 import (
 	ctx "context"
+	"fmt"
 	"os"
 	"strings"
 	"time"
 
 	"github.com/aaronsky/applereleaser/pkg/config"
+	"github.com/aaronsky/asc-go/asc"
 )
 
 // GitInfo includes tags and refs
@@ -43,9 +45,16 @@ func (e Env) Strings() []string {
 
 // Credentials stores credentials used by clients
 type Credentials struct {
-	KeyID      string
-	IssuerID   string
-	PrivateKey string
+	*asc.AuthTransport
+}
+
+// NewCredentials returns a new store object for App Store Connect credentials
+func NewCredentials(keyID, issuerID string, privateKey []byte) (Credentials, error) {
+	token, err := asc.NewTokenConfig(keyID, issuerID, time.Minute*20, privateKey)
+	if err != nil {
+		err = fmt.Errorf("could not interpret the p8 private key: %w", err)
+	}
+	return Credentials{token}, err
 }
 
 // Context carries along some data through the pipes.

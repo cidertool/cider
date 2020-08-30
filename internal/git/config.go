@@ -1,10 +1,9 @@
 package git
 
 import (
+	"errors"
 	"fmt"
 	"strings"
-
-	"errors"
 
 	"github.com/aaronsky/applereleaser/pkg/config"
 )
@@ -21,6 +20,7 @@ func ExtractRepoFromConfig() (result config.Repo, err error) {
 	return ExtractRepoFromURL(out), nil
 }
 
+// ExtractRepoFromURL gets the repo name from the remote URL.
 func ExtractRepoFromURL(s string) config.Repo {
 	// removes the .git suffix and any new lines
 	s = strings.NewReplacer(

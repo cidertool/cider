@@ -34,9 +34,11 @@ func (p Pipe) Run(ctx *context.Context) error {
 	if err != nil {
 		return err
 	}
-	ctx.Credentials.KeyID = keyID
-	ctx.Credentials.IssuerID = issuerID
-	ctx.Credentials.PrivateKey = privateKey
+	creds, err := context.NewCredentials(keyID, issuerID, []byte(privateKey))
+	if err != nil {
+		return err
+	}
+	ctx.Credentials = creds
 	return nil
 }
 

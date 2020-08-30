@@ -33,8 +33,6 @@ const (
 	ReleaseTypeScheduled releaseType = "scheduled"
 )
 
-type locale string
-
 // File refers to a file on disk by name
 type File struct {
 	Path string `yaml:"path"`
@@ -169,11 +167,13 @@ type Testflight struct {
 
 // App outlines general information about your app, primarily for querying purposes
 type App struct {
-	BundleID      string                     `yaml:"id"`
-	Localizations map[locale]AppLocalization `yaml:"localizations"`
-	Versions      Version                    `yaml:"versions"`
-	Testflight    TestflightForApp           `yaml:"testflight"`
+	BundleID      string           `yaml:"id"`
+	Localizations AppLocalizations `yaml:"localizations"`
+	Versions      Version          `yaml:"versions"`
+	Testflight    TestflightForApp `yaml:"testflight"`
 }
+
+type AppLocalizations map[string]AppLocalization
 
 // AppLocalization contains localized details for your App Store listing.
 type AppLocalization struct {
@@ -186,28 +186,34 @@ type AppLocalization struct {
 // Version outlines the general details of your app store version as it will be represented
 // on the App Store.
 type Version struct {
-	Platform             platform                       `yaml:"platform"`
-	Localizations        map[locale]VersionLocalization `yaml:"localizations"`
-	Copyright            string                         `yaml:"copyright,omitempty"`
-	EarliestReleaseDate  *time.Time                     `yaml:"earliestReleaseDate,omitempty"`
-	ReleaseType          releaseType                    `yaml:"releaseType,omitempty"`
-	PhasedReleaseEnabled bool                           `yaml:"enablePhasedRelease,omitempty"`
-	IDFADeclaration      *IDFADeclaration               `yaml:"idfaDeclaration,omitempty"`
-	RoutingCoverages     []File                         `yaml:"routingCoverages,omitempty"`
-	ReviewDetails        *ReviewDetails                 `yaml:"reviewDetails,omitempty"`
+	Platform             platform             `yaml:"platform"`
+	Localizations        VersionLocalizations `yaml:"localizations"`
+	Copyright            string               `yaml:"copyright,omitempty"`
+	EarliestReleaseDate  *time.Time           `yaml:"earliestReleaseDate,omitempty"`
+	ReleaseType          releaseType          `yaml:"releaseType,omitempty"`
+	PhasedReleaseEnabled bool                 `yaml:"enablePhasedRelease,omitempty"`
+	IDFADeclaration      *IDFADeclaration     `yaml:"idfaDeclaration,omitempty"`
+	RoutingCoverages     []File               `yaml:"routingCoverages,omitempty"`
+	ReviewDetails        *ReviewDetails       `yaml:"reviewDetails,omitempty"`
 }
+
+type VersionLocalizations map[string]VersionLocalization
 
 // VersionLocalization contains localized details for the listing of a specific version on the App Store.
 type VersionLocalization struct {
-	Description     string                    `yaml:"description,omitempty"`
-	Keywords        string                    `yaml:"keywords,omitempty"`
-	MarketingURL    string                    `yaml:"marketingURL,omitempty"`
-	PromotionalText string                    `yaml:"promotionalText,omitempty"`
-	SupportURL      string                    `yaml:"supportURL,omitempty"`
-	WhatsNewText    string                    `yaml:"whatsNew,omitempty"`
-	PreviewSets     map[previewType][]Preview `yaml:"previewSets,omitempty"`
-	ScreenshotSets  map[screenshotType][]File `yaml:"screenshotSets,omitempty"`
+	Description     string         `yaml:"description,omitempty"`
+	Keywords        string         `yaml:"keywords,omitempty"`
+	MarketingURL    string         `yaml:"marketingURL,omitempty"`
+	PromotionalText string         `yaml:"promotionalText,omitempty"`
+	SupportURL      string         `yaml:"supportURL,omitempty"`
+	WhatsNewText    string         `yaml:"whatsNew,omitempty"`
+	PreviewSets     PreviewSets    `yaml:"previewSets,omitempty"`
+	ScreenshotSets  ScreenshotSets `yaml:"screenshotSets,omitempty"`
 }
+
+type PreviewSets map[previewType][]Preview
+
+type ScreenshotSets map[screenshotType][]File
 
 // IDFADeclaration outlines regulatory information for Apple to use to handle your apps' use
 // of tracking identifiers. Implicitly enables `usesIdfa` when creating an app store version.
@@ -244,12 +250,14 @@ type DemoAccount struct {
 
 // TestflightForApp represents configuration for beta distribution of apps.
 type TestflightForApp struct {
-	EnableAutoNotify bool                              `yaml:"enableAutoNotify"`
-	BetaGroups       []string                          `yaml:"betaGroups"`
-	BetaTesters      []BetaTester                      `yaml:"betaTesters"`
-	Localizations    map[locale]TestflightLocalization `yaml:"localizations"`
-	ReviewDetails    ReviewDetails                     `yaml:"reviewDetails"`
+	EnableAutoNotify bool                    `yaml:"enableAutoNotify"`
+	BetaGroups       []string                `yaml:"betaGroups"`
+	BetaTesters      []BetaTester            `yaml:"betaTesters"`
+	Localizations    TestflightLocalizations `yaml:"localizations"`
+	ReviewDetails    ReviewDetails           `yaml:"reviewDetails"`
 }
+
+type TestflightLocalizations map[string]TestflightLocalization
 
 // BetaGroup describes a beta group in Testflight that should be kept in sync and used with this app.
 type BetaGroup struct {

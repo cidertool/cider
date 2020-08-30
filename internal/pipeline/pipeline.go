@@ -3,12 +3,11 @@ package pipeline
 import (
 	"fmt"
 
-	"github.com/aaronsky/applereleaser/pkg/context"
-
-	"github.com/aaronsky/applereleaser/internal/pipe/build"
 	"github.com/aaronsky/applereleaser/internal/pipe/env"
 	"github.com/aaronsky/applereleaser/internal/pipe/git"
 	"github.com/aaronsky/applereleaser/internal/pipe/semver"
+	"github.com/aaronsky/applereleaser/internal/pipe/testflight"
+	"github.com/aaronsky/applereleaser/pkg/context"
 )
 
 // Piper defines a pipe, which can be part of a pipeline (a serie of pipes).
@@ -25,5 +24,5 @@ var Pipeline = []Piper{
 	env.Pipe{},
 	git.Pipe{},
 	semver.Pipe{},
-	build.Pipe{},
+	testflight.Pipe{},
 }

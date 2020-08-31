@@ -5,6 +5,8 @@ github.com/Masterminds/semver/v3 v3.1.0/go.mod h1:VPu/7SZ7ePZ3QOrcuXROw5FAcLl4a0
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/aaronsky/asc-go v0.2.0 h1:eyMdnshnEHYi9oNF++34kbyThCpQq01dpHLjBuWWYEU=
 github.com/aaronsky/asc-go v0.2.0/go.mod h1:bMUcycLBpKTWYV3DUcdBJdSsfZarLOFooH8ezrHw6Q0=
+github.com/aaronsky/asc-go v0.3.0 h1:Kf6umGV/TSVIh0oAUz8Y6c5+y6MgHQtKzPYL4p7tfCw=
+github.com/aaronsky/asc-go v0.3.0/go.mod h1:bMUcycLBpKTWYV3DUcdBJdSsfZarLOFooH8ezrHw6Q0=
 github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
 github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf/go.mod h1:ybxpYRFXyAe+OPACYpWeL0wqObRcbAqCMya13uyzqw0=
 github.com/apex/log v1.9.0 h1:FHtw/xuaM8AgmvDDTI9fiwoAL25Sq2cxojnZICUU8l0=

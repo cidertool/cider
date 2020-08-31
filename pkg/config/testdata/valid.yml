@@ -71,6 +71,7 @@ apps:
           - path: ''
     testflight:
       enableAutoNotify: false
+      licenseAgreement: ''
       betaGroups:
         - 'My Colleagues'
       betaTesters:

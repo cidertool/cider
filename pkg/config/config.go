@@ -251,6 +251,7 @@ type DemoAccount struct {
 // TestflightForApp represents configuration for beta distribution of apps.
 type TestflightForApp struct {
 	EnableAutoNotify bool                    `yaml:"enableAutoNotify"`
+	LicenseAgreement string                  `yaml:"licenseAgreement"`
 	BetaGroups       []string                `yaml:"betaGroups"`
 	BetaTesters      []BetaTester            `yaml:"betaTesters"`
 	Localizations    TestflightLocalizations `yaml:"localizations"`

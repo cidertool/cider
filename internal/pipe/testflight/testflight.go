@@ -49,9 +49,17 @@ func doRelease(ctx *context.Context, appConfig config.App, client client.Client)
 	if err != nil {
 		return err
 	}
-	// 5. create or update beta build localizations and assign to build
-	// 6. create or update beta license agreements
-	// 7. assign beta groups and beta testers to build
-	// 8. create beta app submission for build
+	err = client.UpdateBetaLicenseAgreement(ctx, app, &appConfig.Testflight)
+	if err != nil {
+		return err
+	}
+	err = client.AssignBetaGroups(ctx, build, appConfig.Testflight.BetaGroups)
+	if err != nil {
+		return err
+	}
+	err = client.AssignBetaTesters(ctx, build, appConfig.Testflight.BetaTesters)
+	if err != nil {
+		return err
+	}
 	return client.SubmitBetaApp(ctx, build)
 }

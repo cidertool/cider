@@ -16,19 +16,24 @@ type releaseCmd struct {
 }
 
 type releaseOpts struct {
-	config      string
-	skipPublish bool
-	timeout     time.Duration
+	config           string
+	skipPublish      bool
+	timeout          time.Duration
+	currentDirectory string
 }
 
 func newReleaseCmd() *releaseCmd {
 	var root = &releaseCmd{}
 	var cmd = &cobra.Command{
-		Use:           "release",
+		Use:           "release [path]",
+		Args:          cobra.MaximumNArgs(1),
 		Short:         "Releases all the apps in the current project",
 		SilenceUsage:  true,
 		SilenceErrors: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if len(args) > 0 {
+				root.opts.currentDirectory = args[0]
+			}
 			_, err := releaseProject(root.opts)
 			return err
 		},
@@ -50,6 +55,7 @@ func releaseProject(options releaseOpts) (*context.Context, error) {
 	ctx, cancel := context.NewWithTimeout(cfg, options.timeout)
 	defer cancel()
 	ctx.SkipPublish = options.skipPublish
+	ctx.CurrentDirectory = options.currentDirectory
 	return ctx, context.NewInterrupt().Run(ctx, func() error {
 		for _, pipe := range pipeline.Pipeline {
 			if err := middleware.Logging(

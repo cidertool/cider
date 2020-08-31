@@ -1,6 +1,7 @@
 package git
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"strings"
@@ -9,11 +10,11 @@ import (
 )
 
 // ExtractRepoFromConfig gets the repo name from the Git config.
-func ExtractRepoFromConfig() (result config.Repo, err error) {
-	if !IsRepo() {
+func ExtractRepoFromConfig(ctx context.Context) (result config.Repo, err error) {
+	if !IsRepo(ctx) {
 		return result, errors.New("current folder is not a git repository")
 	}
-	out, err := Run("config", "--get", "remote.origin.url")
+	out, err := Run(ctx, "config", "--get", "remote.origin.url")
 	if err != nil {
 		return result, fmt.Errorf("repository doesn't have an `origin` remote")
 	}

@@ -37,30 +37,30 @@ func (p Pipe) Run(ctx *context.Context) error {
 }
 
 func getInfo(ctx *context.Context) (context.GitInfo, error) {
-	if !git.IsRepo() {
+	if !git.IsRepo(ctx) {
 		return context.GitInfo{}, ErrNotRepository
 	}
-	return getGitInfo()
+	return getGitInfo(ctx)
 }
 
-func getGitInfo() (context.GitInfo, error) {
-	short, err := getShortCommit()
+func getGitInfo(ctx *context.Context) (context.GitInfo, error) {
+	short, err := getShortCommit(ctx)
 	if err != nil {
 		return context.GitInfo{}, fmt.Errorf("couldn't get current commit: %w", err)
 	}
-	full, err := getFullCommit()
+	full, err := getFullCommit(ctx)
 	if err != nil {
 		return context.GitInfo{}, fmt.Errorf("couldn't get current commit: %w", err)
 	}
-	date, err := getCommitDate()
+	date, err := getCommitDate(ctx)
 	if err != nil {
 		return context.GitInfo{}, fmt.Errorf("couldn't get commit date: %w", err)
 	}
-	url, err := getURL()
+	url, err := getURL(ctx)
 	if err != nil {
 		return context.GitInfo{}, fmt.Errorf("couldn't get remote URL: %w", err)
 	}
-	tag, err := getTag()
+	tag, err := getTag(ctx)
 	if err != nil {
 		return context.GitInfo{
 			Commit:      full,
@@ -82,11 +82,11 @@ func getGitInfo() (context.GitInfo, error) {
 }
 
 func validate(ctx *context.Context) error {
-	out, err := git.Run("status", "--porcelain")
+	out, err := git.Run(ctx, "status", "--porcelain")
 	if strings.TrimSpace(out) != "" || err != nil {
 		return ErrDirty{status: out}
 	}
-	_, err = git.Clean(git.Run("describe", "--exact-match", "--tags", "--match", ctx.Git.CurrentTag))
+	_, err = git.Clean(git.Run(ctx, "describe", "--exact-match", "--tags", "--match", ctx.Git.CurrentTag))
 	if err != nil {
 		return ErrWrongRef{
 			commit: ctx.Git.Commit,
@@ -96,8 +96,8 @@ func validate(ctx *context.Context) error {
 	return nil
 }
 
-func getCommitDate() (time.Time, error) {
-	ct, err := git.Clean(git.Run("show", "--format='%ct'", "HEAD", "--quiet"))
+func getCommitDate(ctx *context.Context) (time.Time, error) {
+	ct, err := git.Clean(git.Run(ctx, "show", "--format='%ct'", "HEAD", "--quiet"))
 	if err != nil {
 		return time.Time{}, err
 	}
@@ -112,22 +112,22 @@ func getCommitDate() (time.Time, error) {
 	return t, nil
 }
 
-func getShortCommit() (string, error) {
-	return git.Clean(git.Run("show", "--format='%h'", "HEAD", "--quiet"))
+func getShortCommit(ctx *context.Context) (string, error) {
+	return git.Clean(git.Run(ctx, "show", "--format='%h'", "HEAD", "--quiet"))
 }
 
-func getFullCommit() (string, error) {
-	return git.Clean(git.Run("show", "--format='%H'", "HEAD", "--quiet"))
+func getFullCommit(ctx *context.Context) (string, error) {
+	return git.Clean(git.Run(ctx, "show", "--format='%H'", "HEAD", "--quiet"))
 }
 
-func getTag() (string, error) {
+func getTag(ctx *context.Context) (string, error) {
 	if tag := os.Getenv("APPLERELEASER_CURRENT_TAG"); tag != "" {
 		return tag, nil
 	}
 
-	return git.Clean(git.Run("describe", "--tags", "--abbrev=0"))
+	return git.Clean(git.Run(ctx, "describe", "--tags", "--abbrev=0"))
 }
 
-func getURL() (string, error) {
-	return git.Clean(git.Run("ls-remote", "--get-url"))
+func getURL(ctx *context.Context) (string, error) {
+	return git.Clean(git.Run(ctx, "ls-remote", "--get-url"))
 }

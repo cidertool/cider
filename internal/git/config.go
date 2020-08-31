@@ -1,18 +1,17 @@
 package git
 
 import (
-	"context"
-	"errors"
 	"fmt"
 	"strings"
 
 	"github.com/aaronsky/applereleaser/pkg/config"
+	"github.com/aaronsky/applereleaser/pkg/context"
 )
 
 // ExtractRepoFromConfig gets the repo name from the Git config.
-func ExtractRepoFromConfig(ctx context.Context) (result config.Repo, err error) {
+func ExtractRepoFromConfig(ctx *context.Context) (result config.Repo, err error) {
 	if !IsRepo(ctx) {
-		return result, errors.New("current folder is not a git repository")
+		return result, ErrNotRepository{ctx.CurrentDirectory}
 	}
 	out, err := Run(ctx, "config", "--get", "remote.origin.url")
 	if err != nil {

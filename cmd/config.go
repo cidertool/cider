@@ -3,11 +3,12 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/aaronsky/applereleaser/pkg/config"
 )
 
-func loadConfig(path string) (config.Project, error) {
+func loadConfig(path string, wd string) (config.Project, error) {
 	if path != "" {
 		return config.Load(path)
 	}
@@ -17,7 +18,7 @@ func loadConfig(path string) (config.Project, error) {
 		"applereleaser.yml",
 		"applereleaser.yaml",
 	} {
-		proj, err := config.Load(f)
+		proj, err := config.Load(filepath.Join(wd, f))
 		if err != nil && os.IsNotExist(err) {
 			continue
 		}

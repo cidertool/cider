@@ -24,7 +24,7 @@ func (Pipe) String() string {
 // Run executes the hooks.
 func (p Pipe) Run(ctx *context.Context) error {
 	if _, err := exec.LookPath("git"); err != nil {
-		return ErrNoGit
+		return git.ErrNoGit
 	}
 	info, err := getInfo(ctx)
 	if err != nil {
@@ -38,7 +38,7 @@ func (p Pipe) Run(ctx *context.Context) error {
 
 func getInfo(ctx *context.Context) (context.GitInfo, error) {
 	if !git.IsRepo(ctx) {
-		return context.GitInfo{}, ErrNotRepository
+		return context.GitInfo{}, git.ErrNotRepository{Dir: ctx.CurrentDirectory}
 	}
 	return getGitInfo(ctx)
 }
@@ -69,7 +69,7 @@ func getGitInfo(ctx *context.Context) (context.GitInfo, error) {
 			CommitDate:  date,
 			URL:         url,
 			CurrentTag:  "v0.0.0",
-		}, ErrNoTag
+		}, git.ErrNoTag
 	}
 	return context.GitInfo{
 		CurrentTag:  tag,
@@ -84,13 +84,13 @@ func getGitInfo(ctx *context.Context) (context.GitInfo, error) {
 func validate(ctx *context.Context) error {
 	out, err := git.Run(ctx, "status", "--porcelain")
 	if strings.TrimSpace(out) != "" || err != nil {
-		return ErrDirty{status: out}
+		return git.ErrDirty{Status: out}
 	}
 	_, err = git.Clean(git.Run(ctx, "describe", "--exact-match", "--tags", "--match", ctx.Git.CurrentTag))
 	if err != nil {
-		return ErrWrongRef{
-			commit: ctx.Git.Commit,
-			tag:    ctx.Git.CurrentTag,
+		return git.ErrWrongRef{
+			Commit: ctx.Git.Commit,
+			Tag:    ctx.Git.CurrentTag,
 		}
 	}
 	return nil

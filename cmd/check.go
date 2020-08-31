@@ -19,7 +19,7 @@ func newCheckCmd() *checkCmd {
 		SilenceUsage:  true,
 		SilenceErrors: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cfg, err := loadConfig(root.config)
+			cfg, err := loadConfig(root.config, "")
 			if err != nil {
 				return err
 			}

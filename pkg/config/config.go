@@ -173,6 +173,7 @@ type App struct {
 	Testflight    TestflightForApp `yaml:"testflight"`
 }
 
+// AppLocalizations is a map of locales to AppLocalization objects
 type AppLocalizations map[string]AppLocalization
 
 // AppLocalization contains localized details for your App Store listing.
@@ -197,6 +198,7 @@ type Version struct {
 	ReviewDetails        *ReviewDetails       `yaml:"reviewDetails,omitempty"`
 }
 
+// VersionLocalizations is a map of locales to VersionLocalization objects
 type VersionLocalizations map[string]VersionLocalization
 
 // VersionLocalization contains localized details for the listing of a specific version on the App Store.
@@ -211,8 +213,10 @@ type VersionLocalization struct {
 	ScreenshotSets  ScreenshotSets `yaml:"screenshotSets,omitempty"`
 }
 
+// PreviewSets is a map of preview types to []Preview slices
 type PreviewSets map[previewType][]Preview
 
+// ScreenshotSets is a map of screenshot types to []File slices
 type ScreenshotSets map[screenshotType][]File
 
 // IDFADeclaration outlines regulatory information for Apple to use to handle your apps' use
@@ -258,6 +262,7 @@ type TestflightForApp struct {
 	ReviewDetails    ReviewDetails           `yaml:"reviewDetails"`
 }
 
+// TestflightLocalizations is a map of locales to TestflightLocalization objects
 type TestflightLocalizations map[string]TestflightLocalization
 
 // BetaGroup describes a beta group in Testflight that should be kept in sync and used with this app.
@@ -423,6 +428,7 @@ func (t screenshotType) APIValue() asc.ScreenshotDisplayType {
 	return ""
 }
 
+// GetPreviews fetches the value from the map corresponding to the API value
 func (s PreviewSets) GetPreviews(previewType asc.PreviewType) []Preview {
 	switch previewType {
 	case asc.PreviewTypeAppleTV:
@@ -459,6 +465,7 @@ func (s PreviewSets) GetPreviews(previewType asc.PreviewType) []Preview {
 	return []Preview{}
 }
 
+// GetScreenshots fetches the value from the map corresponding to the API value
 func (s ScreenshotSets) GetScreenshots(screenshotType asc.ScreenshotDisplayType) []File {
 	switch screenshotType {
 	case asc.ScreenshotDisplayTypeAppAppleTV:

@@ -193,7 +193,7 @@ type Version struct {
 	ReleaseType          releaseType          `yaml:"releaseType,omitempty"`
 	PhasedReleaseEnabled bool                 `yaml:"enablePhasedRelease,omitempty"`
 	IDFADeclaration      *IDFADeclaration     `yaml:"idfaDeclaration,omitempty"`
-	RoutingCoverages     []File               `yaml:"routingCoverages,omitempty"`
+	RoutingCoverage      *File                `yaml:"routingCoverage,omitempty"`
 	ReviewDetails        *ReviewDetails       `yaml:"reviewDetails,omitempty"`
 }
 
@@ -331,94 +331,186 @@ func (t releaseType) APIValue() (string, error) {
 	return "", fmt.Errorf("could not convert releaseType %s to valid release type", t)
 }
 
-func (t previewType) APIValue() (asc.PreviewType, error) {
+func (t previewType) APIValue() asc.PreviewType {
 	switch t {
 	case PreviewTypeAppleTV:
-		return asc.PreviewTypeAppleTV, nil
+		return asc.PreviewTypeAppleTV
 	case PreviewTypeDesktop:
-		return asc.PreviewTypeDesktop, nil
+		return asc.PreviewTypeDesktop
 	case PreviewTypeiPad105:
-		return asc.PreviewTypeiPad105, nil
+		return asc.PreviewTypeiPad105
 	case PreviewTypeiPad97:
-		return asc.PreviewTypeiPad97, nil
+		return asc.PreviewTypeiPad97
 	case PreviewTypeiPadPro129:
-		return asc.PreviewTypeiPadPro129, nil
+		return asc.PreviewTypeiPadPro129
 	case PreviewTypeiPadPro3Gen11:
-		return asc.PreviewTypeiPadPro3Gen11, nil
+		return asc.PreviewTypeiPadPro3Gen11
 	case PreviewTypeiPadPro3Gen129:
-		return asc.PreviewTypeiPadPro3Gen129, nil
+		return asc.PreviewTypeiPadPro3Gen129
 	case PreviewTypeiPhone35:
-		return asc.PreviewTypeiPhone35, nil
+		return asc.PreviewTypeiPhone35
 	case PreviewTypeiPhone40:
-		return asc.PreviewTypeiPhone40, nil
+		return asc.PreviewTypeiPhone40
 	case PreviewTypeiPhone47:
-		return asc.PreviewTypeiPhone47, nil
+		return asc.PreviewTypeiPhone47
 	case PreviewTypeiPhone55:
-		return asc.PreviewTypeiPhone55, nil
+		return asc.PreviewTypeiPhone55
 	case PreviewTypeiPhone58:
-		return asc.PreviewTypeiPhone58, nil
+		return asc.PreviewTypeiPhone58
 	case PreviewTypeiPhone65:
-		return asc.PreviewTypeiPhone65, nil
+		return asc.PreviewTypeiPhone65
 	case PreviewTypeWatchSeries3:
-		return asc.PreviewTypeWatchSeries3, nil
+		return asc.PreviewTypeWatchSeries3
 	case PreviewTypeWatchSeries4:
-		return asc.PreviewTypeWatchSeries4, nil
+		return asc.PreviewTypeWatchSeries4
 	}
-	return "", fmt.Errorf("could not convert previewType %s to valid asc.PreviewType", t)
+	return ""
 }
 
-func (t screenshotType) APIValue() (asc.ScreenshotDisplayType, error) {
+func (t screenshotType) APIValue() asc.ScreenshotDisplayType {
 	switch t {
 	case ScreenshotTypeAppleTV:
-		return asc.ScreenshotDisplayTypeAppAppleTV, nil
+		return asc.ScreenshotDisplayTypeAppAppleTV
 	case ScreenshotTypeDesktop:
-		return asc.ScreenshotDisplayTypeAppDesktop, nil
+		return asc.ScreenshotDisplayTypeAppDesktop
 	case ScreenshotTypeiPad105:
-		return asc.ScreenshotDisplayTypeAppiPad105, nil
+		return asc.ScreenshotDisplayTypeAppiPad105
 	case ScreenshotTypeiPad97:
-		return asc.ScreenshotDisplayTypeAppiPad97, nil
+		return asc.ScreenshotDisplayTypeAppiPad97
 	case ScreenshotTypeiPadPro129:
-		return asc.ScreenshotDisplayTypeAppiPadPro129, nil
+		return asc.ScreenshotDisplayTypeAppiPadPro129
 	case ScreenshotTypeiPadPro3Gen11:
-		return asc.ScreenshotDisplayTypeAppiPadPro3Gen11, nil
+		return asc.ScreenshotDisplayTypeAppiPadPro3Gen11
 	case ScreenshotTypeiPadPro3Gen129:
-		return asc.ScreenshotDisplayTypeAppiPadPro3Gen129, nil
+		return asc.ScreenshotDisplayTypeAppiPadPro3Gen129
 	case ScreenshotTypeiPhone35:
-		return asc.ScreenshotDisplayTypeAppiPhone35, nil
+		return asc.ScreenshotDisplayTypeAppiPhone35
 	case ScreenshotTypeiPhone40:
-		return asc.ScreenshotDisplayTypeAppiPhone40, nil
+		return asc.ScreenshotDisplayTypeAppiPhone40
 	case ScreenshotTypeiPhone47:
-		return asc.ScreenshotDisplayTypeAppiPhone47, nil
+		return asc.ScreenshotDisplayTypeAppiPhone47
 	case ScreenshotTypeiPhone55:
-		return asc.ScreenshotDisplayTypeAppiPhone55, nil
+		return asc.ScreenshotDisplayTypeAppiPhone55
 	case ScreenshotTypeiPhone58:
-		return asc.ScreenshotDisplayTypeAppiPhone58, nil
+		return asc.ScreenshotDisplayTypeAppiPhone58
 	case ScreenshotTypeiPhone65:
-		return asc.ScreenshotDisplayTypeAppiPhone65, nil
+		return asc.ScreenshotDisplayTypeAppiPhone65
 	case ScreenshotTypeWatchSeries3:
-		return asc.ScreenshotDisplayTypeAppWatchSeries3, nil
+		return asc.ScreenshotDisplayTypeAppWatchSeries3
 	case ScreenshotTypeWatchSeries4:
-		return asc.ScreenshotDisplayTypeAppWatchSeries4, nil
+		return asc.ScreenshotDisplayTypeAppWatchSeries4
 	case ScreenshotTypeiMessageiPad105:
-		return asc.ScreenshotDisplayTypeiMessageAppIPad105, nil
+		return asc.ScreenshotDisplayTypeiMessageAppIPad105
 	case ScreenshotTypeiMessageiPad97:
-		return asc.ScreenshotDisplayTypeiMessageAppIPad97, nil
+		return asc.ScreenshotDisplayTypeiMessageAppIPad97
 	case ScreenshotTypeiMessageiPadPro129:
-		return asc.ScreenshotDisplayTypeiMessageAppIPadPro129, nil
+		return asc.ScreenshotDisplayTypeiMessageAppIPadPro129
 	case ScreenshotTypeiMessageiPadPro3Gen11:
-		return asc.ScreenshotDisplayTypeiMessageAppIPadPro3Gen11, nil
+		return asc.ScreenshotDisplayTypeiMessageAppIPadPro3Gen11
 	case ScreenshotTypeiMessageiPadPro3Gen129:
-		return asc.ScreenshotDisplayTypeiMessageAppIPadPro3Gen129, nil
+		return asc.ScreenshotDisplayTypeiMessageAppIPadPro3Gen129
 	case ScreenshotTypeiMessageiPhone40:
-		return asc.ScreenshotDisplayTypeiMessageAppIPhone40, nil
+		return asc.ScreenshotDisplayTypeiMessageAppIPhone40
 	case ScreenshotTypeiMessageiPhone47:
-		return asc.ScreenshotDisplayTypeiMessageAppIPhone47, nil
+		return asc.ScreenshotDisplayTypeiMessageAppIPhone47
 	case ScreenshotTypeiMessageiPhone55:
-		return asc.ScreenshotDisplayTypeiMessageAppIPhone55, nil
+		return asc.ScreenshotDisplayTypeiMessageAppIPhone55
 	case ScreenshotTypeiMessageiPhone58:
-		return asc.ScreenshotDisplayTypeiMessageAppIPhone58, nil
+		return asc.ScreenshotDisplayTypeiMessageAppIPhone58
 	case ScreenshotTypeiMessageiPhone65:
-		return asc.ScreenshotDisplayTypeiMessageAppIPhone65, nil
+		return asc.ScreenshotDisplayTypeiMessageAppIPhone65
 	}
-	return "", fmt.Errorf("could not convert screenshotType %s to valid asc.ScreenshotDisplayType", t)
+	return ""
+}
+
+func (s PreviewSets) GetPreviews(previewType asc.PreviewType) []Preview {
+	switch previewType {
+	case asc.PreviewTypeAppleTV:
+		return s[PreviewTypeAppleTV]
+	case asc.PreviewTypeDesktop:
+		return s[PreviewTypeDesktop]
+	case asc.PreviewTypeiPad105:
+		return s[PreviewTypeiPad105]
+	case asc.PreviewTypeiPad97:
+		return s[PreviewTypeiPad97]
+	case asc.PreviewTypeiPadPro129:
+		return s[PreviewTypeiPadPro129]
+	case asc.PreviewTypeiPadPro3Gen11:
+		return s[PreviewTypeiPadPro3Gen11]
+	case asc.PreviewTypeiPadPro3Gen129:
+		return s[PreviewTypeiPadPro3Gen129]
+	case asc.PreviewTypeiPhone35:
+		return s[PreviewTypeiPhone35]
+	case asc.PreviewTypeiPhone40:
+		return s[PreviewTypeiPhone40]
+	case asc.PreviewTypeiPhone47:
+		return s[PreviewTypeiPhone47]
+	case asc.PreviewTypeiPhone55:
+		return s[PreviewTypeiPhone55]
+	case asc.PreviewTypeiPhone58:
+		return s[PreviewTypeiPhone58]
+	case asc.PreviewTypeiPhone65:
+		return s[PreviewTypeiPhone65]
+	case asc.PreviewTypeWatchSeries3:
+		return s[PreviewTypeWatchSeries3]
+	case asc.PreviewTypeWatchSeries4:
+		return s[PreviewTypeWatchSeries4]
+	}
+	return []Preview{}
+}
+
+func (s ScreenshotSets) GetScreenshots(screenshotType asc.ScreenshotDisplayType) []File {
+	switch screenshotType {
+	case asc.ScreenshotDisplayTypeAppAppleTV:
+		return s[ScreenshotTypeAppleTV]
+	case asc.ScreenshotDisplayTypeAppDesktop:
+		return s[ScreenshotTypeDesktop]
+	case asc.ScreenshotDisplayTypeAppiPad105:
+		return s[ScreenshotTypeiPad105]
+	case asc.ScreenshotDisplayTypeAppiPad97:
+		return s[ScreenshotTypeiPad97]
+	case asc.ScreenshotDisplayTypeAppiPadPro129:
+		return s[ScreenshotTypeiPadPro129]
+	case asc.ScreenshotDisplayTypeAppiPadPro3Gen11:
+		return s[ScreenshotTypeiPadPro3Gen11]
+	case asc.ScreenshotDisplayTypeAppiPadPro3Gen129:
+		return s[ScreenshotTypeiPadPro3Gen129]
+	case asc.ScreenshotDisplayTypeAppiPhone35:
+		return s[ScreenshotTypeiPhone35]
+	case asc.ScreenshotDisplayTypeAppiPhone40:
+		return s[ScreenshotTypeiPhone40]
+	case asc.ScreenshotDisplayTypeAppiPhone47:
+		return s[ScreenshotTypeiPhone47]
+	case asc.ScreenshotDisplayTypeAppiPhone55:
+		return s[ScreenshotTypeiPhone55]
+	case asc.ScreenshotDisplayTypeAppiPhone58:
+		return s[ScreenshotTypeiPhone58]
+	case asc.ScreenshotDisplayTypeAppiPhone65:
+		return s[ScreenshotTypeiPhone65]
+	case asc.ScreenshotDisplayTypeAppWatchSeries3:
+		return s[ScreenshotTypeWatchSeries3]
+	case asc.ScreenshotDisplayTypeAppWatchSeries4:
+		return s[ScreenshotTypeWatchSeries4]
+	case asc.ScreenshotDisplayTypeiMessageAppIPad105:
+		return s[ScreenshotTypeiMessageiPad105]
+	case asc.ScreenshotDisplayTypeiMessageAppIPad97:
+		return s[ScreenshotTypeiMessageiPad97]
+	case asc.ScreenshotDisplayTypeiMessageAppIPadPro129:
+		return s[ScreenshotTypeiMessageiPadPro129]
+	case asc.ScreenshotDisplayTypeiMessageAppIPadPro3Gen11:
+		return s[ScreenshotTypeiMessageiPadPro3Gen11]
+	case asc.ScreenshotDisplayTypeiMessageAppIPadPro3Gen129:
+		return s[ScreenshotTypeiMessageiPadPro3Gen129]
+	case asc.ScreenshotDisplayTypeiMessageAppIPhone40:
+		return s[ScreenshotTypeiMessageiPhone40]
+	case asc.ScreenshotDisplayTypeiMessageAppIPhone47:
+		return s[ScreenshotTypeiMessageiPhone47]
+	case asc.ScreenshotDisplayTypeiMessageAppIPhone55:
+		return s[ScreenshotTypeiMessageiPhone55]
+	case asc.ScreenshotDisplayTypeiMessageAppIPhone58:
+		return s[ScreenshotTypeiMessageiPhone58]
+	case asc.ScreenshotDisplayTypeiMessageAppIPhone65:
+		return s[ScreenshotTypeiMessageiPhone65]
+	}
+	return []File{}
 }

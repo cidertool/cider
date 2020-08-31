@@ -1,4 +1,4 @@
-package testflight
+package submission
 
 import (
 	"github.com/aaronsky/applereleaser/internal/client"
@@ -37,29 +37,29 @@ func doRelease(ctx *context.Context, appConfig config.App, client client.Client)
 	if err != nil {
 		return err
 	}
-	err = client.UpdateBetaAppLocalizations(ctx, app, appConfig.Testflight.Localizations)
+	version, err := client.CreateVersionIfNeeded(ctx, app, build, &appConfig.Versions)
 	if err != nil {
 		return err
 	}
-	err = client.UpdateBetaBuildDetails(ctx, build, &appConfig.Testflight)
+	err = client.UpdateAppLocalizations(ctx, app, appConfig.Localizations)
 	if err != nil {
 		return err
 	}
-	err = client.UpdateBetaBuildLocalizations(ctx, build, appConfig.Testflight.Localizations)
+	err = client.UpdateVersionLocalizations(ctx, version, appConfig.Versions.Localizations)
 	if err != nil {
 		return err
 	}
-	err = client.UpdateBetaLicenseAgreement(ctx, app, &appConfig.Testflight)
+	err = client.UpdateIDFADeclaration(ctx, version, appConfig.Versions.IDFADeclaration)
 	if err != nil {
 		return err
 	}
-	err = client.AssignBetaGroups(ctx, build, appConfig.Testflight.BetaGroups)
+	err = client.UploadRoutingCoverage(ctx, version, appConfig.Versions.RoutingCoverage)
 	if err != nil {
 		return err
 	}
-	err = client.AssignBetaTesters(ctx, build, appConfig.Testflight.BetaTesters)
+	err = client.UpdateReviewDetails(ctx, version, appConfig.Versions.ReviewDetails)
 	if err != nil {
 		return err
 	}
-	return client.SubmitBetaApp(ctx, build)
+	return client.SubmitApp(ctx, version)
 }

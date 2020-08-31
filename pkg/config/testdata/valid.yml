@@ -54,8 +54,8 @@ apps:
         attributesAppInstallationToPreviousAd: true
         honorsLimitedAdTracking: true
         servesAds: true
-      routingCoverages:
-        - path: ''
+      routingCoverage:
+        path: ''
       reviewDetails:
         contact:
           email: ''

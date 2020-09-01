@@ -6,7 +6,7 @@ name: My Project
 apps:
   ProjectApp:
     id: com.project.ProjectApp
-	localizations: ~
+    localizations: ~
     versions:
       platform: iOS 
       enablePhasedRelease: true

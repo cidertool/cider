@@ -52,7 +52,7 @@ type Credentials struct {
 func NewCredentials(keyID, issuerID string, privateKey []byte) (Credentials, error) {
 	token, err := asc.NewTokenConfig(keyID, issuerID, time.Minute*20, privateKey)
 	if err != nil {
-		err = fmt.Errorf("could not interpret the p8 private key: %w", err)
+		err = fmt.Errorf("failed to authorize with App Store Connect: %w", err)
 	}
 	return Credentials{token}, err
 }

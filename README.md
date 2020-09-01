@@ -1,6 +1,6 @@
 # applereleaser
 
-A tool for managing the entire release process of an iOS, macOS or tvOS application, supported by official Apple APIs. 
+A tool for managing the entire release process of an iOS, macOS or tvOS application, supported by official Apple APIs. Unlike altool or Xcode, applereleaser is designed to be useful on Linux and Windows, as well as macOS. 
 
 ## License
 

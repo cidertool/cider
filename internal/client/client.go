@@ -58,8 +58,8 @@ func (c *ascClient) GetAppForBundleID(ctx *context.Context, id string) (*asc.App
 
 func (c *ascClient) GetRelevantBuild(ctx *context.Context, app *asc.App) (*asc.Build, error) {
 	resp, _, err := c.client.Builds.ListBuilds(ctx, &asc.ListBuildsQuery{
-		FilterApp:     []string{app.ID},
-		FilterVersion: []string{ctx.Version},
+		FilterApp:                      []string{app.ID},
+		FilterPreReleaseVersionVersion: []string{ctx.Version},
 	})
 	if err != nil {
 		return nil, fmt.Errorf("build not found matching app %s and version %s: %w", *app.Attributes.BundleID, ctx.Version, err)

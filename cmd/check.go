@@ -3,6 +3,10 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/aaronsky/applereleaser/internal/pipe/defaults"
+	"github.com/aaronsky/applereleaser/pkg/context"
+	"github.com/apex/log"
+	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 )
 
@@ -23,7 +27,17 @@ func newCheckCmd() *checkCmd {
 			if err != nil {
 				return err
 			}
-			fmt.Println(cfg.Name)
+			var ctx = context.New(cfg)
+
+			if err := context.NewInterrupt().Run(ctx, func() error {
+				log.Info(color.New(color.Bold).Sprint("checking config:"))
+				return defaults.Pipe{}.Run(ctx)
+			}); err != nil {
+				log.WithError(err).Error(color.New(color.Bold).Sprintf("config is invalid"))
+				return fmt.Errorf("invalid config: %w", err)
+			}
+
+			log.Infof(color.New(color.Bold).Sprintf("config is valid"))
 			return nil
 		},
 	}

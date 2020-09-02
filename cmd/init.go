@@ -4,6 +4,8 @@ import (
 	"os"
 
 	"github.com/aaronsky/applereleaser/internal/static"
+	"github.com/apex/log"
+	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 )
 
@@ -26,10 +28,12 @@ func newInitCmd() *initCmd {
 			}
 			defer f.Close()
 
+			log.Infof(color.New(color.Bold).Sprintf("Generating %s file", root.config))
 			if _, err := f.WriteString(static.ExampleConfig); err != nil {
 				return err
 			}
 
+			log.WithField("file", root.config).Info("config created; please edit accordingly to your needs")
 			return nil
 		},
 	}

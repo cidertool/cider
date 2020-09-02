@@ -6,6 +6,8 @@ import (
 	"github.com/aaronsky/applereleaser/internal/middleware"
 	"github.com/aaronsky/applereleaser/internal/pipeline"
 	"github.com/aaronsky/applereleaser/pkg/context"
+	"github.com/apex/log"
+	"github.com/fatih/color"
 
 	"github.com/spf13/cobra"
 )
@@ -31,11 +33,17 @@ func newReleaseCmd() *releaseCmd {
 		SilenceUsage:  true,
 		SilenceErrors: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) > 0 {
-				root.opts.currentDirectory = args[0]
-			}
+			start := time.Now()
+
+			log.Infof(color.New(color.Bold).Sprint("releasing..."))
+
 			_, err := releaseProject(root.opts)
-			return err
+			if err != nil {
+				return wrapError(err, color.New(color.Bold).Sprintf("release failed after %0.2fs", time.Since(start).Seconds()))
+			}
+
+			log.Infof(color.New(color.Bold).Sprintf("release succeeded after %0.2fs", time.Since(start).Seconds()))
+			return nil
 		},
 	}
 

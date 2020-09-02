@@ -4,6 +4,7 @@ import (
 	"github.com/aaronsky/applereleaser/internal/client"
 	"github.com/aaronsky/applereleaser/pkg/config"
 	"github.com/aaronsky/applereleaser/pkg/context"
+	"github.com/aaronsky/asc-go/asc"
 	"github.com/apex/log"
 )
 
@@ -28,8 +29,8 @@ func (p Pipe) Run(ctx *context.Context) error {
 	return nil
 }
 
-func doRelease(ctx *context.Context, appConfig config.App, client client.Client) error {
-	app, err := client.GetAppForBundleID(ctx, appConfig.BundleID)
+func doRelease(ctx *context.Context, config config.App, client client.Client) error {
+	app, err := client.GetAppForBundleID(ctx, config.BundleID)
 	if err != nil {
 		return err
 	}
@@ -37,29 +38,37 @@ func doRelease(ctx *context.Context, appConfig config.App, client client.Client)
 	if err != nil {
 		return err
 	}
-	version, err := client.CreateVersionIfNeeded(ctx, app, build, &appConfig.Versions)
+	version, err := client.CreateVersionIfNeeded(ctx, app, build, config.Versions)
 	if err != nil {
 		return err
 	}
-	err = client.UpdateAppLocalizations(ctx, app, appConfig.Localizations)
-	if err != nil {
-		return err
-	}
-	err = client.UpdateVersionLocalizations(ctx, version, appConfig.Versions.Localizations)
-	if err != nil {
-		return err
-	}
-	err = client.UpdateIDFADeclaration(ctx, version, appConfig.Versions.IDFADeclaration)
-	if err != nil {
-		return err
-	}
-	err = client.UploadRoutingCoverage(ctx, version, appConfig.Versions.RoutingCoverage)
-	if err != nil {
-		return err
-	}
-	err = client.UpdateReviewDetails(ctx, version, appConfig.Versions.ReviewDetails)
-	if err != nil {
+	if err := updateVersionDetails(ctx, config, client, app, version); err != nil {
 		return err
 	}
 	return client.SubmitApp(ctx, version)
+}
+
+func updateVersionDetails(ctx *context.Context, config config.App, client client.Client, app *asc.App, version *asc.AppStoreVersion) error {
+	if err := client.UpdateAppLocalizations(ctx, app, config.Localizations); err != nil {
+		return err
+	}
+	if err := client.UpdateVersionLocalizations(ctx, version, config.Versions.Localizations); err != nil {
+		return err
+	}
+	if config.Versions.IDFADeclaration != nil {
+		if err := client.UpdateIDFADeclaration(ctx, version, *config.Versions.IDFADeclaration); err != nil {
+			return err
+		}
+	}
+	if config.Versions.RoutingCoverage != nil {
+		if err := client.UploadRoutingCoverage(ctx, version, *config.Versions.RoutingCoverage); err != nil {
+			return err
+		}
+	}
+	if config.Versions.ReviewDetails != nil {
+		if err := client.UpdateReviewDetails(ctx, version, *config.Versions.ReviewDetails); err != nil {
+			return err
+		}
+	}
+	return nil
 }

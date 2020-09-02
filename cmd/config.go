@@ -1,11 +1,11 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 
 	"github.com/aaronsky/applereleaser/pkg/config"
+	"github.com/apex/log"
 )
 
 func loadConfig(path string, wd string) (config.Project, error) {
@@ -24,6 +24,6 @@ func loadConfig(path string, wd string) (config.Project, error) {
 		}
 		return proj, err
 	}
-	fmt.Println("Could not find a config file, using defaults.")
+	log.Warn("could not find a config file, using defaults...")
 	return config.Project{}, nil
 }

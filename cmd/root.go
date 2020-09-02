@@ -2,12 +2,22 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
+	"github.com/apex/log"
+	"github.com/apex/log/handlers/cli"
+	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 )
 
 // Execute is the primary function to initiate the command line interface for applereleaser
 func Execute(version string, exit func(int), args []string) {
+	if os.Getenv("CI") != "" {
+		color.NoColor = false
+	}
+
+	log.SetHandler(cli.Default)
+
 	fmt.Println()
 	defer fmt.Println()
 	newRootCmd(version, exit).Execute(args)
@@ -30,6 +40,12 @@ func newRootCmd(version string, exit func(int)) *rootCmd {
 		Version:       version,
 		SilenceUsage:  true,
 		SilenceErrors: true,
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			if root.debug {
+				log.SetLevel(log.DebugLevel)
+				log.Debug("debug logs enabled")
+			}
+		},
 	}
 	cmd.PersistentFlags().BoolVar(&root.debug, "debug", false, "Enable debug mode")
 	cmd.AddCommand(
@@ -54,7 +70,7 @@ func (cmd *rootCmd) Execute(args []string) {
 				msg = eerr.details
 			}
 		}
-		fmt.Printf("%s: %s\n", msg, err)
+		log.WithError(err).Error(msg)
 		cmd.exit(code)
 	}
 }

@@ -3,6 +3,7 @@ package pipeline
 import (
 	"fmt"
 
+	"github.com/aaronsky/applereleaser/internal/pipe/defaults"
 	"github.com/aaronsky/applereleaser/internal/pipe/env"
 	"github.com/aaronsky/applereleaser/internal/pipe/git"
 	"github.com/aaronsky/applereleaser/internal/pipe/semver"
@@ -24,5 +25,6 @@ var Pipeline = []Piper{
 	env.Pipe{},
 	git.Pipe{},
 	semver.Pipe{},
+	defaults.Pipe{},
 	testflight.Pipe{},
 }

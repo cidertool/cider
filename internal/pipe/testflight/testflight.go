@@ -19,7 +19,8 @@ func (Pipe) String() string {
 // Run executes the hooks.
 func (p Pipe) Run(ctx *context.Context) error {
 	client := client.New(ctx)
-	for name, app := range ctx.Config.Apps {
+	for _, name := range ctx.AppsToRelease {
+		app := ctx.Config.Apps[name]
 		log.WithField("testflight", name).Info("updating metadata")
 		err := doRelease(ctx, app, client)
 		if err != nil {
@@ -38,8 +39,13 @@ func doRelease(ctx *context.Context, config config.App, client client.Client) er
 	if err != nil {
 		return err
 	}
-	if err := updateBetaDetails(ctx, config, client, app, build); err != nil {
-		return err
+	if !ctx.SkipUpdateMetadata {
+		if err := updateBetaDetails(ctx, config, client, app, build); err != nil {
+			return err
+		}
+	}
+	if ctx.SkipSubmit {
+		return nil
 	}
 	return client.SubmitBetaApp(ctx, build)
 }

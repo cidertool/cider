@@ -60,15 +60,17 @@ func NewCredentials(keyID, issuerID string, privateKey []byte) (Credentials, err
 // Context carries along some data through the pipes.
 type Context struct {
 	ctx.Context
-	Config           config.Project
-	Env              Env
-	Date             time.Time
-	CurrentDirectory string
-	Credentials      Credentials
-	SkipPublish      bool
-	Git              GitInfo
-	Version          string
-	Semver           Semver
+	Config             config.Project
+	Env                Env
+	Date               time.Time
+	CurrentDirectory   string
+	Credentials        Credentials
+	AppsToRelease      []string
+	SkipUpdateMetadata bool
+	SkipSubmit         bool
+	Git                GitInfo
+	Version            string
+	Semver             Semver
 }
 
 // Semver represents a semantic version.

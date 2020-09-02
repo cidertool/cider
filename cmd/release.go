@@ -8,7 +8,6 @@ import (
 	"github.com/aaronsky/applereleaser/pkg/context"
 	"github.com/apex/log"
 	"github.com/fatih/color"
-
 	"github.com/spf13/cobra"
 )
 
@@ -18,10 +17,13 @@ type releaseCmd struct {
 }
 
 type releaseOpts struct {
-	config           string
-	skipPublish      bool
-	timeout          time.Duration
-	currentDirectory string
+	config             string
+	appsToRelease      []string
+	releaseAllApps     bool
+	skipUpdateMetadata bool
+	skipSubmit         bool
+	timeout            time.Duration
+	currentDirectory   string
 }
 
 func newReleaseCmd() *releaseCmd {
@@ -48,7 +50,10 @@ func newReleaseCmd() *releaseCmd {
 	}
 
 	cmd.Flags().StringVarP(&root.opts.config, "config", "f", "", "Load configuration from file")
-	cmd.Flags().BoolVar(&root.opts.skipPublish, "skip-publish", false, "Skips publishing artifacts")
+	cmd.Flags().StringArrayVarP(&root.opts.appsToRelease, "app", "a", make([]string, 0), "App to release, using key name in configuration")
+	cmd.Flags().BoolVarP(&root.opts.releaseAllApps, "all-apps", "A", false, "Release all apps")
+	cmd.Flags().BoolVar(&root.opts.skipUpdateMetadata, "skip-update-metadata", false, "Skips updating metadata")
+	cmd.Flags().BoolVar(&root.opts.skipSubmit, "skip-submit", false, "Skips submitting for review")
 	cmd.Flags().DurationVar(&root.opts.timeout, "timeout", 30*time.Minute, "Timeout to the entire release process")
 
 	root.cmd = cmd
@@ -62,8 +67,7 @@ func releaseProject(options releaseOpts) (*context.Context, error) {
 	}
 	ctx, cancel := context.NewWithTimeout(cfg, options.timeout)
 	defer cancel()
-	ctx.SkipPublish = options.skipPublish
-	ctx.CurrentDirectory = options.currentDirectory
+	setupReleaseContext(ctx, options)
 	return ctx, context.NewInterrupt().Run(ctx, func() error {
 		for _, pipe := range pipeline.Pipeline {
 			if err := middleware.Logging(
@@ -76,4 +80,12 @@ func releaseProject(options releaseOpts) (*context.Context, error) {
 		}
 		return nil
 	})
+}
+
+func setupReleaseContext(ctx *context.Context, options releaseOpts) *context.Context {
+	ctx.AppsToRelease = ctx.Config.AppsMatching(options.appsToRelease, options.releaseAllApps)
+	ctx.SkipUpdateMetadata = options.skipUpdateMetadata
+	ctx.SkipSubmit = options.skipSubmit
+	ctx.CurrentDirectory = options.currentDirectory
+	return ctx
 }

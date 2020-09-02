@@ -312,6 +312,26 @@ func LoadReader(fd io.Reader) (config Project, err error) {
 	return config, err
 }
 
+// AppsMatching returns an array of keys in the Project matching the app names, or all names if the flag is set.
+func (p *Project) AppsMatching(keys []string, shouldIncludeAll bool) []string {
+	if shouldIncludeAll {
+		appNamesMatching := make([]string, len(p.Apps))
+		i := 0
+		for key := range p.Apps {
+			appNamesMatching[i] = key
+			i++
+		}
+		return appNamesMatching
+	}
+	appNamesMatching := make([]string, 0, len(keys))
+	for _, key := range keys {
+		if _, ok := p.Apps[key]; ok {
+			appNamesMatching = append(appNamesMatching, key)
+		}
+	}
+	return appNamesMatching
+}
+
 func (p platform) APIValue() (asc.Platform, error) {
 	switch p {
 	case PlatformiOS:

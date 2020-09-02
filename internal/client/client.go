@@ -4,7 +4,6 @@ import (
 	"crypto/md5"
 	"fmt"
 	"io"
-	"os"
 
 	"github.com/aaronsky/applereleaser/pkg/config"
 	"github.com/aaronsky/applereleaser/pkg/context"
@@ -69,13 +68,7 @@ func (c *ascClient) GetRelevantBuild(ctx *context.Context, app *asc.App) (*asc.B
 	return &resp.Data[0], nil
 }
 
-func md5Checksum(file string) (string, error) {
-	f, err := os.Open(file)
-	if err != nil {
-		return "", err
-	}
-	defer f.Close()
-
+func md5Checksum(f io.Reader) (string, error) {
 	h := md5.New()
 	if _, err := io.Copy(h, f); err != nil {
 		return "", err

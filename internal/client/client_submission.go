@@ -73,7 +73,10 @@ func (c *ascClient) CreateVersionIfNeeded(ctx *context.Context, app *asc.App, bu
 		earliestReleaseDate = &asc.DateTime{Time: *config.EarliestReleaseDate}
 	}
 	var versionResp *asc.AppStoreVersionResponse
-	versionsResp, _, err := c.client.Apps.ListAppStoreVersionsForApp(ctx, app.ID, &asc.ListAppStoreVersionsQuery{FilterVersionString: []string{ctx.Version}, FilterPlatform: []string{string(platform)}})
+	versionsResp, _, err := c.client.Apps.ListAppStoreVersionsForApp(ctx, app.ID, &asc.ListAppStoreVersionsQuery{
+		FilterVersionString: []string{ctx.Version},
+		FilterPlatform:      []string{string(platform)},
+	})
 	if len(versionsResp.Data) == 0 {
 		versionResp, _, err = c.client.Apps.CreateAppStoreVersion(ctx, asc.AppStoreVersionCreateRequestAttributes{
 			Copyright:           &config.Copyright,
@@ -208,29 +211,24 @@ func (c *ascClient) UpdateIDFADeclaration(ctx *context.Context, version *asc.App
 }
 
 func (c *ascClient) UploadRoutingCoverage(ctx *context.Context, version *asc.AppStoreVersion, config config.File) error {
-	f, err := os.Open(config.Path)
-	if err != nil {
+	// TODO: I'm silencing an error here
+	if covResp, _, _ := c.client.Apps.GetRoutingAppCoverageForAppStoreVersion(ctx, version.ID, nil); covResp != nil {
+		if _, err := c.client.Apps.DeleteRoutingAppCoverage(ctx, covResp.Data.ID); err != nil {
+			return err
+		}
+	}
+	create := func(name string, size int64) (id string, ops []asc.UploadOperation, err error) {
+		resp, _, err := c.client.Apps.CreateRoutingAppCoverage(ctx, name, size, version.ID)
+		if err != nil {
+			return "", nil, err
+		}
+		return resp.Data.ID, resp.Data.Attributes.UploadOperations, nil
+	}
+	commit := func(id string, checksum string) error {
+		_, _, err := c.client.Apps.CommitRoutingAppCoverage(ctx, id, asc.Bool(true), &checksum)
 		return err
 	}
-	fstat, err := os.Stat(config.Path)
-	if err != nil {
-		return err
-	}
-	resp, _, err := c.client.Apps.CreateRoutingAppCoverage(ctx, fstat.Name(), fstat.Size(), version.ID)
-	if err != nil {
-		return err
-	}
-	ops := resp.Data.Attributes.UploadOperations
-	err = c.client.Upload(ctx, ops, f)
-	if err != nil {
-		return err
-	}
-	checksum, err := md5Checksum(config.Path)
-	if err != nil {
-		return err
-	}
-	_, _, err = c.client.Apps.CommitRoutingAppCoverage(ctx, resp.Data.ID, asc.Bool(true), &checksum)
-	return err
+	return c.uploadFile(ctx, config.Path, create, commit)
 }
 
 func (c *ascClient) UpdatePreviewSets(ctx *context.Context, previewSets []asc.AppPreviewSet, appStoreVersionLocalizationID string, config config.PreviewSets) error {
@@ -260,29 +258,18 @@ func (c *ascClient) UpdatePreviewSets(ctx *context.Context, previewSets []asc.Ap
 
 func (c *ascClient) UploadPreviews(ctx *context.Context, previewSet *asc.AppPreviewSet, config []config.Preview) error {
 	for _, previewConfig := range config {
-		f, err := os.Open(previewConfig.Path)
-		if err != nil {
+		create := func(name string, size int64) (id string, ops []asc.UploadOperation, err error) {
+			resp, _, err := c.client.Apps.CreateAppPreview(ctx, name, size, previewSet.ID)
+			if err != nil {
+				return "", nil, err
+			}
+			return resp.Data.ID, resp.Data.Attributes.UploadOperations, nil
+		}
+		commit := func(id string, checksum string) error {
+			_, _, err := c.client.Apps.CommitAppPreview(ctx, id, asc.Bool(true), &checksum, &previewConfig.PreviewFrameTimeCode)
 			return err
 		}
-		fstat, err := os.Stat(previewConfig.Path)
-		if err != nil {
-			return err
-		}
-		resp, _, err := c.client.Apps.CreateAppPreview(ctx, fstat.Name(), fstat.Size(), previewSet.ID)
-		if err != nil {
-			return err
-		}
-		ops := resp.Data.Attributes.UploadOperations
-		err = c.client.Upload(ctx, ops, f)
-		if err != nil {
-			return err
-		}
-		checksum, err := md5Checksum(previewConfig.Path)
-		if err != nil {
-			return err
-		}
-		_, _, err = c.client.Apps.CommitAppPreview(ctx, resp.Data.ID, asc.Bool(true), &checksum, &previewConfig.PreviewFrameTimeCode)
-		if err != nil {
+		if err := c.uploadFile(ctx, previewConfig.Path, create, commit); err != nil {
 			return err
 		}
 	}
@@ -306,8 +293,7 @@ func (c *ascClient) UpdateScreenshotSets(ctx *context.Context, screenshotSets []
 		if err != nil {
 			return err
 		}
-		err = c.UploadScreenshots(ctx, &screenshotSetResp.Data, screenshots)
-		if err != nil {
+		if err = c.UploadScreenshots(ctx, &screenshotSetResp.Data, screenshots); err != nil {
 			return err
 		}
 	}
@@ -316,29 +302,18 @@ func (c *ascClient) UpdateScreenshotSets(ctx *context.Context, screenshotSets []
 
 func (c *ascClient) UploadScreenshots(ctx *context.Context, screenshotSet *asc.AppScreenshotSet, config []config.File) error {
 	for _, screenshotConfig := range config {
-		f, err := os.Open(screenshotConfig.Path)
-		if err != nil {
+		create := func(name string, size int64) (id string, ops []asc.UploadOperation, err error) {
+			resp, _, err := c.client.Apps.CreateAppScreenshot(ctx, name, size, screenshotSet.ID)
+			if err != nil {
+				return "", nil, err
+			}
+			return resp.Data.ID, resp.Data.Attributes.UploadOperations, nil
+		}
+		commit := func(id string, checksum string) error {
+			_, _, err := c.client.Apps.CommitAppScreenshot(ctx, id, asc.Bool(true), &checksum)
 			return err
 		}
-		fstat, err := os.Stat(screenshotConfig.Path)
-		if err != nil {
-			return err
-		}
-		resp, _, err := c.client.Apps.CreateAppScreenshot(ctx, fstat.Name(), fstat.Size(), screenshotSet.ID)
-		if err != nil {
-			return err
-		}
-		ops := resp.Data.Attributes.UploadOperations
-		err = c.client.Upload(ctx, ops, f)
-		if err != nil {
-			return err
-		}
-		checksum, err := md5Checksum(screenshotConfig.Path)
-		if err != nil {
-			return err
-		}
-		_, _, err = c.client.Apps.CommitAppScreenshot(ctx, resp.Data.ID, asc.Bool(true), &checksum)
-		if err != nil {
+		if err := c.uploadFile(ctx, screenshotConfig.Path, create, commit); err != nil {
 			return err
 		}
 	}
@@ -376,4 +351,34 @@ func (c *ascClient) UpdateReviewDetails(ctx *context.Context, version *asc.AppSt
 func (c *ascClient) SubmitApp(ctx *context.Context, version *asc.AppStoreVersion) error {
 	_, _, err := c.client.Submission.CreateSubmission(ctx, version.ID)
 	return err
+}
+
+type createFunc func(name string, size int64) (id string, ops []asc.UploadOperation, err error)
+type commitFunc func(id string, checksum string) error
+
+func (c *ascClient) uploadFile(ctx *context.Context, path string, create createFunc, commit commitFunc) error {
+	f, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	fstat, err := os.Stat(path)
+	if err != nil {
+		return err
+	}
+	checksum, err := md5Checksum(f)
+	if err != nil {
+		return err
+	}
+
+	id, ops, err := create(fstat.Name(), fstat.Size())
+	if err != nil {
+		return err
+	}
+	err = c.client.Upload(ctx, ops, f)
+	if err != nil {
+		return err
+	}
+	return commit(id, checksum)
 }

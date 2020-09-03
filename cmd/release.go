@@ -19,6 +19,7 @@ type releaseCmd struct {
 type releaseOpts struct {
 	config             string
 	appsToRelease      []string
+	publishMode        context.PublishMode
 	releaseAllApps     bool
 	skipUpdateMetadata bool
 	skipSubmit         bool
@@ -56,6 +57,7 @@ func newReleaseCmd() *releaseCmd {
 
 	cmd.Flags().StringVarP(&root.opts.config, "config", "f", "", "Load configuration from file")
 	cmd.Flags().StringArrayVarP(&root.opts.appsToRelease, "app", "a", make([]string, 0), "App to release, using key name in configuration")
+	cmd.Flags().Var(&root.opts.publishMode, "mode", "Publish mode (default: \"testflight\")")
 	cmd.Flags().BoolVarP(&root.opts.releaseAllApps, "all-apps", "A", false, "Release all apps")
 	cmd.Flags().BoolVar(&root.opts.skipUpdateMetadata, "skip-update-metadata", false, "Skips updating metadata")
 	cmd.Flags().BoolVar(&root.opts.skipSubmit, "skip-submit", false, "Skips submitting for review")
@@ -90,6 +92,11 @@ func releaseProject(options releaseOpts) (*context.Context, error) {
 
 func setupReleaseContext(ctx *context.Context, options releaseOpts) *context.Context {
 	ctx.AppsToRelease = ctx.Config.AppsMatching(options.appsToRelease, options.releaseAllApps)
+	if options.publishMode == "" {
+		ctx.PublishMode = context.PublishModeTestflight
+	} else {
+		ctx.PublishMode = options.publishMode
+	}
 	ctx.SkipUpdateMetadata = options.skipUpdateMetadata
 	ctx.SkipSubmit = options.skipSubmit
 	ctx.Version = options.versionOverride

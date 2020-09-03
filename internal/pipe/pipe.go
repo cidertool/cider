@@ -1,8 +1,13 @@
 package pipe
 
-// ErrSkipPublishEnabled happens if --skip-publish is set.
-// It means that the part of a Piper that publishes its artifacts was not run.
-var ErrSkipPublishEnabled = Skip("publishing is disabled")
+// ErrSkipUpdateMetadataEnabled happens if --skip-update-metadata is set.
+// It means that the part of a Piper that updates metadata in App Store Connect
+// was not run.
+var ErrSkipUpdateMetadataEnabled = Skip("updating metadata is disabled")
+
+// ErrSkipSubmitEnabled happens if --skip-submit is set.
+// It means that the part of a Piper that submits to Apple for review was not run.
+var ErrSkipSubmitEnabled = Skip("submission is disabled")
 
 // IsSkip returns true if the error is an ErrSkip.
 func IsSkip(err error) bool {

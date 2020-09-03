@@ -85,14 +85,13 @@ func validate(ctx *context.Context) error {
 	if strings.TrimSpace(out) != "" || err != nil {
 		return git.ErrDirty{Status: out}
 	}
-	if ctx.Git.CurrentTag == NoTag {
-		return nil
-	}
-	_, err = git.Clean(git.Run(ctx, "describe", "--exact-match", "--tags", "--match", ctx.Git.CurrentTag))
-	if err != nil {
-		return git.ErrWrongRef{
-			Commit: ctx.Git.Commit,
-			Tag:    ctx.Git.CurrentTag,
+	if ctx.Git.CurrentTag != NoTag {
+		_, err = git.Clean(git.Run(ctx, "describe", "--exact-match", "--tags", "--match", ctx.Git.CurrentTag))
+		if err != nil {
+			return git.ErrWrongRef{
+				Commit: ctx.Git.Commit,
+				Tag:    ctx.Git.CurrentTag,
+			}
 		}
 	}
 	return nil

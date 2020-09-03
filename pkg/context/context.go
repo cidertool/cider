@@ -11,37 +11,15 @@ import (
 	"github.com/aaronsky/asc-go/asc"
 )
 
-// GitInfo includes tags and refs
-type GitInfo struct {
-	CurrentTag  string
-	Commit      string
-	ShortCommit string
-	FullCommit  string
-	CommitDate  time.Time
-	URL         string
-}
+// PublishMode describes which review destination to publish to
+type PublishMode string
 
-// Env is the environment variables.
-type Env map[string]string
-
-// Copy returns a copy of the environment.
-func (e Env) Copy() Env {
-	var out = Env{}
-	for k, v := range e {
-		out[k] = v
-	}
-	return out
-}
-
-// Strings returns the current environment as a list of strings, suitable for
-// os executions.
-func (e Env) Strings() []string {
-	var result = make([]string, 0, len(e))
-	for k, v := range e {
-		result = append(result, k+"="+v)
-	}
-	return result
-}
+const (
+	// PublishModeTestflight publishes to Testflight via beta app review
+	PublishModeTestflight PublishMode = "testflight"
+	// PublishModeAppStore publishes for App Store review
+	PublishModeAppStore PublishMode = "appstore"
+)
 
 // Context carries along some data through the pipes.
 type Context struct {
@@ -52,6 +30,7 @@ type Context struct {
 	CurrentDirectory   string
 	Credentials        Credentials
 	AppsToRelease      []string
+	PublishMode        PublishMode
 	SkipUpdateMetadata bool
 	SkipSubmit         bool
 	Git                GitInfo
@@ -59,9 +38,22 @@ type Context struct {
 	Semver             Semver
 }
 
+// Env is the environment variables.
+type Env map[string]string
+
 // Credentials stores credentials used by clients
 type Credentials struct {
 	*asc.AuthTransport
+}
+
+// GitInfo includes tags and refs
+type GitInfo struct {
+	CurrentTag  string
+	Commit      string
+	ShortCommit string
+	FullCommit  string
+	CommitDate  time.Time
+	URL         string
 }
 
 // Semver represents a semantic version.
@@ -103,6 +95,25 @@ func NewCredentials(keyID, issuerID string, privateKey []byte) (Credentials, err
 	return Credentials{token}, err
 }
 
+// Copy returns a copy of the environment.
+func (e Env) Copy() Env {
+	var out = Env{}
+	for k, v := range e {
+		out[k] = v
+	}
+	return out
+}
+
+// Strings returns the current environment as a list of strings, suitable for
+// os executions.
+func (e Env) Strings() []string {
+	var result = make([]string, 0, len(e))
+	for k, v := range e {
+		result = append(result, k+"="+v)
+	}
+	return result
+}
+
 func splitEnv(env []string) map[string]string {
 	r := map[string]string{}
 	for _, e := range env {
@@ -110,4 +121,27 @@ func splitEnv(env []string) map[string]string {
 		r[p[0]] = p[1]
 	}
 	return r
+}
+
+// String returns the string value of the mode
+func (m PublishMode) String() string {
+	return string(m)
+}
+
+// Set the mode to an allowed value, or return an error
+func (m *PublishMode) Set(value string) error {
+	switch value {
+	case "appstore":
+		*m = PublishModeAppStore
+	case "testflight":
+		*m = PublishModeTestflight
+	default:
+		return fmt.Errorf("invalid value %s for publish mode", value)
+	}
+	return nil
+}
+
+// Type returns a representation of permissible values
+func (m PublishMode) Type() string {
+	return "{appstore,testflight}"
 }

@@ -6,8 +6,8 @@ import (
 	"github.com/aaronsky/applereleaser/internal/pipe/defaults"
 	"github.com/aaronsky/applereleaser/internal/pipe/env"
 	"github.com/aaronsky/applereleaser/internal/pipe/git"
+	"github.com/aaronsky/applereleaser/internal/pipe/publish"
 	"github.com/aaronsky/applereleaser/internal/pipe/semver"
-	"github.com/aaronsky/applereleaser/internal/pipe/testflight"
 	"github.com/aaronsky/applereleaser/pkg/context"
 )
 
@@ -26,5 +26,5 @@ var Pipeline = []Piper{
 	git.Pipe{},
 	semver.Pipe{},
 	defaults.Pipe{},
-	testflight.Pipe{},
+	publish.Pipe{},
 }

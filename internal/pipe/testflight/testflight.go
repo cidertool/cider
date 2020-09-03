@@ -2,6 +2,7 @@ package testflight
 
 import (
 	"github.com/aaronsky/applereleaser/internal/client"
+	"github.com/aaronsky/applereleaser/internal/pipe"
 	"github.com/aaronsky/applereleaser/pkg/config"
 	"github.com/aaronsky/applereleaser/pkg/context"
 	"github.com/aaronsky/asc-go/asc"
@@ -13,11 +14,14 @@ type Pipe struct{}
 
 // String is the name of this pipe.
 func (Pipe) String() string {
-	return "choosing processed build"
+	return "committing to testflight"
 }
 
-// Run executes the hooks.
-func (p Pipe) Run(ctx *context.Context) error {
+// Publish to Testflight.
+func (p Pipe) Publish(ctx *context.Context) error {
+	if ctx.PublishMode != context.PublishModeTestflight {
+		return pipe.Skip("testflight")
+	}
 	client := client.New(ctx)
 	for _, name := range ctx.AppsToRelease {
 		app := ctx.Config.Apps[name]
@@ -45,7 +49,7 @@ func doRelease(ctx *context.Context, config config.App, client client.Client) er
 		}
 	}
 	if ctx.SkipSubmit {
-		return nil
+		return pipe.ErrSkipSubmitEnabled
 	}
 	return client.SubmitBetaApp(ctx, build)
 }

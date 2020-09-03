@@ -64,9 +64,10 @@ func (c *ascClient) CreateVersionIfNeeded(ctx *context.Context, app *asc.App, bu
 	if err != nil {
 		return nil, err
 	}
-	releaseType, err := config.ReleaseType.APIValue()
-	if err != nil {
-		return nil, err
+	var releaseTypeP *string
+	releaseType, _ := config.ReleaseType.APIValue()
+	if releaseType != "" {
+		releaseTypeP = &releaseType
 	}
 	var earliestReleaseDate *asc.DateTime
 	if config.EarliestReleaseDate != nil {
@@ -82,7 +83,7 @@ func (c *ascClient) CreateVersionIfNeeded(ctx *context.Context, app *asc.App, bu
 			Copyright:           &config.Copyright,
 			EarliestReleaseDate: earliestReleaseDate,
 			Platform:            platform,
-			ReleaseType:         &releaseType,
+			ReleaseType:         releaseTypeP,
 			UsesIDFA:            asc.Bool(config.IDFADeclaration != nil),
 			VersionString:       ctx.Version,
 		}, app.ID, &build.ID)
@@ -91,7 +92,7 @@ func (c *ascClient) CreateVersionIfNeeded(ctx *context.Context, app *asc.App, bu
 		versionResp, _, err = c.client.Apps.UpdateAppStoreVersion(ctx, latestVersion.ID, &asc.AppStoreVersionUpdateRequestAttributes{
 			Copyright:           &config.Copyright,
 			EarliestReleaseDate: earliestReleaseDate,
-			ReleaseType:         &releaseType,
+			ReleaseType:         releaseTypeP,
 			UsesIDFA:            asc.Bool(config.IDFADeclaration != nil),
 			VersionString:       &ctx.Version,
 		}, &build.ID)
@@ -116,7 +117,8 @@ func (c *ascClient) UpdateVersionLocalizations(ctx *context.Context, version *as
 			MarketingURL:    &locConfig.MarketingURL,
 			PromotionalText: &locConfig.PromotionalText,
 			SupportURL:      &locConfig.SupportURL,
-			WhatsNew:        &locConfig.WhatsNewText,
+			// TODO: Modifying this field results in a 409 Conflict error
+			// WhatsNew: &locConfig.WhatsNewText,
 		})
 		if err != nil {
 			return err
@@ -192,7 +194,7 @@ func (c *ascClient) UpdateVersionLocalizations(ctx *context.Context, version *as
 
 func (c *ascClient) UpdateIDFADeclaration(ctx *context.Context, version *asc.AppStoreVersion, config config.IDFADeclaration) error {
 	existingDeclResp, _, err := c.client.Submission.GetIDFADeclarationForAppStoreVersion(ctx, version.ID, nil)
-	if err != nil {
+	if err != nil || existingDeclResp.Data.ID == "" {
 		_, _, err = c.client.Submission.CreateIDFADeclaration(ctx, asc.IDFADeclarationCreateRequestAttributes{
 			AttributesActionWithPreviousAd:        config.AttributesActionWithPreviousAd,
 			AttributesAppInstallationToPreviousAd: config.AttributesAppInstallationToPreviousAd,

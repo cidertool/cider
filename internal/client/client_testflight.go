@@ -94,6 +94,9 @@ func (c *ascClient) UpdateBetaLicenseAgreement(ctx *context.Context, app *asc.Ap
 }
 
 func (c *ascClient) AssignBetaGroups(ctx *context.Context, build *asc.Build, groups []string) error {
+	if len(groups) == 0 {
+		return nil
+	}
 	groupsResp, _, err := c.client.TestFlight.ListBetaGroups(ctx, &asc.ListBetaGroupsQuery{
 		FilterName: groups,
 	})
@@ -110,6 +113,9 @@ func (c *ascClient) AssignBetaGroups(ctx *context.Context, build *asc.Build, gro
 }
 
 func (c *ascClient) AssignBetaTesters(ctx *context.Context, build *asc.Build, testers []config.BetaTester) error {
+	if len(testers) == 0 {
+		return nil
+	}
 	emailFilters := make([]string, 0)
 	firstNameFilters := make([]string, 0)
 	lastNameFilters := make([]string, 0)

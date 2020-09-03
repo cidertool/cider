@@ -23,6 +23,7 @@ type releaseOpts struct {
 	skipUpdateMetadata bool
 	skipSubmit         bool
 	timeout            time.Duration
+	versionOverride    string
 	currentDirectory   string
 }
 
@@ -35,6 +36,10 @@ func newReleaseCmd() *releaseCmd {
 		SilenceUsage:  true,
 		SilenceErrors: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if len(args) > 0 {
+				root.opts.currentDirectory = args[0]
+			}
+
 			start := time.Now()
 
 			log.Infof(color.New(color.Bold).Sprint("releasing..."))
@@ -54,6 +59,7 @@ func newReleaseCmd() *releaseCmd {
 	cmd.Flags().BoolVarP(&root.opts.releaseAllApps, "all-apps", "A", false, "Release all apps")
 	cmd.Flags().BoolVar(&root.opts.skipUpdateMetadata, "skip-update-metadata", false, "Skips updating metadata")
 	cmd.Flags().BoolVar(&root.opts.skipSubmit, "skip-submit", false, "Skips submitting for review")
+	cmd.Flags().StringVarP(&root.opts.versionOverride, "version", "V", "", "Version override to use instead of Git tags")
 	cmd.Flags().DurationVar(&root.opts.timeout, "timeout", 30*time.Minute, "Timeout to the entire release process")
 
 	root.cmd = cmd
@@ -86,6 +92,7 @@ func setupReleaseContext(ctx *context.Context, options releaseOpts) *context.Con
 	ctx.AppsToRelease = ctx.Config.AppsMatching(options.appsToRelease, options.releaseAllApps)
 	ctx.SkipUpdateMetadata = options.skipUpdateMetadata
 	ctx.SkipSubmit = options.skipSubmit
+	ctx.Version = options.versionOverride
 	ctx.CurrentDirectory = options.currentDirectory
 	return ctx
 }

@@ -43,20 +43,6 @@ func (e Env) Strings() []string {
 	return result
 }
 
-// Credentials stores credentials used by clients
-type Credentials struct {
-	*asc.AuthTransport
-}
-
-// NewCredentials returns a new store object for App Store Connect credentials
-func NewCredentials(keyID, issuerID string, privateKey []byte) (Credentials, error) {
-	token, err := asc.NewTokenConfig(keyID, issuerID, time.Minute*20, privateKey)
-	if err != nil {
-		err = fmt.Errorf("failed to authorize with App Store Connect: %w", err)
-	}
-	return Credentials{token}, err
-}
-
 // Context carries along some data through the pipes.
 type Context struct {
 	ctx.Context
@@ -71,6 +57,11 @@ type Context struct {
 	Git                GitInfo
 	Version            string
 	Semver             Semver
+}
+
+// Credentials stores credentials used by clients
+type Credentials struct {
+	*asc.AuthTransport
 }
 
 // Semver represents a semantic version.
@@ -101,6 +92,15 @@ func Wrap(ctx ctx.Context, config config.Project) *Context {
 		Env:     splitEnv(os.Environ()),
 		Date:    time.Now(),
 	}
+}
+
+// NewCredentials returns a new store object for App Store Connect credentials
+func NewCredentials(keyID, issuerID string, privateKey []byte) (Credentials, error) {
+	token, err := asc.NewTokenConfig(keyID, issuerID, time.Minute*20, privateKey)
+	if err != nil {
+		err = fmt.Errorf("failed to authorize with App Store Connect: %w", err)
+	}
+	return Credentials{token}, err
 }
 
 func splitEnv(env []string) map[string]string {

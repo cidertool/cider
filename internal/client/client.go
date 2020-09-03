@@ -56,6 +56,9 @@ func (c *ascClient) GetAppForBundleID(ctx *context.Context, id string) (*asc.App
 }
 
 func (c *ascClient) GetRelevantBuild(ctx *context.Context, app *asc.App) (*asc.Build, error) {
+	if ctx.Version == "" {
+		return nil, fmt.Errorf("no version provided to lookup build with")
+	}
 	resp, _, err := c.client.Builds.ListBuilds(ctx, &asc.ListBuildsQuery{
 		FilterApp:                      []string{app.ID},
 		FilterPreReleaseVersionVersion: []string{ctx.Version},
@@ -65,7 +68,15 @@ func (c *ascClient) GetRelevantBuild(ctx *context.Context, app *asc.App) (*asc.B
 	} else if len(resp.Data) == 0 {
 		return nil, fmt.Errorf("build not found matching app %s and version %s", *app.Attributes.BundleID, ctx.Version)
 	}
-	return &resp.Data[0], nil
+	build := resp.Data[0]
+	if build.Attributes == nil {
+		return nil, fmt.Errorf("build %s has no attributes", build.ID)
+	} else if build.Attributes.ProcessingState == nil {
+		return nil, fmt.Errorf("build %s has no processing state", build.ID)
+	} else if *build.Attributes.ProcessingState != "VALID" {
+		return nil, fmt.Errorf("latest build %s has a processing state of %s. it would be dangerous to proceed", build.ID, *build.Attributes.ProcessingState)
+	}
+	return &build, nil
 }
 
 func md5Checksum(f io.Reader) (string, error) {

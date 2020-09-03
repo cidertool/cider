@@ -13,6 +13,9 @@ import (
 	"github.com/apex/log"
 )
 
+// NoTag is a constant value representing an absent tag. This is used in the case of a hardcoded version string, or an invalid Git tag value.
+const NoTag = "v0.0.0"
+
 // Pipe is a global hook pipe.
 type Pipe struct{}
 
@@ -31,8 +34,15 @@ func (p Pipe) Run(ctx *context.Context) error {
 		return err
 	}
 	ctx.Git = info
-	log.Infof("releasing %s, commit %s", info.CurrentTag, info.Commit)
-	ctx.Version = strings.TrimPrefix(ctx.Git.CurrentTag, "v")
+	if ctx.Version == "" {
+		tag, err := getTag(ctx)
+		if err != nil {
+			return git.ErrNoTag
+		}
+		ctx.Git.CurrentTag = tag
+		ctx.Version = strings.TrimPrefix(tag, "v")
+	}
+	log.Infof("releasing %s, commit %s", ctx.Version, info.Commit)
 	return validate(ctx)
 }
 
@@ -60,19 +70,8 @@ func getGitInfo(ctx *context.Context) (context.GitInfo, error) {
 	if err != nil {
 		return context.GitInfo{}, fmt.Errorf("couldn't get remote URL: %w", err)
 	}
-	tag, err := getTag(ctx)
-	if err != nil {
-		return context.GitInfo{
-			Commit:      full,
-			FullCommit:  full,
-			ShortCommit: short,
-			CommitDate:  date,
-			URL:         url,
-			CurrentTag:  "v0.0.0",
-		}, git.ErrNoTag
-	}
 	return context.GitInfo{
-		CurrentTag:  tag,
+		CurrentTag:  NoTag,
 		Commit:      full,
 		FullCommit:  full,
 		ShortCommit: short,
@@ -85,6 +84,9 @@ func validate(ctx *context.Context) error {
 	out, err := git.Run(ctx, "status", "--porcelain")
 	if strings.TrimSpace(out) != "" || err != nil {
 		return git.ErrDirty{Status: out}
+	}
+	if ctx.Git.CurrentTag == NoTag {
+		return nil
 	}
 	_, err = git.Clean(git.Run(ctx, "describe", "--exact-match", "--tags", "--match", ctx.Git.CurrentTag))
 	if err != nil {

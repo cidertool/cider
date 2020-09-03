@@ -26,16 +26,18 @@ func (c *ascClient) UpdateAppLocalizations(ctx *context.Context, app *asc.App, c
 		found := make(map[string]bool)
 		for _, loc := range appLocResp.Data {
 			locale := *loc.Attributes.Locale
-			found[locale] = true
-			locConfig := config[locale]
-			_, _, err := c.client.Apps.UpdateAppInfoLocalization(ctx, loc.ID, &asc.AppInfoLocalizationUpdateRequestAttributes{
-				Name:              &locConfig.Name,
-				PrivacyPolicyText: &locConfig.PrivacyPolicyText,
-				PrivacyPolicyURL:  &locConfig.PrivacyPolicyURL,
-				Subtitle:          &locConfig.Subtitle,
-			})
-			if err != nil {
-				return err
+			if locConfig, ok := config[locale]; ok {
+				found[locale] = true
+
+				_, _, err := c.client.Apps.UpdateAppInfoLocalization(ctx, loc.ID, &asc.AppInfoLocalizationUpdateRequestAttributes{
+					Name:              &locConfig.Name,
+					PrivacyPolicyText: &locConfig.PrivacyPolicyText,
+					PrivacyPolicyURL:  &locConfig.PrivacyPolicyURL,
+					Subtitle:          &locConfig.Subtitle,
+				})
+				if err != nil {
+					return err
+				}
 			}
 		}
 
@@ -101,6 +103,8 @@ func (c *ascClient) CreateVersionIfNeeded(ctx *context.Context, app *asc.App, bu
 }
 
 func (c *ascClient) UpdateVersionLocalizations(ctx *context.Context, version *asc.AppStoreVersion, config config.VersionLocalizations) error {
+	asc.SetHTTPDebug(true)
+	defer asc.SetHTTPDebug(false)
 	locListResp, _, err := c.client.Apps.ListLocalizationsForAppStoreVersion(ctx, version.ID, nil)
 	if err != nil {
 		return err
@@ -109,41 +113,45 @@ func (c *ascClient) UpdateVersionLocalizations(ctx *context.Context, version *as
 	found := make(map[string]bool)
 	for _, loc := range locListResp.Data {
 		locale := *loc.Attributes.Locale
-		found[locale] = true
-		locConfig := config[locale]
-		updatedLocResp, _, err := c.client.Apps.UpdateAppStoreVersionLocalization(ctx, loc.ID, &asc.AppStoreVersionLocalizationUpdateRequestAttributes{
-			Description:     &locConfig.Description,
-			Keywords:        &locConfig.Keywords,
-			MarketingURL:    &locConfig.MarketingURL,
-			PromotionalText: &locConfig.PromotionalText,
-			SupportURL:      &locConfig.SupportURL,
-			// TODO: Modifying this field results in a 409 Conflict error
-			// WhatsNew: &locConfig.WhatsNewText,
-		})
-		if err != nil {
-			return err
-		}
-		loc = updatedLocResp.Data
-		if loc.Relationships.AppPreviewSets != nil {
-			var previewSets asc.AppPreviewSetsResponse
-			_, err = c.client.FollowReference(ctx, loc.Relationships.AppPreviewSets.Links.Related, &previewSets)
+		if locConfig, ok := config[locale]; ok {
+			found[locale] = true
+
+			updatedLocResp, _, err := c.client.Apps.UpdateAppStoreVersionLocalization(ctx, loc.ID, &asc.AppStoreVersionLocalizationUpdateRequestAttributes{
+				Description:     &locConfig.Description,
+				Keywords:        &locConfig.Keywords,
+				MarketingURL:    &locConfig.MarketingURL,
+				PromotionalText: &locConfig.PromotionalText,
+				SupportURL:      &locConfig.SupportURL,
+				// TODO: Modifying this field results in a 409 Conflict error
+				WhatsNew: &locConfig.WhatsNewText,
+			})
 			if err != nil {
 				return err
 			}
-			err = c.UpdatePreviewSets(ctx, previewSets.Data, loc.ID, locConfig.PreviewSets)
-			if err != nil {
-				return err
+			loc = updatedLocResp.Data
+
+			if loc.Relationships.AppPreviewSets != nil {
+				var previewSets asc.AppPreviewSetsResponse
+				_, err = c.client.FollowReference(ctx, loc.Relationships.AppPreviewSets.Links.Related, &previewSets)
+				if err != nil {
+					return err
+				}
+				err = c.UpdatePreviewSets(ctx, previewSets.Data, loc.ID, locConfig.PreviewSets)
+				if err != nil {
+					return err
+				}
 			}
-		}
-		if loc.Relationships.AppScreenshotSets != nil {
-			var screenshotSets asc.AppScreenshotSetsResponse
-			_, err = c.client.FollowReference(ctx, loc.Relationships.AppScreenshotSets.Links.Related, &screenshotSets)
-			if err != nil {
-				return err
-			}
-			err = c.UpdateScreenshotSets(ctx, screenshotSets.Data, loc.ID, locConfig.ScreenshotSets)
-			if err != nil {
-				return err
+
+			if loc.Relationships.AppScreenshotSets != nil {
+				var screenshotSets asc.AppScreenshotSetsResponse
+				_, err = c.client.FollowReference(ctx, loc.Relationships.AppScreenshotSets.Links.Related, &screenshotSets)
+				if err != nil {
+					return err
+				}
+				err = c.UpdateScreenshotSets(ctx, screenshotSets.Data, loc.ID, locConfig.ScreenshotSets)
+				if err != nil {
+					return err
+				}
 			}
 		}
 	}

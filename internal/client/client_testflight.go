@@ -15,17 +15,19 @@ func (c *ascClient) UpdateBetaAppLocalizations(ctx *context.Context, app *asc.Ap
 	found := make(map[string]bool)
 	for _, loc := range locListResp.Data {
 		locale := *loc.Attributes.Locale
-		found[locale] = true
-		locConfig := config[locale]
-		_, _, err := c.client.TestFlight.UpdateBetaAppLocalization(ctx, loc.ID, &asc.BetaAppLocalizationUpdateRequestAttributes{
-			Description:       &locConfig.Description,
-			FeedbackEmail:     &locConfig.FeedbackEmail,
-			MarketingURL:      &locConfig.MarketingURL,
-			PrivacyPolicyURL:  &locConfig.PrivacyPolicyURL,
-			TVOSPrivacyPolicy: &locConfig.TVOSPrivacyPolicy,
-		})
-		if err != nil {
-			return err
+		if locConfig, ok := config[locale]; ok {
+			found[locale] = true
+
+			_, _, err := c.client.TestFlight.UpdateBetaAppLocalization(ctx, loc.ID, &asc.BetaAppLocalizationUpdateRequestAttributes{
+				Description:       &locConfig.Description,
+				FeedbackEmail:     &locConfig.FeedbackEmail,
+				MarketingURL:      &locConfig.MarketingURL,
+				PrivacyPolicyURL:  &locConfig.PrivacyPolicyURL,
+				TVOSPrivacyPolicy: &locConfig.TVOSPrivacyPolicy,
+			})
+			if err != nil {
+				return err
+			}
 		}
 	}
 
@@ -63,11 +65,13 @@ func (c *ascClient) UpdateBetaBuildLocalizations(ctx *context.Context, build *as
 	found := make(map[string]bool)
 	for _, loc := range locListResp.Data {
 		locale := *loc.Attributes.Locale
-		found[locale] = true
-		locConfig := config[locale]
-		_, _, err := c.client.TestFlight.UpdateBetaBuildLocalization(ctx, loc.ID, &locConfig.WhatsNew)
-		if err != nil {
-			return err
+		if locConfig, ok := config[locale]; ok {
+			found[locale] = true
+
+			_, _, err := c.client.TestFlight.UpdateBetaBuildLocalization(ctx, loc.ID, &locConfig.WhatsNew)
+			if err != nil {
+				return err
+			}
 		}
 	}
 

@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/aaronsky/applereleaser/internal/git"
+	"github.com/aaronsky/applereleaser/internal/pipe"
 	"github.com/aaronsky/applereleaser/pkg/context"
 	"github.com/apex/log"
 )
@@ -26,6 +27,15 @@ func (Pipe) String() string {
 
 // Run executes the hooks.
 func (p Pipe) Run(ctx *context.Context) error {
+	if ctx.SkipGit && ctx.Version != "" {
+		ctx.Git = context.GitInfo{
+			CurrentTag:  NoTag,
+			Commit:      "none",
+			ShortCommit: "none",
+			FullCommit:  "none",
+		}
+		return pipe.ErrSkipGitEnabled
+	}
 	if _, err := exec.LookPath("git"); err != nil {
 		return git.ErrNoGit
 	}

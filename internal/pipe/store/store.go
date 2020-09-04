@@ -39,6 +39,11 @@ func doRelease(ctx *context.Context, config config.App, client client.Client) er
 	if err != nil {
 		return err
 	}
+	isInitial, err := client.ReleaseForAppIsInitial(ctx, app)
+	if err != nil {
+		return err
+	}
+	ctx.VersionIsInitialRelease = isInitial
 	build, err := client.GetRelevantBuild(ctx, app)
 	if err != nil {
 		return err

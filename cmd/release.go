@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"time"
 
 	"github.com/aaronsky/applereleaser/internal/middleware"
@@ -21,6 +22,7 @@ type releaseOpts struct {
 	appsToRelease      []string
 	publishMode        context.PublishMode
 	releaseAllApps     bool
+	skipGit            bool
 	skipUpdateMetadata bool
 	skipSubmit         bool
 	timeout            time.Duration
@@ -39,6 +41,9 @@ func newReleaseCmd() *releaseCmd {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) > 0 {
 				root.opts.currentDirectory = args[0]
+			}
+			if root.opts.skipGit && root.opts.versionOverride == "" {
+				return errors.New("if --skip-git is set, --version must also be set")
 			}
 
 			start := time.Now()
@@ -59,6 +64,7 @@ func newReleaseCmd() *releaseCmd {
 	cmd.Flags().StringArrayVarP(&root.opts.appsToRelease, "app", "a", make([]string, 0), "App to release, using key name in configuration")
 	cmd.Flags().Var(&root.opts.publishMode, "mode", "Publish mode (default: \"testflight\")")
 	cmd.Flags().BoolVarP(&root.opts.releaseAllApps, "all-apps", "A", false, "Release all apps")
+	cmd.Flags().BoolVar(&root.opts.skipGit, "skip-git", false, "Skips deriving version information from Git. Must only be used in conjunction with --version")
 	cmd.Flags().BoolVar(&root.opts.skipUpdateMetadata, "skip-update-metadata", false, "Skips updating metadata")
 	cmd.Flags().BoolVar(&root.opts.skipSubmit, "skip-submit", false, "Skips submitting for review")
 	cmd.Flags().StringVarP(&root.opts.versionOverride, "version", "V", "", "Version override to use instead of Git tags")
@@ -97,6 +103,7 @@ func setupReleaseContext(ctx *context.Context, options releaseOpts) *context.Con
 	} else {
 		ctx.PublishMode = options.publishMode
 	}
+	ctx.SkipGit = options.skipGit
 	ctx.SkipUpdateMetadata = options.skipUpdateMetadata
 	ctx.SkipSubmit = options.skipSubmit
 	ctx.Version = options.versionOverride

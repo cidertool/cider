@@ -24,18 +24,20 @@ const (
 // Context carries along some data through the pipes.
 type Context struct {
 	ctx.Context
-	Config             config.Project
-	Env                Env
-	Date               time.Time
-	CurrentDirectory   string
-	Credentials        Credentials
-	AppsToRelease      []string
-	PublishMode        PublishMode
-	SkipUpdateMetadata bool
-	SkipSubmit         bool
-	Git                GitInfo
-	Version            string
-	Semver             Semver
+	Config                  config.Project
+	Env                     Env
+	Date                    time.Time
+	CurrentDirectory        string
+	Credentials             Credentials
+	AppsToRelease           []string
+	PublishMode             PublishMode
+	SkipGit                 bool
+	SkipUpdateMetadata      bool
+	SkipSubmit              bool
+	Git                     GitInfo
+	Version                 string
+	Semver                  Semver
+	VersionIsInitialRelease bool
 }
 
 // Env is the environment variables.
@@ -61,8 +63,8 @@ type Semver struct {
 	Major      uint64
 	Minor      uint64
 	Patch      uint64
-	RawVersion string
 	Prerelease string
+	RawVersion string
 }
 
 // New context.

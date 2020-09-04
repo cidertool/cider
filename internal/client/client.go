@@ -14,6 +14,7 @@ import (
 type Client interface {
 	GetAppForBundleID(ctx *context.Context, id string) (*asc.App, error)
 	GetRelevantBuild(ctx *context.Context, app *asc.App) (*asc.Build, error)
+	ReleaseForAppIsInitial(ctx *context.Context, app *asc.App) (bool, error)
 	UpdateBetaAppLocalizations(ctx *context.Context, app *asc.App, config config.TestflightLocalizations) error
 	UpdateBetaBuildDetails(ctx *context.Context, build *asc.Build, config config.TestflightForApp) error
 	UpdateBetaBuildLocalizations(ctx *context.Context, build *asc.Build, config config.TestflightLocalizations) error
@@ -27,8 +28,6 @@ type Client interface {
 	UpdateVersionLocalizations(ctx *context.Context, version *asc.AppStoreVersion, config config.VersionLocalizations) error
 	UpdateIDFADeclaration(ctx *context.Context, version *asc.AppStoreVersion, config config.IDFADeclaration) error
 	UploadRoutingCoverage(ctx *context.Context, version *asc.AppStoreVersion, config config.File) error
-	UpdatePreviewSets(ctx *context.Context, previewSets []asc.AppPreviewSet, appStoreVersionLocalizationID string, config config.PreviewSets) error
-	UpdateScreenshotSets(ctx *context.Context, screenshotSets []asc.AppScreenshotSet, appStoreVersionLocalizationID string, config config.ScreenshotSets) error
 	UpdateReviewDetails(ctx *context.Context, version *asc.AppStoreVersion, config config.ReviewDetails) error
 	SubmitApp(ctx *context.Context, version *asc.AppStoreVersion) error
 }
@@ -77,6 +76,11 @@ func (c *ascClient) GetRelevantBuild(ctx *context.Context, app *asc.App) (*asc.B
 		return nil, fmt.Errorf("latest build %s has a processing state of %s. it would be dangerous to proceed", build.ID, *build.Attributes.ProcessingState)
 	}
 	return &build, nil
+}
+
+func (c *ascClient) ReleaseForAppIsInitial(ctx *context.Context, app *asc.App) (bool, error) {
+	resp, _, err := c.client.Apps.ListAppStoreVersionsForApp(ctx, app.ID, nil)
+	return len(resp.Data) <= 1, err
 }
 
 func md5Checksum(f io.Reader) (string, error) {

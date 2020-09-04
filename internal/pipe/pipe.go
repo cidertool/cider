@@ -1,5 +1,9 @@
 package pipe
 
+// ErrSkipGitEnabled happens if --skip-git is set. It means that the part of a Piper that
+// extracts metadata from the Git repository was not run.
+var ErrSkipGitEnabled = Skip("inspecting git state is disabled")
+
 // ErrSkipUpdateMetadataEnabled happens if --skip-update-metadata is set.
 // It means that the part of a Piper that updates metadata in App Store Connect
 // was not run.

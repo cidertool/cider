@@ -103,8 +103,6 @@ func (c *ascClient) CreateVersionIfNeeded(ctx *context.Context, app *asc.App, bu
 }
 
 func (c *ascClient) UpdateVersionLocalizations(ctx *context.Context, version *asc.AppStoreVersion, config config.VersionLocalizations) error {
-	asc.SetHTTPDebug(true)
-	defer asc.SetHTTPDebug(false)
 	locListResp, _, err := c.client.Apps.ListLocalizationsForAppStoreVersion(ctx, version.ID, nil)
 	if err != nil {
 		return err
@@ -116,42 +114,23 @@ func (c *ascClient) UpdateVersionLocalizations(ctx *context.Context, version *as
 		if locConfig, ok := config[locale]; ok {
 			found[locale] = true
 
-			updatedLocResp, _, err := c.client.Apps.UpdateAppStoreVersionLocalization(ctx, loc.ID, &asc.AppStoreVersionLocalizationUpdateRequestAttributes{
+			attrs := asc.AppStoreVersionLocalizationUpdateRequestAttributes{
 				Description:     &locConfig.Description,
 				Keywords:        &locConfig.Keywords,
 				MarketingURL:    &locConfig.MarketingURL,
 				PromotionalText: &locConfig.PromotionalText,
 				SupportURL:      &locConfig.SupportURL,
-				// TODO: Modifying this field results in a 409 Conflict error
-				WhatsNew: &locConfig.WhatsNewText,
-			})
+			}
+			// If WhatsNew is set on an app that has never released before, the API will respond with a 409 Conflict when attempting to set the value.
+			if !ctx.VersionIsInitialRelease {
+				attrs.WhatsNew = &locConfig.WhatsNewText
+			}
+			updatedLocResp, _, err := c.client.Apps.UpdateAppStoreVersionLocalization(ctx, loc.ID, &attrs)
 			if err != nil {
 				return err
 			}
-			loc = updatedLocResp.Data
-
-			if loc.Relationships.AppPreviewSets != nil {
-				var previewSets asc.AppPreviewSetsResponse
-				_, err = c.client.FollowReference(ctx, loc.Relationships.AppPreviewSets.Links.Related, &previewSets)
-				if err != nil {
-					return err
-				}
-				err = c.UpdatePreviewSets(ctx, previewSets.Data, loc.ID, locConfig.PreviewSets)
-				if err != nil {
-					return err
-				}
-			}
-
-			if loc.Relationships.AppScreenshotSets != nil {
-				var screenshotSets asc.AppScreenshotSetsResponse
-				_, err = c.client.FollowReference(ctx, loc.Relationships.AppScreenshotSets.Links.Related, &screenshotSets)
-				if err != nil {
-					return err
-				}
-				err = c.UpdateScreenshotSets(ctx, screenshotSets.Data, loc.ID, locConfig.ScreenshotSets)
-				if err != nil {
-					return err
-				}
+			if err := c.UpdatePreviewsAndScreenshotsIfNeeded(ctx, &updatedLocResp.Data, &locConfig); err != nil {
+				return err
 			}
 		}
 	}
@@ -160,43 +139,53 @@ func (c *ascClient) UpdateVersionLocalizations(ctx *context.Context, version *as
 		if found[locale] {
 			continue
 		}
-		locResp, _, err := c.client.Apps.CreateAppStoreVersionLocalization(ctx.Context, asc.AppStoreVersionLocalizationCreateRequestAttributes{
+		attrs := asc.AppStoreVersionLocalizationCreateRequestAttributes{
 			Description:     &locConfig.Description,
 			Keywords:        &locConfig.Keywords,
-			Locale:          locale,
 			MarketingURL:    &locConfig.MarketingURL,
 			PromotionalText: &locConfig.PromotionalText,
 			SupportURL:      &locConfig.SupportURL,
-			WhatsNew:        &locConfig.WhatsNewText,
-		}, version.ID)
+		}
+		// If WhatsNew is set on an app that has never released before, the API will respond with a 409 Conflict when attempting to set the value.
+		if !ctx.VersionIsInitialRelease {
+			attrs.WhatsNew = &locConfig.WhatsNewText
+		}
+		locResp, _, err := c.client.Apps.CreateAppStoreVersionLocalization(ctx.Context, attrs, version.ID)
 		if err != nil {
 			return err
 		}
-		loc := locResp.Data
-		if loc.Relationships.AppPreviewSets != nil {
-			var previewSets asc.AppPreviewSetsResponse
-			_, err = c.client.FollowReference(ctx, loc.Relationships.AppPreviewSets.Links.Related, &previewSets)
-			if err != nil {
-				return err
-			}
-			err = c.UpdatePreviewSets(ctx, previewSets.Data, loc.ID, locConfig.PreviewSets)
-			if err != nil {
-				return err
-			}
-		}
-		if loc.Relationships.AppScreenshotSets != nil {
-			var screenshotSets asc.AppScreenshotSetsResponse
-			_, err = c.client.FollowReference(ctx, loc.Relationships.AppScreenshotSets.Links.Related, &screenshotSets)
-			if err != nil {
-				return err
-			}
-			err = c.UpdateScreenshotSets(ctx, screenshotSets.Data, loc.ID, locConfig.ScreenshotSets)
-			if err != nil {
-				return err
-			}
+		if err := c.UpdatePreviewsAndScreenshotsIfNeeded(ctx, &locResp.Data, &locConfig); err != nil {
+			return err
 		}
 	}
 
+	return nil
+}
+
+func (c *ascClient) UpdatePreviewsAndScreenshotsIfNeeded(ctx *context.Context, loc *asc.AppStoreVersionLocalization, config *config.VersionLocalization) error {
+	if loc.Relationships.AppPreviewSets != nil {
+		var previewSets asc.AppPreviewSetsResponse
+		_, err := c.client.FollowReference(ctx, loc.Relationships.AppPreviewSets.Links.Related, &previewSets)
+		if err != nil {
+			return err
+		}
+		err = c.UpdatePreviewSets(ctx, previewSets.Data, loc.ID, config.PreviewSets)
+		if err != nil {
+			return err
+		}
+	}
+
+	if loc.Relationships.AppScreenshotSets != nil {
+		var screenshotSets asc.AppScreenshotSetsResponse
+		_, err := c.client.FollowReference(ctx, loc.Relationships.AppScreenshotSets.Links.Related, &screenshotSets)
+		if err != nil {
+			return err
+		}
+		err = c.UpdateScreenshotSets(ctx, screenshotSets.Data, loc.ID, config.ScreenshotSets)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 

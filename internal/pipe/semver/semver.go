@@ -17,7 +17,7 @@ func (Pipe) String() string {
 
 // Run executes the hooks.
 func (p Pipe) Run(ctx *context.Context) error {
-	sv, err := semver.NewVersion(ctx.Git.CurrentTag)
+	sv, err := semver.NewVersion(ctx.Version)
 	if err != nil {
 		return fmt.Errorf("failed to parse tag %s as semver: %w", ctx.Git.CurrentTag, err)
 	}
@@ -26,6 +26,7 @@ func (p Pipe) Run(ctx *context.Context) error {
 		Minor:      sv.Minor(),
 		Patch:      sv.Patch(),
 		Prerelease: sv.Prerelease(),
+		RawVersion: sv.Original(),
 	}
 	return nil
 }

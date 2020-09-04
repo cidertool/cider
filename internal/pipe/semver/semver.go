@@ -19,7 +19,7 @@ func (Pipe) String() string {
 func (p Pipe) Run(ctx *context.Context) error {
 	sv, err := semver.NewVersion(ctx.Version)
 	if err != nil {
-		return fmt.Errorf("failed to parse tag %s as semver: %w", ctx.Git.CurrentTag, err)
+		return fmt.Errorf("failed to parse tag %s as semver: %w", ctx.Version, err)
 	}
 	ctx.Semver = context.Semver{
 		Major:      sv.Major(),

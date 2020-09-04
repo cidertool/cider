@@ -52,7 +52,10 @@ func (p Pipe) Run(ctx *context.Context) error {
 		ctx.Git.CurrentTag = tag
 		ctx.Version = strings.TrimPrefix(tag, "v")
 	}
-	log.Infof("releasing %s, commit %s", ctx.Version, info.Commit)
+	log.WithFields(log.Fields{
+		"version": ctx.Version,
+		"commit":  info.Commit,
+	}).Infof("releasing")
 	return validate(ctx)
 }
 

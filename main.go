@@ -7,6 +7,7 @@ import (
 	"github.com/aaronsky/applereleaser/cmd"
 )
 
+// nolint: gochecknoglobals
 var (
 	version = "dev"
 	commit  = ""

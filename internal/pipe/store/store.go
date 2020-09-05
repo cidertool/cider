@@ -1,3 +1,4 @@
+// Package store is a pipe that processes an app's release to the App Store
 package store
 
 import (

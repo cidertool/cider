@@ -8,16 +8,16 @@ import (
 	"syscall"
 )
 
-// Task is function that can be executed by an interrupt
+// Task is function that can be executed by an interrupt.
 type Task func() error
 
-// Interrupt tracks signals from the OS to determine whether to interrupt
+// Interrupt tracks signals from the OS to determine whether to interrupt.
 type Interrupt struct {
 	signals chan os.Signal
 	errs    chan error
 }
 
-// NewInterrupt creates an interrupt instance
+// NewInterrupt creates an interrupt instance.
 func NewInterrupt() *Interrupt {
 	return &Interrupt{
 		signals: make(chan os.Signal, 1),

@@ -1,3 +1,4 @@
+// Package template provides an interface for text templates to be used during pipes
 package template
 
 import (
@@ -24,10 +25,10 @@ type Template struct {
 	fields Fields
 }
 
-// Fields is a heterogenous map type keyed by strings
+// Fields is a heterogenous map type keyed by strings.
 type Fields map[string]interface{}
 
-// New returns a new template instance
+// New returns a new template instance.
 func New(ctx *context.Context) *Template {
 	return &Template{
 		Fields{
@@ -40,7 +41,7 @@ func New(ctx *context.Context) *Template {
 	}
 }
 
-// WithFields merges the template's configured fields with the given Fields
+// WithFields merges the template's configured fields with the given Fields.
 func (t *Template) WithFields(fields Fields) *Template {
 	for key, value := range fields {
 		t.fields[key] = value
@@ -48,13 +49,13 @@ func (t *Template) WithFields(fields Fields) *Template {
 	return t
 }
 
-// WithEnv replaces the configured env of the template with the given key-value map
+// WithEnv replaces the configured env of the template with the given key-value map.
 func (t *Template) WithEnv(env map[string]string) *Template {
 	t.fields[envKey] = env
 	return t
 }
 
-// WithShellEnv replaces the configured env of the template with the given sequence of shell-style, e.g. "KEY=VALUE", strings
+// WithShellEnv replaces the configured env of the template with the given sequence of shell-style, e.g. "KEY=VALUE", strings.
 func (t *Template) WithShellEnv(envs ...string) *Template {
 	env := make(map[string]string)
 	for _, e := range envs {
@@ -64,7 +65,7 @@ func (t *Template) WithShellEnv(envs ...string) *Template {
 	return t.WithEnv(env)
 }
 
-// Apply takes the template string and processes it into its product string
+// Apply takes the template string and processes it into its product string.
 func (t *Template) Apply(s string) (string, error) {
 	var out bytes.Buffer
 	tmpl, err := template.New("tmpl").

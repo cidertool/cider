@@ -1,3 +1,4 @@
+// Package env is a pipe that loads environment variables
 package env
 
 import (
@@ -5,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 
 	"github.com/aaronsky/applereleaser/pkg/context"
 )
@@ -55,7 +57,7 @@ func loadEnvFromPath(env string, required bool) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	f, err := os.Open(val)
+	f, err := os.Open(filepath.Clean(val))
 	if os.IsNotExist(err) {
 		return "", nil
 	} else if err != nil {

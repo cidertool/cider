@@ -24,7 +24,7 @@ func (e ErrWrongRef) Error() string {
 	return fmt.Sprintf("git tag %v was not made against commit %v", e.Tag, e.Commit)
 }
 
-// ErrNoTag happens if the underlying git repository doesn't contain any tags
+// ErrNoTag happens if the underlying git repository doesn't contain any tags.
 var ErrNoTag = errors.New("git doesn't contain any tags")
 
 // ErrNotRepository happens if you try to run applereleaser against a folder

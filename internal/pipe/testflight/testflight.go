@@ -1,3 +1,4 @@
+// Package testflight is a pipe that processes an app's release to Testflight
 package testflight
 
 import (

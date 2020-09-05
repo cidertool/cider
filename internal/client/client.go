@@ -1,7 +1,8 @@
+// Package client provides a full-featured App Store Connect API client
 package client
 
 import (
-	"crypto/md5"
+	"crypto/md5" // #nosec
 	"fmt"
 	"io"
 
@@ -10,7 +11,7 @@ import (
 	"github.com/aaronsky/asc-go/asc"
 )
 
-// Client is an abstraction of an App Store Connect API client's functionality
+// Client is an abstraction of an App Store Connect API client's functionality.
 type Client interface {
 	// GetAppForBundleID returns the App resource matching the given bundle ID
 	GetAppForBundleID(ctx *context.Context, id string) (*asc.App, error)
@@ -55,7 +56,7 @@ type Client interface {
 	SubmitApp(ctx *context.Context, version *asc.AppStoreVersion) error
 }
 
-// New returns a new Client
+// New returns a new Client.
 func New(ctx *context.Context) Client {
 	client := asc.NewClient(ctx.Credentials.Client())
 	return &ascClient{client: client}
@@ -113,9 +114,11 @@ func (c *ascClient) GetRelevantBuild(ctx *context.Context, app *asc.App) (*asc.B
 	build := resp.Data[0]
 	if build.Attributes == nil {
 		return nil, fmt.Errorf("build %s has no attributes", build.ID)
-	} else if build.Attributes.ProcessingState == nil {
+	}
+	if build.Attributes.ProcessingState == nil {
 		return nil, fmt.Errorf("build %s has no processing state", build.ID)
-	} else if *build.Attributes.ProcessingState != "VALID" {
+	}
+	if *build.Attributes.ProcessingState != "VALID" {
 		return nil, fmt.Errorf("latest build %s has a processing state of %s. it would be dangerous to proceed", build.ID, *build.Attributes.ProcessingState)
 	}
 	return &build, nil
@@ -127,6 +130,7 @@ func (c *ascClient) ReleaseForAppIsInitial(ctx *context.Context, app *asc.App) (
 }
 
 func md5Checksum(f io.Reader) (string, error) {
+	/* #nosec */
 	h := md5.New()
 	if _, err := io.Copy(h, f); err != nil {
 		return "", err

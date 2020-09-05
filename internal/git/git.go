@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"errors"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
 	"github.com/aaronsky/applereleaser/pkg/context"
@@ -23,10 +24,10 @@ func RunEnv(ctx *context.Context, env map[string]string, args ...string) (string
 		"-c", "log.showSignature=false",
 	}
 	if ctx.CurrentDirectory != "" && ctx.CurrentDirectory != "." {
-		extraArgs = append(extraArgs, "-C", ctx.CurrentDirectory)
+		extraArgs = append(extraArgs, "-C", filepath.Clean(ctx.CurrentDirectory))
 	}
 	args = append(extraArgs, args...)
-	var cmd = exec.CommandContext(ctx, "git", args...)
+	var cmd = exec.CommandContext(ctx, "git", args...) // nolint: gosec
 
 	if env != nil {
 		cmd.Env = []string{}

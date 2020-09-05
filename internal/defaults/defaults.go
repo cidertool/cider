@@ -1,3 +1,4 @@
+// Package defaults is used by pipes to provide default values to a context configuration
 package defaults
 
 import (

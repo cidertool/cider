@@ -3,6 +3,7 @@ package cmd
 import (
 	"os"
 
+	"github.com/aaronsky/applereleaser/internal/closer"
 	"github.com/aaronsky/applereleaser/internal/static"
 	"github.com/apex/log"
 	"github.com/fatih/color"
@@ -22,11 +23,11 @@ func newInitCmd() *initCmd {
 		SilenceUsage:  true,
 		SilenceErrors: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			f, err := os.OpenFile(root.config, os.O_WRONLY|os.O_CREATE|os.O_TRUNC|os.O_EXCL, 0644)
+			f, err := os.OpenFile(root.config, os.O_WRONLY|os.O_CREATE|os.O_TRUNC|os.O_EXCL, 0600)
 			if err != nil {
 				return err
 			}
-			defer f.Close()
+			defer closer.Close(f)
 
 			log.Infof(color.New(color.Bold).Sprintf("Generating %s file", root.config))
 			if _, err := f.WriteString(static.ExampleConfig); err != nil {

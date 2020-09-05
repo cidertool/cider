@@ -20,12 +20,12 @@ func (Pipe) String() string {
 // Publish to App Store Review.
 func (p Pipe) Publish(ctx *context.Context) error {
 	if ctx.PublishMode != context.PublishModeAppStore {
-		return pipe.Skip("testflight")
+		return pipe.Skip("app store")
 	}
 	client := client.New(ctx)
 	for _, name := range ctx.AppsToRelease {
 		app := ctx.Config.Apps[name]
-		log.WithField("testflight", name).Info("updating metadata")
+		log.WithField("app", name).Info("updating metadata")
 		err := doRelease(ctx, app, client)
 		if err != nil {
 			return err
@@ -64,7 +64,14 @@ func doRelease(ctx *context.Context, config config.App, client client.Client) er
 }
 
 func updateVersionDetails(ctx *context.Context, config config.App, client client.Client, app *asc.App, version *asc.AppStoreVersion) error {
-	if err := client.UpdateAppLocalizations(ctx, app, config.Localizations); err != nil {
+	appInfo, err := client.GetAppInfo(ctx, app)
+	if err != nil {
+		return err
+	}
+	if err := client.UpdateApp(ctx, app, appInfo, config); err != nil {
+		return err
+	}
+	if err := client.UpdateAppLocalizations(ctx, app, appInfo, config.Localizations); err != nil {
 		return err
 	}
 	if err := client.UpdateVersionLocalizations(ctx, version, config.Versions.Localizations); err != nil {

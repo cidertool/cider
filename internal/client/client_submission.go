@@ -8,7 +8,93 @@ import (
 	"github.com/aaronsky/asc-go/asc"
 )
 
-func (c *ascClient) UpdateAppLocalizations(ctx *context.Context, app *asc.App, config config.AppLocalizations) error {
+func (c *ascClient) UpdateApp(ctx *context.Context, app *asc.App, appInfo *asc.AppInfo, config config.App) error {
+	availableTerritoryIDs, err := c.AvailableTerritoryIDsInConfig(ctx, config.Availability.Territories)
+	if err != nil {
+		return err
+	}
+
+	var prices []asc.NewAppPriceRelationship
+	if !ctx.SkipUpdatePricing {
+		prices = priceSchedules(config.Availability.Pricing)
+	}
+
+	if _, _, err := c.client.Apps.UpdateApp(
+		ctx,
+		app.ID,
+		&asc.AppUpdateRequestAttributes{
+			PrimaryLocale:             &config.PrimaryLocale,
+			ContentRightsDeclaration:  contentRightsDeclaration(config.UsesThirdPartyContent),
+			AvailableInNewTerritories: config.Availability.AvailableInNewTerritories,
+		},
+		availableTerritoryIDs,
+		prices,
+	); err != nil {
+		return err
+	}
+
+	// TODO: Man, category IDs are kind of wild, aren't they? Will need to fix this at some point.
+
+	// if _, _, err := c.client.Apps.UpdateAppInfo(ctx, appInfo.ID, &asc.AppInfoUpdateRequestRelationships{
+	// 	PrimaryCategoryID:         nil,
+	// 	PrimarySubcategoryOneID:   nil,
+	// 	PrimarySubcategoryTwoID:   nil,
+	// 	SecondaryCategoryID:       nil,
+	// 	SecondarySubcategoryOneID: nil,
+	// 	SecondarySubcategoryTwoID: nil,
+	// }); err != nil {
+	// 	return err
+	// }
+	return nil
+}
+
+func (c *ascClient) AvailableTerritoryIDsInConfig(ctx *context.Context, config []string) (availableTerritoryIDs []string, err error) {
+	availableTerritoryIDs = make([]string, 0)
+	if len(config) == 0 {
+		return availableTerritoryIDs, nil
+	}
+	territoriesResp, _, err := c.client.Pricing.ListTerritories(ctx, &asc.ListTerritoriesQuery{Limit: 200})
+	if err != nil {
+		return nil, err
+	}
+	found := make(map[string]bool)
+	for _, territory := range territoriesResp.Data {
+		found[territory.ID] = true
+	}
+	for _, id := range config {
+		if found[id] {
+			availableTerritoryIDs = append(availableTerritoryIDs, id)
+		}
+	}
+	return availableTerritoryIDs, nil
+}
+
+func contentRightsDeclaration(flag *bool) *string {
+	if flag != nil {
+		if *flag {
+			return asc.String("USES_THIRD_PARTY_CONTENT")
+		}
+		return asc.String("DOES_NOT_USE_THIRD_PARTY_CONTENT")
+	}
+	return nil
+}
+
+func priceSchedules(schedules []config.PriceSchedule) (priceSchedules []asc.NewAppPriceRelationship) {
+	priceSchedules = make([]asc.NewAppPriceRelationship, len(schedules))
+	for i, price := range schedules {
+		var startDate *asc.Date
+		if price.StartDate != nil {
+			startDate = &asc.Date{Time: *price.StartDate}
+		}
+		priceSchedules[i] = asc.NewAppPriceRelationship{
+			StartDate:   startDate,
+			PriceTierID: &price.Tier,
+		}
+	}
+	return priceSchedules
+}
+
+func (c *ascClient) UpdateAppLocalizations(ctx *context.Context, app *asc.App, appInfo *asc.AppInfo, config config.AppLocalizations) error {
 	appInfosResp, _, err := c.client.Apps.ListAppInfosForApp(ctx, app.ID, nil)
 	if err != nil {
 		return err

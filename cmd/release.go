@@ -23,6 +23,7 @@ type releaseOpts struct {
 	publishMode        context.PublishMode
 	releaseAllApps     bool
 	skipGit            bool
+	skipUpdatePricing  bool
 	skipUpdateMetadata bool
 	skipSubmit         bool
 	timeout            time.Duration
@@ -65,6 +66,7 @@ func newReleaseCmd() *releaseCmd {
 	cmd.Flags().Var(&root.opts.publishMode, "mode", "Publish mode (default: \"testflight\")")
 	cmd.Flags().BoolVarP(&root.opts.releaseAllApps, "all-apps", "A", false, "Release all apps")
 	cmd.Flags().BoolVar(&root.opts.skipGit, "skip-git", false, "Skips deriving version information from Git. Must only be used in conjunction with --version")
+	cmd.Flags().BoolVar(&root.opts.skipUpdatePricing, "skip-update-pricing", false, "Skips updating pricing")
 	cmd.Flags().BoolVar(&root.opts.skipUpdateMetadata, "skip-update-metadata", false, "Skips updating metadata")
 	cmd.Flags().BoolVar(&root.opts.skipSubmit, "skip-submit", false, "Skips submitting for review")
 	cmd.Flags().StringVarP(&root.opts.versionOverride, "version", "V", "", "Version override to use instead of Git tags")
@@ -104,6 +106,7 @@ func setupReleaseContext(ctx *context.Context, options releaseOpts) *context.Con
 		ctx.PublishMode = options.publishMode
 	}
 	ctx.SkipGit = options.skipGit
+	ctx.SkipUpdatePricing = options.skipUpdatePricing
 	ctx.SkipUpdateMetadata = options.skipUpdateMetadata
 	ctx.SkipSubmit = options.skipSubmit
 	ctx.Version = options.versionOverride

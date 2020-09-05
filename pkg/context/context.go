@@ -32,6 +32,7 @@ type Context struct {
 	AppsToRelease           []string
 	PublishMode             PublishMode
 	SkipGit                 bool
+	SkipUpdatePricing       bool
 	SkipUpdateMetadata      bool
 	SkipSubmit              bool
 	Git                     GitInfo

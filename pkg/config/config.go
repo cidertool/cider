@@ -167,10 +167,36 @@ type Testflight struct {
 
 // App outlines general information about your app, primarily for querying purposes
 type App struct {
-	BundleID      string           `yaml:"id"`
-	Localizations AppLocalizations `yaml:"localizations"`
-	Versions      Version          `yaml:"versions"`
-	Testflight    TestflightForApp `yaml:"testflight"`
+	BundleID              string           `yaml:"id"`
+	PrimaryLocale         string           `yaml:"primaryLocale,omitempty"`
+	UsesThirdPartyContent *bool            `yaml:"usesThirdPartyContent,omitempty"`
+	Availability          *Availability    `yaml:"availability,omitempty"`
+	Localizations         AppLocalizations `yaml:"localizations"`
+	Versions              Version          `yaml:"versions"`
+	Testflight            TestflightForApp `yaml:"testflight"`
+}
+
+// Availability wraps aspects of app availability, such as territories and pricing
+type Availability struct {
+	AvailableInNewTerritories *bool           `yaml:"availableInNewTerritories,omitempty"`
+	Pricing                   []PriceSchedule `yaml:"priceTiers,omitempty"`
+	// Territories corresponds to the ISO code IDs of territories as they're referred to in App Store Connect.
+	//
+	// https://help.apple.com/app-store-connect/#/dev997f9cf7c
+	Territories []string `yaml:"territories,omitempty"`
+}
+
+// PriceSchedule represents pricing availability information that an app should be immediately
+// configured to.
+type PriceSchedule struct {
+	// Tier corresponds to a representation of a tier on the App Store Pricing Matrix.
+	// For example, Tier 1 should be represented as "1" and the Free tier should be
+	// represented as "0".
+	//
+	// https://appstoreconnect.apple.com/apps/pricingmatrix
+	Tier      string     `yaml:"tier"`
+	StartDate *time.Time `yaml:"startDate,omitempty"`
+	EndDate   *time.Time `yaml:"endDate,omitempty"`
 }
 
 // AppLocalizations is a map of locales to AppLocalization objects

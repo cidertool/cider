@@ -26,7 +26,7 @@ func newInitCmd() *initCmd {
 			if err != nil {
 				return err
 			}
-			defer f.Close()
+			defer f.Close() // nolint: errcheck
 
 			log.Infof(color.New(color.Bold).Sprintf("Generating %s file", root.config))
 			if _, err := f.WriteString(static.ExampleConfig); err != nil {

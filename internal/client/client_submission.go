@@ -322,7 +322,9 @@ func (c *ascClient) UpdatePreviewSets(ctx *context.Context, previewSets []asc.Ap
 		previewType := *previewSet.Attributes.PreviewType
 		found[previewType] = true
 		previewsConfig := config.GetPreviews(previewType)
-		c.UploadPreviews(ctx, &previewSet, previewsConfig)
+		if err := c.UploadPreviews(ctx, &previewSet, previewsConfig); err != nil {
+			return err
+		}
 	}
 	for previewType, previews := range config {
 		t := previewType.APIValue()
@@ -333,8 +335,7 @@ func (c *ascClient) UpdatePreviewSets(ctx *context.Context, previewSets []asc.Ap
 		if err != nil {
 			return err
 		}
-		err = c.UploadPreviews(ctx, &previewSetResp.Data, previews)
-		if err != nil {
+		if err = c.UploadPreviews(ctx, &previewSetResp.Data, previews); err != nil {
 			return err
 		}
 	}
@@ -367,7 +368,9 @@ func (c *ascClient) UpdateScreenshotSets(ctx *context.Context, screenshotSets []
 		screenshotType := *screenshotSet.Attributes.ScreenshotDisplayType
 		found[screenshotType] = true
 		screenshotConfig := config.GetScreenshots(screenshotType)
-		c.UploadScreenshots(ctx, &screenshotSet, screenshotConfig)
+		if err := c.UploadScreenshots(ctx, &screenshotSet, screenshotConfig); err != nil {
+			return err
+		}
 	}
 	for screenshotType, screenshots := range config {
 		t := screenshotType.APIValue()
@@ -446,7 +449,7 @@ func (c *ascClient) uploadFile(ctx *context.Context, path string, create createF
 	if err != nil {
 		return err
 	}
-	defer f.Close()
+	defer f.Close() // nolint: errcheck
 
 	fstat, err := os.Stat(path)
 	if err != nil {

@@ -6,3 +6,5 @@ issues:
   exclude-use-default: false
 linters:
   enable-all: true
+  disable:
+    - funlen

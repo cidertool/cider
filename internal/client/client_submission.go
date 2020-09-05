@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/aaronsky/applereleaser/internal/closer"
 	"github.com/aaronsky/applereleaser/pkg/config"
 	"github.com/aaronsky/applereleaser/pkg/context"
 	"github.com/aaronsky/asc-go/asc"
@@ -455,9 +456,7 @@ func (c *ascClient) uploadFile(ctx *context.Context, path string, create createF
 	if err != nil {
 		return err
 	}
-	defer func() {
-		err = f.Close()
-	}()
+	defer closer.Close(f)
 
 	fstat, err := os.Stat(path)
 	if err != nil {

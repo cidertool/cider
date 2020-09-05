@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/aaronsky/applereleaser/internal/closer"
 	"github.com/aaronsky/asc-go/asc"
 	"gopkg.in/yaml.v2"
 )
@@ -315,9 +316,7 @@ func Load(file string) (config Project, err error) {
 	if err != nil {
 		return
 	}
-	defer func() {
-		err = f.Close()
-	}()
+	defer closer.Close(f)
 	return LoadReader(f)
 }
 

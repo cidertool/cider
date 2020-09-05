@@ -3,6 +3,7 @@ package cmd
 import (
 	"os"
 
+	"github.com/aaronsky/applereleaser/internal/closer"
 	"github.com/aaronsky/applereleaser/internal/static"
 	"github.com/apex/log"
 	"github.com/fatih/color"
@@ -26,9 +27,7 @@ func newInitCmd() *initCmd {
 			if err != nil {
 				return err
 			}
-			defer func() {
-				err = f.Close()
-			}()
+			defer closer.Close(f)
 
 			log.Infof(color.New(color.Bold).Sprintf("Generating %s file", root.config))
 			if _, err := f.WriteString(static.ExampleConfig); err != nil {

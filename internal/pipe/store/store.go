@@ -53,14 +53,29 @@ func doRelease(ctx *context.Context, config config.App, client client.Client) er
 	if err != nil {
 		return err
 	}
-	if !ctx.SkipUpdateMetadata {
+
+	log.WithFields(log.Fields{
+		"app":     *app.Attributes.BundleID,
+		"build":   *build.Attributes.Version,
+		"version": *version.Attributes.VersionString,
+	}).Info("found resources")
+
+	if ctx.SkipUpdateMetadata {
+		log.Warn("skipping updating metdata")
+	} else {
+		log.Info("updating metadata")
 		if err := updateVersionDetails(ctx, config, client, app, version); err != nil {
 			return err
 		}
 	}
+
 	if ctx.SkipSubmit {
 		return pipe.ErrSkipSubmitEnabled
 	}
+
+	log.
+		WithField("version", *version.Attributes.VersionString).
+		Info("submitting to app store")
 	return client.SubmitApp(ctx, version)
 }
 
@@ -69,26 +84,32 @@ func updateVersionDetails(ctx *context.Context, config config.App, client client
 	if err != nil {
 		return err
 	}
+	log.Debug("updating app details")
 	if err := client.UpdateApp(ctx, app, appInfo, config); err != nil {
 		return err
 	}
+	log.Debugf("updating %d app localizations", len(config.Localizations))
 	if err := client.UpdateAppLocalizations(ctx, app, appInfo, config.Localizations); err != nil {
 		return err
 	}
+	log.Debugf("updating %d app store version localizations", len(config.Versions.Localizations))
 	if err := client.UpdateVersionLocalizations(ctx, version, config.Versions.Localizations); err != nil {
 		return err
 	}
 	if config.Versions.IDFADeclaration != nil {
+		log.Debug("updating IDFA declaration")
 		if err := client.UpdateIDFADeclaration(ctx, version, *config.Versions.IDFADeclaration); err != nil {
 			return err
 		}
 	}
 	if config.Versions.RoutingCoverage != nil {
+		log.Debug("uploading routing coverage asset")
 		if err := client.UploadRoutingCoverage(ctx, version, *config.Versions.RoutingCoverage); err != nil {
 			return err
 		}
 	}
 	if config.Versions.ReviewDetails != nil {
+		log.Debug("updating review details")
 		if err := client.UpdateReviewDetails(ctx, version, *config.Versions.ReviewDetails); err != nil {
 			return err
 		}

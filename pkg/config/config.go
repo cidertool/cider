@@ -344,7 +344,7 @@ func (p Project) String() (string, error) {
 
 // AppsMatching returns an array of keys in the Project matching the app names, or all names if the flag is set.
 func (p *Project) AppsMatching(keys []string, shouldIncludeAll bool) []string {
-	if shouldIncludeAll {
+	if shouldIncludeAll || len(p.Apps) == 1 {
 		appNamesMatching := make([]string, len(p.Apps))
 		i := 0
 		for key := range p.Apps {

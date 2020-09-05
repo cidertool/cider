@@ -22,11 +22,13 @@ func newInitCmd() *initCmd {
 		SilenceUsage:  true,
 		SilenceErrors: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			f, err := os.OpenFile(root.config, os.O_WRONLY|os.O_CREATE|os.O_TRUNC|os.O_EXCL, 0644)
+			f, err := os.OpenFile(root.config, os.O_WRONLY|os.O_CREATE|os.O_TRUNC|os.O_EXCL, 0600)
 			if err != nil {
 				return err
 			}
-			defer f.Close() // nolint: errcheck
+			defer func() {
+				err = f.Close()
+			}()
 
 			log.Infof(color.New(color.Bold).Sprintf("Generating %s file", root.config))
 			if _, err := f.WriteString(static.ExampleConfig); err != nil {

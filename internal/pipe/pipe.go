@@ -1,3 +1,4 @@
+// Package pipe declares utilities and errors for pipes
 package pipe
 
 // ErrSkipGitEnabled happens if --skip-git is set. It means that the part of a Piper that

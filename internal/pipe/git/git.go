@@ -1,3 +1,4 @@
+// Package git is a pipe that reads and validates git environment
 package git
 
 import (

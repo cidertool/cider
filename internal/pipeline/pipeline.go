@@ -1,3 +1,4 @@
+// Package pipeline stores the top-level pipeline and Piper interface used by most pipes
 package pipeline
 
 import (

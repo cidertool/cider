@@ -2,6 +2,7 @@ package client
 
 import (
 	"os"
+	"path/filepath"
 
 	"github.com/aaronsky/applereleaser/pkg/config"
 	"github.com/aaronsky/applereleaser/pkg/context"
@@ -86,9 +87,10 @@ func priceSchedules(schedules []config.PriceSchedule) (priceSchedules []asc.NewA
 		if price.StartDate != nil {
 			startDate = &asc.Date{Time: *price.StartDate}
 		}
+		tier := price.Tier
 		priceSchedules[i] = asc.NewAppPriceRelationship{
 			StartDate:   startDate,
-			PriceTierID: &price.Tier,
+			PriceTierID: &tier,
 		}
 	}
 	return priceSchedules
@@ -166,7 +168,7 @@ func (c *ascClient) CreateVersionIfNeeded(ctx *context.Context, app *asc.App, bu
 		FilterVersionString: []string{ctx.Version},
 		FilterPlatform:      []string{string(platform)},
 	})
-	if len(versionsResp.Data) == 0 {
+	if err != nil || len(versionsResp.Data) == 0 {
 		versionResp, _, err = c.client.Apps.CreateAppStoreVersion(ctx, asc.AppStoreVersionCreateRequestAttributes{
 			Copyright:           &config.Copyright,
 			EarliestReleaseDate: earliestReleaseDate,
@@ -215,7 +217,7 @@ func (c *ascClient) UpdateVersionLocalizations(ctx *context.Context, version *as
 			if err != nil {
 				return err
 			}
-			if err := c.UpdatePreviewsAndScreenshotsIfNeeded(ctx, &updatedLocResp.Data, &locConfig); err != nil {
+			if err := c.UpdatePreviewsAndScreenshotsIfNeeded(ctx, &updatedLocResp.Data, locConfig); err != nil {
 				return err
 			}
 		}
@@ -240,7 +242,7 @@ func (c *ascClient) UpdateVersionLocalizations(ctx *context.Context, version *as
 		if err != nil {
 			return err
 		}
-		if err := c.UpdatePreviewsAndScreenshotsIfNeeded(ctx, &locResp.Data, &locConfig); err != nil {
+		if err := c.UpdatePreviewsAndScreenshotsIfNeeded(ctx, &locResp.Data, locConfig); err != nil {
 			return err
 		}
 	}
@@ -248,7 +250,7 @@ func (c *ascClient) UpdateVersionLocalizations(ctx *context.Context, version *as
 	return nil
 }
 
-func (c *ascClient) UpdatePreviewsAndScreenshotsIfNeeded(ctx *context.Context, loc *asc.AppStoreVersionLocalization, config *config.VersionLocalization) error {
+func (c *ascClient) UpdatePreviewsAndScreenshotsIfNeeded(ctx *context.Context, loc *asc.AppStoreVersionLocalization, config config.VersionLocalization) error {
 	if loc.Relationships.AppPreviewSets != nil {
 		var previewSets asc.AppPreviewSetsResponse
 		_, err := c.client.FollowReference(ctx, loc.Relationships.AppPreviewSets.Links.Related, &previewSets)
@@ -318,7 +320,8 @@ func (c *ascClient) UploadRoutingCoverage(ctx *context.Context, version *asc.App
 
 func (c *ascClient) UpdatePreviewSets(ctx *context.Context, previewSets []asc.AppPreviewSet, appStoreVersionLocalizationID string, config config.PreviewSets) error {
 	found := make(map[asc.PreviewType]bool)
-	for _, previewSet := range previewSets {
+	for i := range previewSets {
+		previewSet := previewSets[i]
 		previewType := *previewSet.Attributes.PreviewType
 		found[previewType] = true
 		previewsConfig := config.GetPreviews(previewType)
@@ -342,8 +345,8 @@ func (c *ascClient) UpdatePreviewSets(ctx *context.Context, previewSets []asc.Ap
 	return nil
 }
 
-func (c *ascClient) UploadPreviews(ctx *context.Context, previewSet *asc.AppPreviewSet, config []config.Preview) error {
-	for _, previewConfig := range config {
+func (c *ascClient) UploadPreviews(ctx *context.Context, previewSet *asc.AppPreviewSet, previewConfigs []config.Preview) error {
+	for _, previewConfig := range previewConfigs {
 		create := func(name string, size int64) (id string, ops []asc.UploadOperation, err error) {
 			resp, _, err := c.client.Apps.CreateAppPreview(ctx, name, size, previewSet.ID)
 			if err != nil {
@@ -351,10 +354,12 @@ func (c *ascClient) UploadPreviews(ctx *context.Context, previewSet *asc.AppPrev
 			}
 			return resp.Data.ID, resp.Data.Attributes.UploadOperations, nil
 		}
-		commit := func(id string, checksum string) error {
-			_, _, err := c.client.Apps.CommitAppPreview(ctx, id, asc.Bool(true), &checksum, &previewConfig.PreviewFrameTimeCode)
-			return err
-		}
+		commit := func(con config.Preview) commitFunc {
+			return func(id string, checksum string) error {
+				_, _, err := c.client.Apps.CommitAppPreview(ctx, id, asc.Bool(true), &checksum, &con.PreviewFrameTimeCode)
+				return err
+			}
+		}(previewConfig)
 		if err := c.uploadFile(ctx, previewConfig.Path, create, commit); err != nil {
 			return err
 		}
@@ -364,7 +369,8 @@ func (c *ascClient) UploadPreviews(ctx *context.Context, previewSet *asc.AppPrev
 
 func (c *ascClient) UpdateScreenshotSets(ctx *context.Context, screenshotSets []asc.AppScreenshotSet, appStoreVersionLocalizationID string, config config.ScreenshotSets) error {
 	found := make(map[asc.ScreenshotDisplayType]bool)
-	for _, screenshotSet := range screenshotSets {
+	for i := range screenshotSets {
+		screenshotSet := screenshotSets[i]
 		screenshotType := *screenshotSet.Attributes.ScreenshotDisplayType
 		found[screenshotType] = true
 		screenshotConfig := config.GetScreenshots(screenshotType)
@@ -445,11 +451,13 @@ type createFunc func(name string, size int64) (id string, ops []asc.UploadOperat
 type commitFunc func(id string, checksum string) error
 
 func (c *ascClient) uploadFile(ctx *context.Context, path string, create createFunc, commit commitFunc) error {
-	f, err := os.Open(path)
+	f, err := os.Open(filepath.Clean(path))
 	if err != nil {
 		return err
 	}
-	defer f.Close() // nolint: errcheck
+	defer func() {
+		err = f.Close()
+	}()
 
 	fstat, err := os.Stat(path)
 	if err != nil {

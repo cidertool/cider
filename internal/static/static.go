@@ -1,3 +1,4 @@
+// Package static stores a static string used to initialize new applereleaser projects
 package static
 
 // ExampleConfig is the config used within applereleaser init.

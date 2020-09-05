@@ -1,3 +1,4 @@
+// Package context manages the state of the pipeline
 package context
 
 import (
@@ -11,13 +12,13 @@ import (
 	"github.com/aaronsky/asc-go/asc"
 )
 
-// PublishMode describes which review destination to publish to
+// PublishMode describes which review destination to publish to.
 type PublishMode string
 
 const (
-	// PublishModeTestflight publishes to Testflight via beta app review
+	// PublishModeTestflight publishes to Testflight via beta app review.
 	PublishModeTestflight PublishMode = "testflight"
-	// PublishModeAppStore publishes for App Store review
+	// PublishModeAppStore publishes for App Store review.
 	PublishModeAppStore PublishMode = "appstore"
 )
 
@@ -27,6 +28,7 @@ type Context struct {
 	Config                  config.Project
 	Env                     Env
 	Date                    time.Time
+	Git                     GitInfo
 	CurrentDirectory        string
 	Credentials             Credentials
 	AppsToRelease           []string
@@ -35,21 +37,20 @@ type Context struct {
 	SkipUpdatePricing       bool
 	SkipUpdateMetadata      bool
 	SkipSubmit              bool
-	Git                     GitInfo
+	VersionIsInitialRelease bool
 	Version                 string
 	Semver                  Semver
-	VersionIsInitialRelease bool
 }
 
 // Env is the environment variables.
 type Env map[string]string
 
-// Credentials stores credentials used by clients
+// Credentials stores credentials used by clients.
 type Credentials struct {
 	*asc.AuthTransport
 }
 
-// GitInfo includes tags and refs
+// GitInfo includes tags and refs.
 type GitInfo struct {
 	CurrentTag  string
 	Commit      string
@@ -89,7 +90,7 @@ func Wrap(ctx ctx.Context, config config.Project) *Context {
 	}
 }
 
-// NewCredentials returns a new store object for App Store Connect credentials
+// NewCredentials returns a new store object for App Store Connect credentials.
 func NewCredentials(keyID, issuerID string, privateKey []byte) (Credentials, error) {
 	token, err := asc.NewTokenConfig(keyID, issuerID, time.Minute*20, privateKey)
 	if err != nil {
@@ -126,12 +127,12 @@ func splitEnv(env []string) map[string]string {
 	return r
 }
 
-// String returns the string value of the mode
+// String returns the string value of the mode.
 func (m PublishMode) String() string {
 	return string(m)
 }
 
-// Set the mode to an allowed value, or return an error
+// Set the mode to an allowed value, or return an error.
 func (m *PublishMode) Set(value string) error {
 	switch value {
 	case "appstore":
@@ -144,7 +145,7 @@ func (m *PublishMode) Set(value string) error {
 	return nil
 }
 
-// Type returns a representation of permissible values
+// Type returns a representation of permissible values.
 func (m PublishMode) Type() string {
 	return "{appstore,testflight}"
 }

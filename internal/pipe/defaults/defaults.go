@@ -1,9 +1,10 @@
+// Package defaults runs all defaulter pipelines
 package defaults
 
 import (
+	"github.com/aaronsky/applereleaser/internal/defaults"
 	"github.com/aaronsky/applereleaser/internal/middleware"
 	"github.com/aaronsky/applereleaser/pkg/context"
-	"github.com/aaronsky/applereleaser/pkg/defaults"
 )
 
 // Pipe that sets the defaults.

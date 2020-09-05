@@ -1,3 +1,4 @@
+// Package semver is a pipe that parses a version string into semver components
 package semver
 
 import (

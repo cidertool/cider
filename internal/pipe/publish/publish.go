@@ -1,3 +1,4 @@
+// Package publish is a pipe that runs the testflight or store pipes depending on publish mode
 package publish
 
 import (

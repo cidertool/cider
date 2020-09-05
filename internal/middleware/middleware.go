@@ -1,3 +1,4 @@
+// Package middleware contains middleware for handling error and logging propagation
 package middleware
 
 import "github.com/aaronsky/applereleaser/pkg/context"

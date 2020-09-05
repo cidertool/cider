@@ -74,8 +74,10 @@ func updateBetaDetails(ctx *context.Context, config config.App, client client.Cl
 	if err := client.AssignBetaTesters(ctx, build, config.Testflight.BetaTesters); err != nil {
 		return err
 	}
-	if err := client.UpdateBetaReviewDetails(ctx, app, config.Testflight.ReviewDetails); err != nil {
-		return err
+	if config.Versions.ReviewDetails != nil {
+		if err := client.UpdateBetaReviewDetails(ctx, app, *config.Testflight.ReviewDetails); err != nil {
+			return err
+		}
 	}
 	return nil
 }

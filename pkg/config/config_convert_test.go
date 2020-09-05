@@ -17,7 +17,7 @@ func TestPlatformAPIValue(t *testing.T) {
 	tvos, err := PlatformTvOS.APIValue()
 	assert.NoError(t, err)
 	assert.Equal(t, tvos, asc.PlatformTVOS)
-	_, err = platform("watchOS").APIValue()
+	_, err = Platform("watchOS").APIValue()
 	assert.Error(t, err)
 }
 

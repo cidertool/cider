@@ -14,15 +14,16 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-type platform string
+// Platform represents a supported platform type from App Store Connect.
+type Platform string
 
 const (
 	// PlatformiOS refers to the iOS platform.
-	PlatformiOS platform = "iOS"
+	PlatformiOS Platform = "iOS"
 	// PlatformMacOS refers to the macOS platform.
-	PlatformMacOS platform = "macOS"
+	PlatformMacOS Platform = "macOS"
 	// PlatformTvOS refers to the tvOS platform.
-	PlatformTvOS platform = "tvOS"
+	PlatformTvOS Platform = "tvOS"
 )
 
 type releaseType string
@@ -170,9 +171,12 @@ type App struct {
 
 // Availability wraps aspects of app availability, such as territories and pricing.
 type Availability struct {
-	AvailableInNewTerritories *bool           `yaml:"availableInNewTerritories,omitempty"`
-	Pricing                   []PriceSchedule `yaml:"priceTiers,omitempty"`
-	// Territories corresponds to the ISO code IDs of territories as they're referred to in App Store Connect.
+	// AvailableInNewTerritories refers to whether or not the app should be made automaticaly available
+	// in new App Store territories, as Apple makes new ones available.
+	AvailableInNewTerritories *bool `yaml:"availableInNewTerritories,omitempty"`
+	// Pricing is a list of PriceSchedules that describe the pricing details of your app.
+	Pricing []PriceSchedule `yaml:"priceTiers,omitempty"`
+	// Territories corresponds to the IDs of territories as they're referred to in App Store Connect.
 	//
 	// https://help.apple.com/app-store-connect/#/dev997f9cf7c
 	Territories []string `yaml:"territories,omitempty"`
@@ -186,9 +190,12 @@ type PriceSchedule struct {
 	// represented as "0".
 	//
 	// https://appstoreconnect.apple.com/apps/pricingmatrix
-	Tier      string     `yaml:"tier"`
+	Tier string `yaml:"tier"`
+	// StartDate is the start date a price schedule should take effect. Set to nil to have it take
+	// effect immediately.
 	StartDate *time.Time `yaml:"startDate,omitempty"`
-	EndDate   *time.Time `yaml:"endDate,omitempty"`
+	// EndDate is the end date a price schedule should be in effect until. Field is currently a no-op.
+	EndDate *time.Time `yaml:"endDate,omitempty"`
 }
 
 // AppLocalizations is a map of locales to AppLocalization objects.
@@ -205,7 +212,7 @@ type AppLocalization struct {
 // Version outlines the general details of your app store version as it will be represented
 // on the App Store.
 type Version struct {
-	Platform             platform             `yaml:"platform"`
+	Platform             Platform             `yaml:"platform"`
 	Localizations        VersionLocalizations `yaml:"localizations"`
 	Copyright            string               `yaml:"copyright,omitempty"`
 	EarliestReleaseDate  *time.Time           `yaml:"earliestReleaseDate,omitempty"`
@@ -221,7 +228,7 @@ type VersionLocalizations map[string]VersionLocalization
 
 // VersionLocalization contains localized details for the listing of a specific version on the App Store.
 type VersionLocalization struct {
-	Description     string         `yaml:"description,omitempty"`
+	Description     string         `yaml:"description"`
 	Keywords        string         `yaml:"keywords,omitempty"`
 	MarketingURL    string         `yaml:"marketingURL,omitempty"`
 	PromotionalText string         `yaml:"promotionalText,omitempty"`
@@ -257,27 +264,27 @@ type ReviewDetails struct {
 // ContactPerson is a point of contact for App Store reviewers to reach out to in case of an
 // issue.
 type ContactPerson struct {
-	Email     string `yaml:"email,omitempty"`
-	FirstName string `yaml:"firstName,omitempty"`
-	LastName  string `yaml:"lastName,omitempty"`
-	Phone     string `yaml:"phone,omitempty"`
+	Email     string `yaml:"email"`
+	FirstName string `yaml:"firstName"`
+	LastName  string `yaml:"lastName"`
+	Phone     string `yaml:"phone"`
 }
 
 // DemoAccount contains account credentials for App Store reviewers to assess your apps.
 type DemoAccount struct {
-	Name     string `yaml:"name"`
-	Password string `yaml:"password"`
 	Required bool   `yaml:"isRequired"`
+	Name     string `yaml:"name,omitempty"`
+	Password string `yaml:"password,omitempty"`
 }
 
 // TestflightForApp represents configuration for beta distribution of apps.
 type TestflightForApp struct {
 	EnableAutoNotify bool                    `yaml:"enableAutoNotify"`
 	LicenseAgreement string                  `yaml:"licenseAgreement"`
-	BetaGroups       []string                `yaml:"betaGroups"`
-	BetaTesters      []BetaTester            `yaml:"betaTesters"`
 	Localizations    TestflightLocalizations `yaml:"localizations"`
-	ReviewDetails    ReviewDetails           `yaml:"reviewDetails"`
+	BetaGroups       []string                `yaml:"betaGroups,omitempty"`
+	BetaTesters      []BetaTester            `yaml:"betaTesters,omitempty"`
+	ReviewDetails    *ReviewDetails          `yaml:"reviewDetails,omitempty"`
 }
 
 // TestflightLocalizations is a map of locales to TestflightLocalization objects.
@@ -285,24 +292,24 @@ type TestflightLocalizations map[string]TestflightLocalization
 
 // BetaGroup describes a beta group in Testflight that should be kept in sync and used with this app.
 type BetaGroup struct {
-	Name                  string       `yaml:"group,omitempty"`
+	Name                  string       `yaml:"group"`
 	EnablePublicLink      bool         `yaml:"publicLinkEnabled,omitempty"`
 	PublicLinkLimit       bool         `yaml:"publicLinkLimit,omitempty"`
 	EnablePublicLinkLimit bool         `yaml:"publicLinkLimitEnabled,omitempty"`
 	FeedbackEnabled       bool         `yaml:"feedbackEnabled,omitempty"`
-	Testers               []BetaTester `yaml:"testers,omitempty"`
+	Testers               []BetaTester `yaml:"testers"`
 }
 
 // BetaTester describes an individual beta tester that should have access to this app.
 type BetaTester struct {
-	Email     string `yaml:"email,omitempty"`
+	Email     string `yaml:"email"`
 	FirstName string `yaml:"firstName,omitempty"`
 	LastName  string `yaml:"lastName,omitempty"`
 }
 
 // TestflightLocalization contains localized details for the listing of a specific build in the Testflight app.
 type TestflightLocalization struct {
-	Description       string `yaml:"description,omitempty"`
+	Description       string `yaml:"description"`
 	FeedbackEmail     string `yaml:"feedbackEmail,omitempty"`
 	MarketingURL      string `yaml:"marketingURL,omitempty"`
 	PrivacyPolicyURL  string `yaml:"privacyPolicyURL,omitempty"`
@@ -330,6 +337,11 @@ func LoadReader(fd io.Reader) (config Project, err error) {
 	return config, err
 }
 
+func (p Project) String() (string, error) {
+	b, err := yaml.Marshal(p)
+	return string(b), err
+}
+
 // AppsMatching returns an array of keys in the Project matching the app names, or all names if the flag is set.
 func (p *Project) AppsMatching(keys []string, shouldIncludeAll bool) []string {
 	if shouldIncludeAll {
@@ -350,7 +362,8 @@ func (p *Project) AppsMatching(keys []string, shouldIncludeAll bool) []string {
 	return appNamesMatching
 }
 
-func (p platform) APIValue() (asc.Platform, error) {
+// APIValue returns the corresponding API value type for this config type.
+func (p Platform) APIValue() (asc.Platform, error) {
 	switch p {
 	case PlatformiOS:
 		return asc.PlatformIOS, nil

@@ -2,6 +2,7 @@ package config
 
 import (
 	"errors"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -21,6 +22,16 @@ func TestMissingConfiguration(t *testing.T) {
 func TestInvalidConfiguration(t *testing.T) {
 	_, err := Load("testdata/invalid.yml")
 	assert.Error(t, err)
+}
+
+func TestMarshalledIsValidConfiguration(t *testing.T) {
+	f, err := Load("testdata/valid.yml")
+	assert.NoError(t, err)
+	str, err := f.String()
+	assert.NoError(t, err)
+	f2, err := LoadReader(strings.NewReader(str))
+	assert.NoError(t, err)
+	assert.Equal(t, f, f2)
 }
 
 func TestBrokenFile(t *testing.T) {

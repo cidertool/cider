@@ -2,7 +2,7 @@ title: Applereleaser
 description: Applereleaser documentation
 url: https://aaronsky.github.io/applereleaser
 permalink: pretty
-theme: just-the-docs
+remote_theme: just-the-docs
 # logo: "/assets/images/just-the-docs.png"
 # color_scheme: dark
 

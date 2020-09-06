@@ -1,11 +1,11 @@
 ---
-layout: default
+layout: page
 nav_order: 4
 ---
 
 # Configuration
 
-The project configuration can be written in YAML, or JSON inside a YAML file. Map merges are allowed
+The project configuration can be written in YAML, or JSON inside a YAML file. Map merges are allowed.
 
 ```yaml
 # This file contains all available configuration options and demonstrates

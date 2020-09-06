@@ -58,10 +58,10 @@ func loadEnvFromPath(env string, required bool) (string, error) {
 		return "", err
 	}
 	f, err := os.Open(filepath.Clean(val))
-	if os.IsNotExist(err) {
-		return "", nil
-	} else if err != nil {
+	if err != nil && required {
 		return "", err
+	} else if err != nil {
+		return "", nil
 	}
 	bytes, err := ioutil.ReadAll(f)
 	return string(bytes), err

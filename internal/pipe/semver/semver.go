@@ -13,7 +13,7 @@ type Pipe struct{}
 
 // String is the name of this pipe.
 func (Pipe) String() string {
-	return "parsing tag"
+	return "parsing version"
 }
 
 // Run executes the hooks.

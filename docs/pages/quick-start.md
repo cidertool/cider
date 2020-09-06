@@ -1,3 +1,8 @@
+---
+layout: default
+nav_order: 3
+---
+
 # Quick Start
 
 Run `applereleaser init` to create a new `.applereleaser.yml` file in the current directory:

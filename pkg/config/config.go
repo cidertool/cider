@@ -294,9 +294,9 @@ type TestflightLocalizations map[string]TestflightLocalization
 type BetaGroup struct {
 	Name                  string       `yaml:"group"`
 	EnablePublicLink      bool         `yaml:"publicLinkEnabled,omitempty"`
-	PublicLinkLimit       bool         `yaml:"publicLinkLimit,omitempty"`
 	EnablePublicLinkLimit bool         `yaml:"publicLinkLimitEnabled,omitempty"`
 	FeedbackEnabled       bool         `yaml:"feedbackEnabled,omitempty"`
+	PublicLinkLimit       int          `yaml:"publicLinkLimit,omitempty"`
 	Testers               []BetaTester `yaml:"testers"`
 }
 

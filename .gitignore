@@ -29,3 +29,6 @@ vendor/
 Thumbs.db
 .DS_Store
 *.swp
+
+# Documentation
+docs/_site

@@ -10,8 +10,8 @@
 
 ## Install `applereleaser`
 
-- [On my machine](https://aaronsky.github.io/applereleaser/usage/install/#local);
-- [On CI/CD systems](https://aaronsky.github.io/applereleaser/usage/install/#ci).
+- [On my machine](https://aaronsky.github.io/applereleaser/install#local);
+- [On CI/CD systems](https://aaronsky.github.io/applereleaser/install#ci).
 
 ## Documentation
 

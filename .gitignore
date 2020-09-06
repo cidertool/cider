@@ -32,3 +32,6 @@ Thumbs.db
 
 # Documentation
 docs/_site
+
+# GoReleaser
+dist/

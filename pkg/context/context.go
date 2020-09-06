@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/aaronsky/applereleaser/pkg/config"
-	"github.com/aaronsky/asc-go/asc"
 )
 
 // PublishMode describes which review destination to publish to.
@@ -44,11 +43,6 @@ type Context struct {
 
 // Env is the environment variables.
 type Env map[string]string
-
-// Credentials stores credentials used by clients.
-type Credentials struct {
-	*asc.AuthTransport
-}
 
 // GitInfo includes tags and refs.
 type GitInfo struct {
@@ -90,15 +84,6 @@ func Wrap(ctx ctx.Context, config config.Project) *Context {
 	}
 }
 
-// NewCredentials returns a new store object for App Store Connect credentials.
-func NewCredentials(keyID, issuerID string, privateKey []byte) (Credentials, error) {
-	token, err := asc.NewTokenConfig(keyID, issuerID, time.Minute*20, privateKey)
-	if err != nil {
-		err = fmt.Errorf("failed to authorize with App Store Connect: %w", err)
-	}
-	return Credentials{token}, err
-}
-
 // Copy returns a copy of the environment.
 func (e Env) Copy() Env {
 	var out = Env{}
@@ -137,12 +122,12 @@ func (m *PublishMode) Set(value string) error {
 	switch value {
 	case "appstore":
 		*m = PublishModeAppStore
+		return nil
 	case "testflight":
 		*m = PublishModeTestflight
-	default:
-		return fmt.Errorf("invalid value %s for publish mode", value)
+		return nil
 	}
-	return nil
+	return fmt.Errorf("invalid value %s for publish mode", value)
 }
 
 // Type returns a representation of permissible values.

@@ -36,7 +36,7 @@ func newReleaseCmd() *releaseCmd {
 	var cmd = &cobra.Command{
 		Use:           "release [path]",
 		Args:          cobra.MaximumNArgs(1),
-		Short:         "Releases all the apps in the current project",
+		Short:         "Release the selected apps in the current project",
 		SilenceUsage:  true,
 		SilenceErrors: true,
 		RunE: func(cmd *cobra.Command, args []string) error {

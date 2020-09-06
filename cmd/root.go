@@ -36,7 +36,7 @@ func newRootCmd(version string, exit func(int)) *rootCmd {
 
 	var cmd = &cobra.Command{
 		Use:           "applereleaser",
-		Short:         "Manage the release of your Apple App Store applications with ease",
+		Short:         "Submit your builds to the Apple App Store in seconds",
 		Version:       version,
 		SilenceUsage:  true,
 		SilenceErrors: true,

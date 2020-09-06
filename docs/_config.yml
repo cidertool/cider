@@ -1,11 +1,9 @@
 title: Applereleaser
-# description: Applereleaser documentation
-# url: https://aaronsky.github.io/applereleaser
-# permalink: pretty
+description: Applereleaser documentation
+permalink: pretty
 remote_theme: pmarsceill/just-the-docs
 # logo: "/assets/images/just-the-docs.png"
 # color_scheme: dark
-search_enabled: false
 
 # plugins:
 #   - jekyll-seo-tag

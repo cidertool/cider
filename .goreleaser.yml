@@ -5,8 +5,10 @@ builds:
   - env:
       - CGO_ENABLED=0
     goos:
-      - linux
       - darwin
+      - freebsd
+      - linux
+      - openbsd
       - windows
     goarch:
       - amd64
@@ -29,6 +31,26 @@ changelog:
       - Merge pull request
       - Merge branch
       - go mod tidy
+dockers:
+  - dockerfile: docker/Dockerfile
+    image_templates:
+      - applereleaser/applereleaser:{{ .Tag }}
+      - applereleaser/applereleaser:v{{ .Major }}.{{ .Minor }}
+      - applereleaser/applereleaser:latest
+    binaries:
+      - applereleaser
+    extra_files:
+      - docker/entrypoint.sh
+    build_flag_templates:
+      - --pull
+      - --label=org.opencontainers.image.created={{ .Date }}
+      - --label=org.opencontainers.image.name={{ .ProjectName }}
+      - --label=org.opencontainers.image.revision={{ .FullCommit }}
+      - --label=org.opencontainers.image.version={{ .Version }}
+      - --label=org.opencontainers.image.source={{ .GitURL }}
+      - --label=repository=http://github.com/aaronsky/applereleaser
+      - --label=homepage=http://aaronsky.github.io/applereleaser
+      - --label=maintainer=Aaron Sky <applereleaser@skyaaron.com>
 archives:
   - name_template: '{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
     replacements:
@@ -48,8 +70,6 @@ archives:
 #     description: Submit your builds to the Apple App Store in seconds
 #     test: |
 #       system "#{bin}/applereleaser -v"
-#     dependencies:
-#       - name: go
 # scoop:
 #   bucket:
 #     owner: aaronsky

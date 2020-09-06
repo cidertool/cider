@@ -5,8 +5,8 @@ remote_theme: pmarsceill/just-the-docs
 # logo: "/assets/images/just-the-docs.png"
 # color_scheme: dark
 
-# plugins:
-#   - jekyll-seo-tag
+plugins:
+  - jekyll-seo-tag
 
 heading_anchors: true
 aux_links:

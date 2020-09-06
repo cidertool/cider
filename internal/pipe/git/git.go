@@ -4,7 +4,6 @@ package git
 import (
 	"fmt"
 	"os"
-	"os/exec"
 	"strconv"
 	"strings"
 	"time"
@@ -37,50 +36,57 @@ func (p Pipe) Run(ctx *context.Context) error {
 		}
 		return pipe.ErrSkipGitEnabled
 	}
-	if _, err := exec.LookPath("git"); err != nil {
+
+	client := git.New(ctx)
+
+	if ok := client.Exists("git"); !ok {
 		return git.ErrNoGit
 	}
-	info, err := getInfo(ctx)
+
+	info, err := getInfo(client)
 	if err != nil {
 		return err
 	}
 	ctx.Git = info
+
 	if ctx.Version == "" {
-		tag, err := getTag(ctx)
+		tag, err := getTag(client)
 		if err != nil {
 			return git.ErrNoTag
 		}
 		ctx.Git.CurrentTag = tag
 		ctx.Version = strings.TrimPrefix(tag, "v")
 	}
+
 	log.WithFields(log.Fields{
 		"version": ctx.Version,
 		"commit":  info.Commit,
 	}).Infof("releasing")
-	return validate(ctx)
+
+	return validate(ctx, client)
 }
 
-func getInfo(ctx *context.Context) (context.GitInfo, error) {
-	if !git.IsRepo(ctx) {
-		return context.GitInfo{}, git.ErrNotRepository{Dir: ctx.CurrentDirectory}
+func getInfo(client *git.Git) (context.GitInfo, error) {
+	if !client.IsRepo() {
+		return context.GitInfo{}, git.ErrNotRepository{Dir: client.CurrentDirectory()}
 	}
-	return getGitInfo(ctx)
+	return getGitInfo(client)
 }
 
-func getGitInfo(ctx *context.Context) (context.GitInfo, error) {
-	short, err := getShortCommit(ctx)
+func getGitInfo(client *git.Git) (context.GitInfo, error) {
+	short, err := getShortCommit(client)
 	if err != nil {
 		return context.GitInfo{}, fmt.Errorf("couldn't get current commit: %w", err)
 	}
-	full, err := getFullCommit(ctx)
+	full, err := getFullCommit(client)
 	if err != nil {
 		return context.GitInfo{}, fmt.Errorf("couldn't get current commit: %w", err)
 	}
-	date, err := getCommitDate(ctx)
+	date, err := getCommitDate(client)
 	if err != nil {
 		return context.GitInfo{}, fmt.Errorf("couldn't get commit date: %w", err)
 	}
-	url, err := getURL(ctx)
+	url, err := getURL(client)
 	if err != nil {
 		return context.GitInfo{}, fmt.Errorf("couldn't get remote URL: %w", err)
 	}
@@ -94,13 +100,13 @@ func getGitInfo(ctx *context.Context) (context.GitInfo, error) {
 	}, nil
 }
 
-func validate(ctx *context.Context) error {
-	out, err := git.Run(ctx, "status", "--porcelain")
-	if strings.TrimSpace(out) != "" || err != nil {
-		return git.ErrDirty{Status: out}
+func validate(ctx *context.Context, client *git.Git) error {
+	proc, err := client.Run("status", "--porcelain")
+	if strings.TrimSpace(proc.Stdout) != "" || err != nil {
+		return git.ErrDirty{Status: proc.Stdout}
 	}
 	if ctx.Git.CurrentTag != NoTag {
-		_, err = git.Clean(git.Run(ctx, "describe", "--exact-match", "--tags", "--match", ctx.Git.CurrentTag))
+		_, err := client.SanitizeProcess(client.Run("describe", "--exact-match", "--tags", "--match", ctx.Git.CurrentTag))
 		if err != nil {
 			return git.ErrWrongRef{
 				Commit: ctx.Git.Commit,
@@ -111,15 +117,15 @@ func validate(ctx *context.Context) error {
 	return nil
 }
 
-func getCommitDate(ctx *context.Context) (time.Time, error) {
-	ct, err := git.Clean(git.Run(ctx, "show", "--format='%ct'", "HEAD", "--quiet"))
+func getCommitDate(client *git.Git) (time.Time, error) {
+	commit, err := client.SanitizeProcess(client.Run("show", "--format='%ct'", "HEAD", "--quiet"))
 	if err != nil {
 		return time.Time{}, err
 	}
-	if ct == "" {
+	if commit == "" {
 		return time.Time{}, nil
 	}
-	i, err := strconv.ParseInt(ct, 10, 64)
+	i, err := strconv.ParseInt(commit, 10, 64)
 	if err != nil {
 		return time.Time{}, err
 	}
@@ -127,22 +133,21 @@ func getCommitDate(ctx *context.Context) (time.Time, error) {
 	return t, nil
 }
 
-func getShortCommit(ctx *context.Context) (string, error) {
-	return git.Clean(git.Run(ctx, "show", "--format='%h'", "HEAD", "--quiet"))
+func getShortCommit(client *git.Git) (string, error) {
+	return client.SanitizeProcess(client.Run("show", "--format='%h'", "HEAD", "--quiet"))
 }
 
-func getFullCommit(ctx *context.Context) (string, error) {
-	return git.Clean(git.Run(ctx, "show", "--format='%H'", "HEAD", "--quiet"))
+func getFullCommit(client *git.Git) (string, error) {
+	return client.SanitizeProcess(client.Run("show", "--format='%H'", "HEAD", "--quiet"))
 }
 
-func getTag(ctx *context.Context) (string, error) {
+func getTag(client *git.Git) (string, error) {
 	if tag := os.Getenv("APPLERELEASER_CURRENT_TAG"); tag != "" {
 		return tag, nil
 	}
-
-	return git.Clean(git.Run(ctx, "describe", "--tags", "--abbrev=0"))
+	return client.SanitizeProcess(client.Run("describe", "--tags", "--abbrev=0"))
 }
 
-func getURL(ctx *context.Context) (string, error) {
-	return git.Clean(git.Run(ctx, "ls-remote", "--get-url"))
+func getURL(client *git.Git) (string, error) {
+	return client.SanitizeProcess(client.Run("ls-remote", "--get-url"))
 }

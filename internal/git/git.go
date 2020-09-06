@@ -2,32 +2,46 @@
 package git
 
 import (
-	"bytes"
 	"errors"
-	"os/exec"
 	"path/filepath"
 	"strings"
 
+	"github.com/aaronsky/applereleaser/internal/shell"
+	"github.com/aaronsky/applereleaser/pkg/config"
 	"github.com/aaronsky/applereleaser/pkg/context"
-	"github.com/apex/log"
 )
 
-// IsRepo returns true if current folder is a git repository.
-func IsRepo(ctx *context.Context) bool {
-	out, err := Run(ctx, "rev-parse", "--is-inside-work-tree")
-	return err == nil && strings.TrimSpace(out) == "true"
+// Git wraps a shell.Shell provider to provide an interface over
+// the git program in the PATH.
+type Git struct {
+	shell.Shell
 }
 
-// RunEnv runs a git command with the specified env vars and returns its output or errors.
-func RunEnv(ctx *context.Context, env map[string]string, args ...string) (string, error) {
+// New constructs a new Git instance with a default shell provider
+// based on the login shell.
+func New(ctx *context.Context) *Git {
+	return &Git{
+		Shell: shell.New(ctx),
+	}
+}
+
+// Run runs a Git command and returns its output or errors.
+func (git *Git) Run(args ...string) (*shell.CompletedProcess, error) {
+	return git.RunInEnv(nil, args...)
+}
+
+// RunInEnv runs a Git command with the specified env vars and returns its output or errors.
+func (git *Git) RunInEnv(env map[string]string, args ...string) (*shell.CompletedProcess, error) {
 	var extraArgs = []string{
 		"-c", "log.showSignature=false",
 	}
-	if ctx.CurrentDirectory != "" && ctx.CurrentDirectory != "." {
-		extraArgs = append(extraArgs, "-C", filepath.Clean(ctx.CurrentDirectory))
+	cd := git.CurrentDirectory()
+	if cd != "" && cd != "." {
+		extraArgs = append(extraArgs, "-C", filepath.Clean(cd))
 	}
 	args = append(extraArgs, args...)
-	var cmd = exec.CommandContext(ctx, "git", args...) // nolint: gosec
+
+	var cmd = git.Shell.NewCommand("git", args...)
 
 	if env != nil {
 		cmd.Env = []string{}
@@ -36,36 +50,59 @@ func RunEnv(ctx *context.Context, env map[string]string, args ...string) (string
 		}
 	}
 
-	stdout := bytes.Buffer{}
-	stderr := bytes.Buffer{}
-
-	cmd.Stdout = &stdout
-	cmd.Stderr = &stderr
-
-	log.WithField("args", args).Debug("running git")
-	err := cmd.Run()
-
-	log.WithField("stdout", stdout.String()).
-		WithField("stderr", stderr.String()).
-		Debug("git result")
-
-	if err != nil {
-		return "", errors.New(stderr.String())
-	}
-
-	return stdout.String(), nil
+	return git.Shell.Exec(cmd)
 }
 
-// Run runs a git command and returns its output or errors.
-func Run(ctx *context.Context, args ...string) (string, error) {
-	return RunEnv(ctx, nil, args...)
+// IsRepo returns true if current folder is a Git repository.
+func (git *Git) IsRepo() bool {
+	proc, err := git.Run("rev-parse", "--is-inside-work-tree")
+	return err == nil && strings.TrimSpace(proc.Stdout) == "true"
 }
 
-// Clean the output.
-func Clean(output string, err error) (string, error) {
-	output = strings.Replace(strings.Split(output, "\n")[0], "'", "", -1)
-	if err != nil {
-		err = errors.New(strings.TrimSuffix(err.Error(), "\n"))
+// SanitizeProcess cleans up the output.
+func (git *Git) SanitizeProcess(proc *shell.CompletedProcess, err error) (string, error) {
+	var out string
+	if proc != nil {
+		firstline := strings.Split(proc.Stdout, "\n")[0]
+		out = strings.Replace(firstline, "'", "", -1)
+		if err != nil {
+			err = errors.New(strings.TrimSuffix(proc.Stderr, "\n"))
+		}
 	}
-	return output, err
+	return out, err
+}
+
+// MARK: Helpers
+
+// ExtractRepoFromConfig gets the repo name from the Git config.
+func (git *Git) ExtractRepoFromConfig() (result config.Repo, err error) {
+	if !git.IsRepo() {
+		return result, ErrNotRepository{git.CurrentDirectory()}
+	}
+	proc, err := git.Run("config", "--get", "remote.origin.url")
+	if err != nil {
+		return result, errors.New("repository doesn't have an `origin` remote")
+	}
+	return ExtractRepoFromURL(proc.Stdout), nil
+}
+
+// ExtractRepoFromURL gets the repo name from the remote URL.
+func ExtractRepoFromURL(s string) config.Repo {
+	// removes the .git suffix and any new lines
+	s = strings.NewReplacer(
+		".git", "",
+		"\n", "",
+	).Replace(s)
+	// if the URL contains a :, indicating a SSH config,
+	// remove all chars until it, including itself
+	// on HTTP and HTTPS URLs it will remove the http(s): prefix,
+	// which is ok. On SSH URLs the whole user@server will be removed,
+	// which is required.
+	s = s[strings.LastIndex(s, ":")+1:]
+	// split by /, the last to parts should be the owner and name
+	ss := strings.Split(s, "/")
+	return config.Repo{
+		Owner: ss[len(ss)-2],
+		Name:  ss[len(ss)-1],
+	}
 }

@@ -6,13 +6,15 @@ import (
 	"path/filepath"
 )
 
+const errDirtyHeading = "git is currently in a dirty state, please check in your pipeline what can be changing the following files"
+
 // ErrDirty happens when the repo has uncommitted/unstashed changes.
 type ErrDirty struct {
 	Status string
 }
 
 func (e ErrDirty) Error() string {
-	return fmt.Sprintf("git is currently in a dirty state, please check in your pipeline what can be changing the following files:\n%v", e.Status)
+	return fmt.Sprintf("%s:\n%v", errDirtyHeading, e.Status)
 }
 
 // ErrWrongRef happens when the HEAD reference is different from the tag being built.

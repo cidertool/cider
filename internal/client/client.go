@@ -126,7 +126,10 @@ func (c *ascClient) GetRelevantBuild(ctx *context.Context, app *asc.App) (*asc.B
 
 func (c *ascClient) ReleaseForAppIsInitial(ctx *context.Context, app *asc.App) (bool, error) {
 	resp, _, err := c.client.Apps.ListAppStoreVersionsForApp(ctx, app.ID, nil)
-	return len(resp.Data) <= 1, err
+	if err != nil {
+		return false, err
+	}
+	return len(resp.Data) <= 1, nil
 }
 
 func md5Checksum(f io.Reader) (string, error) {

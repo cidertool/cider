@@ -32,7 +32,8 @@ changelog:
       - Merge branch
       - go mod tidy
 dockers:
-  - image_templates:
+  - dockerfile: docker/Dockerfile
+    image_templates:
       - applereleaser/applereleaser:{{ .Tag }}
       - applereleaser/applereleaser:v{{ .Major }}.{{ .Minor }}
       - applereleaser/applereleaser:latest

@@ -18,7 +18,7 @@ func (c *ascClient) UpdateApp(ctx *context.Context, app *asc.App, appInfo *asc.A
 	var availableTerritoryIDs []string
 	var prices []asc.NewAppPriceRelationship
 
-	if !ctx.SkipUpdateMetadata && config.Availability != nil {
+	if !ctx.SkipUpdatePricing && config.Availability != nil {
 		var err error
 		availableTerritoryIDs, err = c.AvailableTerritoryIDsInConfig(ctx, config.Availability.Territories)
 		if err != nil {
@@ -115,18 +115,19 @@ func (c *ascClient) UpdateAppLocalizations(ctx *context.Context, app *asc.App, a
 		found := make(map[string]bool)
 		for _, loc := range appLocResp.Data {
 			locale := *loc.Attributes.Locale
-			if locConfig, ok := config[locale]; ok {
-				found[locale] = true
+			locConfig, ok := config[locale]
+			if !ok {
+				continue
+			}
+			found[locale] = true
 
-				_, _, err := c.client.Apps.UpdateAppInfoLocalization(ctx, loc.ID, &asc.AppInfoLocalizationUpdateRequestAttributes{
-					Name:              &locConfig.Name,
-					PrivacyPolicyText: &locConfig.PrivacyPolicyText,
-					PrivacyPolicyURL:  &locConfig.PrivacyPolicyURL,
-					Subtitle:          &locConfig.Subtitle,
-				})
-				if err != nil {
-					return err
-				}
+			if _, _, err := c.client.Apps.UpdateAppInfoLocalization(ctx, loc.ID, &asc.AppInfoLocalizationUpdateRequestAttributes{
+				Name:              &locConfig.Name,
+				Subtitle:          &locConfig.Subtitle,
+				PrivacyPolicyText: &locConfig.PrivacyPolicyText,
+				PrivacyPolicyURL:  &locConfig.PrivacyPolicyURL,
+			}); err != nil {
+				return err
 			}
 		}
 
@@ -134,14 +135,14 @@ func (c *ascClient) UpdateAppLocalizations(ctx *context.Context, app *asc.App, a
 			if found[locale] {
 				continue
 			}
-			_, _, err := c.client.Apps.CreateAppInfoLocalization(ctx.Context, asc.AppInfoLocalizationCreateRequestAttributes{
+
+			if _, _, err := c.client.Apps.CreateAppInfoLocalization(ctx.Context, asc.AppInfoLocalizationCreateRequestAttributes{
 				Locale:            locale,
 				Name:              &locConfig.Name,
+				Subtitle:          &locConfig.Subtitle,
 				PrivacyPolicyText: &locConfig.PrivacyPolicyText,
 				PrivacyPolicyURL:  &locConfig.PrivacyPolicyURL,
-				Subtitle:          &locConfig.Subtitle,
-			}, appInfo.ID)
-			if err != nil {
+			}, appInfo.ID); err != nil {
 				return err
 			}
 		}
@@ -200,27 +201,29 @@ func (c *ascClient) UpdateVersionLocalizations(ctx *context.Context, version *as
 	found := make(map[string]bool)
 	for _, loc := range locListResp.Data {
 		locale := *loc.Attributes.Locale
-		if locConfig, ok := config[locale]; ok {
-			found[locale] = true
+		locConfig, ok := config[locale]
+		if !ok {
+			continue
+		}
+		found[locale] = true
 
-			attrs := asc.AppStoreVersionLocalizationUpdateRequestAttributes{
-				Description:     &locConfig.Description,
-				Keywords:        &locConfig.Keywords,
-				MarketingURL:    &locConfig.MarketingURL,
-				PromotionalText: &locConfig.PromotionalText,
-				SupportURL:      &locConfig.SupportURL,
-			}
-			// If WhatsNew is set on an app that has never released before, the API will respond with a 409 Conflict when attempting to set the value.
-			if !ctx.VersionIsInitialRelease {
-				attrs.WhatsNew = &locConfig.WhatsNewText
-			}
-			updatedLocResp, _, err := c.client.Apps.UpdateAppStoreVersionLocalization(ctx, loc.ID, &attrs)
-			if err != nil {
-				return err
-			}
-			if err := c.UpdatePreviewsAndScreenshotsIfNeeded(ctx, &updatedLocResp.Data, locConfig); err != nil {
-				return err
-			}
+		attrs := asc.AppStoreVersionLocalizationUpdateRequestAttributes{
+			Description:     &locConfig.Description,
+			Keywords:        &locConfig.Keywords,
+			MarketingURL:    &locConfig.MarketingURL,
+			PromotionalText: &locConfig.PromotionalText,
+			SupportURL:      &locConfig.SupportURL,
+		}
+		// If WhatsNew is set on an app that has never released before, the API will respond with a 409 Conflict when attempting to set the value.
+		if !ctx.VersionIsInitialRelease {
+			attrs.WhatsNew = &locConfig.WhatsNewText
+		}
+		updatedLocResp, _, err := c.client.Apps.UpdateAppStoreVersionLocalization(ctx, loc.ID, &attrs)
+		if err != nil {
+			return err
+		}
+		if err := c.UpdatePreviewsAndScreenshotsIfNeeded(ctx, &updatedLocResp.Data, locConfig); err != nil {
+			return err
 		}
 	}
 
@@ -228,6 +231,7 @@ func (c *ascClient) UpdateVersionLocalizations(ctx *context.Context, version *as
 		if found[locale] {
 			continue
 		}
+
 		attrs := asc.AppStoreVersionLocalizationCreateRequestAttributes{
 			Description:     &locConfig.Description,
 			Keywords:        &locConfig.Keywords,
@@ -361,6 +365,7 @@ func (c *ascClient) UploadPreviews(ctx *context.Context, previewSet *asc.AppPrev
 				return err
 			}
 		}(previewConfig)
+
 		if err := c.uploadFile(ctx, previewConfig.Path, create, commit); err != nil {
 			return err
 		}
@@ -408,6 +413,7 @@ func (c *ascClient) UploadScreenshots(ctx *context.Context, screenshotSet *asc.A
 			_, _, err := c.client.Apps.CommitAppScreenshot(ctx, id, asc.Bool(true), &checksum)
 			return err
 		}
+
 		if err := c.uploadFile(ctx, screenshotConfig.Path, create, commit); err != nil {
 			return err
 		}
@@ -417,6 +423,7 @@ func (c *ascClient) UploadScreenshots(ctx *context.Context, screenshotSet *asc.A
 
 func (c *ascClient) UpdateReviewDetails(ctx *context.Context, version *asc.AppStoreVersion, config config.ReviewDetails) error {
 	detailsResp, _, err := c.client.Submission.GetReviewDetailsForAppStoreVersion(ctx, version.ID, nil)
+
 	if err != nil {
 		_, _, err = c.client.Submission.CreateReviewDetail(ctx, &asc.AppStoreReviewDetailCreateRequestAttributes{
 			ContactEmail:        &config.Contact.Email,

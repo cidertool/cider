@@ -2,6 +2,7 @@
 package config
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -39,6 +40,7 @@ const (
 
 // File refers to a file on disk by name.
 type File struct {
+	// Path to a file on-disk. Templated.
 	Path string `yaml:"path"`
 }
 
@@ -147,6 +149,7 @@ type Repo struct {
 
 // Project is the top level configuration type.
 type Project struct {
+	// Name of the project, used for logging.
 	Name       string         `yaml:"name"`
 	Testflight Testflight     `yaml:"testflight"`
 	Apps       map[string]App `yaml:"apps"`
@@ -160,7 +163,9 @@ type Testflight struct {
 
 // App outlines general information about your app, primarily for querying purposes.
 type App struct {
-	BundleID              string           `yaml:"id"`
+	// Bundle ID of the app. Required.
+	BundleID string `yaml:"id"`
+	// Primary locale of the app.
 	PrimaryLocale         string           `yaml:"primaryLocale,omitempty"`
 	UsesThirdPartyContent *bool            `yaml:"usesThirdPartyContent,omitempty"`
 	Availability          *Availability    `yaml:"availability,omitempty"`
@@ -203,24 +208,29 @@ type AppLocalizations map[string]AppLocalization
 
 // AppLocalization contains localized details for your App Store listing.
 type AppLocalization struct {
-	Name              string `yaml:"name"`
-	Subtitle          string `yaml:"subtitle,omitempty"`
+	// Name of the app in this locale. Templated.
+	Name string `yaml:"name"`
+	// Subtitle of the app in this locale. Templated.
+	Subtitle string `yaml:"subtitle,omitempty"`
+	// Privacy policy text if not using a URL. Templated.
 	PrivacyPolicyText string `yaml:"privacyPolicyText,omitempty"`
-	PrivacyPolicyURL  string `yaml:"privacyPolicyURL,omitempty"`
+	// Privacy policy URL if not using a text body. Templated.
+	PrivacyPolicyURL string `yaml:"privacyPolicyURL,omitempty"`
 }
 
 // Version outlines the general details of your app store version as it will be represented
 // on the App Store.
 type Version struct {
-	Platform             Platform             `yaml:"platform"`
-	Localizations        VersionLocalizations `yaml:"localizations"`
-	Copyright            string               `yaml:"copyright,omitempty"`
-	EarliestReleaseDate  *time.Time           `yaml:"earliestReleaseDate,omitempty"`
-	ReleaseType          releaseType          `yaml:"releaseType,omitempty"`
-	PhasedReleaseEnabled bool                 `yaml:"enablePhasedRelease,omitempty"`
-	IDFADeclaration      *IDFADeclaration     `yaml:"idfaDeclaration,omitempty"`
-	RoutingCoverage      *File                `yaml:"routingCoverage,omitempty"`
-	ReviewDetails        *ReviewDetails       `yaml:"reviewDetails,omitempty"`
+	Platform      Platform             `yaml:"platform"`
+	Localizations VersionLocalizations `yaml:"localizations"`
+	// Copyright information to display on the listing. Templated.
+	Copyright            string           `yaml:"copyright,omitempty"`
+	EarliestReleaseDate  *time.Time       `yaml:"earliestReleaseDate,omitempty"`
+	ReleaseType          releaseType      `yaml:"releaseType,omitempty"`
+	PhasedReleaseEnabled bool             `yaml:"enablePhasedRelease,omitempty"`
+	IDFADeclaration      *IDFADeclaration `yaml:"idfaDeclaration,omitempty"`
+	RoutingCoverage      *File            `yaml:"routingCoverage,omitempty"`
+	ReviewDetails        *ReviewDetails   `yaml:"reviewDetails,omitempty"`
 }
 
 // VersionLocalizations is a map of locales to VersionLocalization objects.
@@ -228,14 +238,20 @@ type VersionLocalizations map[string]VersionLocalization
 
 // VersionLocalization contains localized details for the listing of a specific version on the App Store.
 type VersionLocalization struct {
-	Description     string         `yaml:"description"`
-	Keywords        string         `yaml:"keywords,omitempty"`
-	MarketingURL    string         `yaml:"marketingURL,omitempty"`
-	PromotionalText string         `yaml:"promotionalText,omitempty"`
-	SupportURL      string         `yaml:"supportURL,omitempty"`
-	WhatsNewText    string         `yaml:"whatsNew,omitempty"`
-	PreviewSets     PreviewSets    `yaml:"previewSets,omitempty"`
-	ScreenshotSets  ScreenshotSets `yaml:"screenshotSets,omitempty"`
+	// App description in this locale. Templated.
+	Description string `yaml:"description"`
+	// App keywords in this locale. Templated.
+	Keywords string `yaml:"keywords,omitempty"`
+	// Marketing URL to use in this locale. Templated.
+	MarketingURL string `yaml:"marketingURL,omitempty"`
+	// Promotional text to use in this locale. Can be updated without a requiring a new build. Templated.
+	PromotionalText string `yaml:"promotionalText,omitempty"`
+	// Support URL to use in this locale. Templated.
+	SupportURL string `yaml:"supportURL,omitempty"`
+	// "Whats New" release note text to use in this locale. Templated.
+	WhatsNewText   string         `yaml:"whatsNew,omitempty"`
+	PreviewSets    PreviewSets    `yaml:"previewSets,omitempty"`
+	ScreenshotSets ScreenshotSets `yaml:"screenshotSets,omitempty"`
 }
 
 // PreviewSets is a map of preview types to []Preview slices.
@@ -257,29 +273,37 @@ type IDFADeclaration struct {
 type ReviewDetails struct {
 	Contact     *ContactPerson `yaml:"contact,omitempty"`
 	DemoAccount *DemoAccount   `yaml:"demoAccount,omitempty"`
-	Notes       string         `yaml:"notes,omitempty"`
-	Attachments []File         `yaml:"attachments,omitempty"`
+	// Notes for the reviewer. Templated.
+	Notes       string `yaml:"notes,omitempty"`
+	Attachments []File `yaml:"attachments,omitempty"`
 }
 
 // ContactPerson is a point of contact for App Store reviewers to reach out to in case of an
 // issue.
 type ContactPerson struct {
-	Email     string `yaml:"email"`
+	// Contact email. Required. Templated.
+	Email string `yaml:"email"`
+	// Contact first name. Required. Templated.
 	FirstName string `yaml:"firstName"`
-	LastName  string `yaml:"lastName"`
-	Phone     string `yaml:"phone"`
+	// Contact last name. Required. Templated.
+	LastName string `yaml:"lastName"`
+	// Contact phone number. Required. Templated.
+	Phone string `yaml:"phone"`
 }
 
 // DemoAccount contains account credentials for App Store reviewers to assess your apps.
 type DemoAccount struct {
-	Required bool   `yaml:"isRequired"`
-	Name     string `yaml:"name,omitempty"`
+	Required bool `yaml:"isRequired"`
+	// Demo account name or login. Templated.
+	Name string `yaml:"name,omitempty"`
+	// Demo account password. Templated.
 	Password string `yaml:"password,omitempty"`
 }
 
 // TestflightForApp represents configuration for beta distribution of apps.
 type TestflightForApp struct {
-	EnableAutoNotify bool                    `yaml:"enableAutoNotify"`
+	EnableAutoNotify bool `yaml:"enableAutoNotify"`
+	// Beta license agreement text. Templated.
 	LicenseAgreement string                  `yaml:"licenseAgreement"`
 	Localizations    TestflightLocalizations `yaml:"localizations"`
 	BetaGroups       []string                `yaml:"betaGroups,omitempty"`
@@ -292,6 +316,7 @@ type TestflightLocalizations map[string]TestflightLocalization
 
 // BetaGroup describes a beta group in Testflight that should be kept in sync and used with this app.
 type BetaGroup struct {
+	// Beta group name.
 	Name                  string       `yaml:"group"`
 	EnablePublicLink      bool         `yaml:"publicLinkEnabled,omitempty"`
 	EnablePublicLinkLimit bool         `yaml:"publicLinkLimitEnabled,omitempty"`
@@ -302,19 +327,28 @@ type BetaGroup struct {
 
 // BetaTester describes an individual beta tester that should have access to this app.
 type BetaTester struct {
-	Email     string `yaml:"email"`
+	// Beta tester email.
+	Email string `yaml:"email"`
+	// Beta tester first name.
 	FirstName string `yaml:"firstName,omitempty"`
-	LastName  string `yaml:"lastName,omitempty"`
+	// Beta tester last name.
+	LastName string `yaml:"lastName,omitempty"`
 }
 
 // TestflightLocalization contains localized details for the listing of a specific build in the Testflight app.
 type TestflightLocalization struct {
-	Description       string `yaml:"description"`
-	FeedbackEmail     string `yaml:"feedbackEmail,omitempty"`
-	MarketingURL      string `yaml:"marketingURL,omitempty"`
-	PrivacyPolicyURL  string `yaml:"privacyPolicyURL,omitempty"`
+	// Beta build description in this locale. Templated.
+	Description string `yaml:"description"`
+	// Email for testers to provide feedback to in this locale. Templated.
+	FeedbackEmail string `yaml:"feedbackEmail,omitempty"`
+	// Marketing URL to use in this locale. Templated.
+	MarketingURL string `yaml:"marketingURL,omitempty"`
+	// Privacy policy URL to use in this locale. Templated.
+	PrivacyPolicyURL string `yaml:"privacyPolicyURL,omitempty"`
+	// Privacy policy text to use on tvOS in this locale. Templated.
 	TVOSPrivacyPolicy string `yaml:"tvOSPrivacyPolicy,omitempty"`
-	WhatsNew          string `yaml:"whatsNew,omitempty"`
+	// "Whats New" release note text to use in this locale. Templated.
+	WhatsNew string `yaml:"whatsNew,omitempty"`
 }
 
 // Load config file.
@@ -340,6 +374,16 @@ func LoadReader(fd io.Reader) (config Project, err error) {
 func (p Project) String() (string, error) {
 	b, err := yaml.Marshal(p)
 	return string(b), err
+}
+
+// Copy performs a costly deep-copy of the entire project structure.
+func (p *Project) Copy() (copy Project, err error) {
+	bytes, err := json.Marshal(p)
+	if err != nil {
+		return copy, err
+	}
+	err = json.Unmarshal(bytes, &copy)
+	return copy, err
 }
 
 // AppsMatching returns an array of keys in the Project matching the app names, or all names if the flag is set.

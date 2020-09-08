@@ -32,7 +32,7 @@ type Fields map[string]interface{}
 func New(ctx *context.Context) *Template {
 	return &Template{
 		Fields{
-			projectNameKey: ctx.Config.Name,
+			projectNameKey: ctx.RawConfig.Name,
 			versionKey:     ctx.Version,
 			envKey:         ctx.Env,
 			dateKey:        ctx.Date.UTC().Format(time.RFC3339),

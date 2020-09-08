@@ -63,7 +63,7 @@ func newReleaseCmd() *releaseCmd {
 
 	cmd.Flags().StringVarP(&root.opts.config, "config", "f", "", "Load configuration from file")
 	cmd.Flags().StringArrayVarP(&root.opts.appsToRelease, "app", "a", make([]string, 0), "App to release, using key name in configuration")
-	cmd.Flags().Var(&root.opts.publishMode, "mode", "Publish mode (default: \"testflight\")")
+	cmd.Flags().Var(&root.opts.publishMode, "mode", `Publish mode (default: "testflight")`)
 	cmd.Flags().BoolVarP(&root.opts.releaseAllApps, "all-apps", "A", false, "Release all apps")
 	cmd.Flags().BoolVar(&root.opts.skipGit, "skip-git", false, "Skips deriving version information from Git. Must only be used in conjunction with --version")
 	cmd.Flags().BoolVar(&root.opts.skipUpdatePricing, "skip-update-pricing", false, "Skips updating pricing")

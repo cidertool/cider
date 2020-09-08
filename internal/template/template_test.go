@@ -32,3 +32,9 @@ func TestInvalidTemplate(t *testing.T) {
 		Apply(`{{ .projectName`)
 	assert.Error(t, err)
 }
+
+func TestEmptyTemplate(t *testing.T) {
+	tmpl, err := New(context.New(config.Project{})).Apply("")
+	assert.NoError(t, err)
+	assert.Empty(t, tmpl)
+}

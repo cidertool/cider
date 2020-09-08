@@ -25,6 +25,7 @@ const (
 type Context struct {
 	ctx.Context
 	Config                  config.Project
+	RawConfig               config.Project
 	Env                     Env
 	Date                    time.Time
 	Git                     GitInfo
@@ -77,10 +78,11 @@ func NewWithTimeout(config config.Project, timeout time.Duration) (*Context, ctx
 // Wrap wraps an existing context.
 func Wrap(ctx ctx.Context, config config.Project) *Context {
 	return &Context{
-		Context: ctx,
-		Config:  config,
-		Env:     splitEnv(os.Environ()),
-		Date:    time.Now(),
+		Context:   ctx,
+		Config:    config,
+		RawConfig: config,
+		Env:       splitEnv(os.Environ()),
+		Date:      time.Now(),
 	}
 }
 

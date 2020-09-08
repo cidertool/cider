@@ -1,0 +1,82 @@
+before:
+  hooks:
+    - go mod download
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+      - freebsd
+      - linux
+      - openbsd
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    mod_timestamp: '{{ .CommitTimestamp }}'
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{ .CommitDate }} -X main.builtBy=aaronsky
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: '{{ .Tag }}-next'
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - Merge pull request
+      - Merge branch
+      - go mod tidy
+dockers:
+  - dockerfile: docker/Dockerfile
+    image_templates:
+      - applereleaser/applereleaser:{{ .Tag }}
+      - applereleaser/applereleaser:v{{ .Major }}.{{ .Minor }}
+      - applereleaser/applereleaser:latest
+    binaries:
+      - applereleaser
+    extra_files:
+      - docker/entrypoint.sh
+    build_flag_templates:
+      - --pull
+      - --label=org.opencontainers.image.created={{ .Date }}
+      - --label=org.opencontainers.image.name={{ .ProjectName }}
+      - --label=org.opencontainers.image.revision={{ .FullCommit }}
+      - --label=org.opencontainers.image.version={{ .Version }}
+      - --label=org.opencontainers.image.source={{ .GitURL }}
+      - --label=repository=http://github.com/aaronsky/applereleaser
+      - --label=homepage=http://aaronsky.github.io/applereleaser
+      - --label=maintainer=Aaron Sky <applereleaser@skyaaron.com>
+archives:
+  - name_template: '{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
+    replacements:
+      amd64: x86_64
+    format_overrides:
+      - goos: windows
+        format: zip
+# brews:
+#   - tap:
+#       owner: aaronsky
+#       name: homebrew-tap
+#     commit_author:
+#       name: goreleaserbot
+#       email: applereleaser@skyaaron.com
+#     folder: Formula
+#     homepage: https://aaronsky.github.io/applereleaser
+#     description: Submit your builds to the Apple App Store in seconds
+#     test: |
+#       system "#{bin}/applereleaser -v"
+# scoop:
+#   bucket:
+#     owner: aaronsky
+#     name: scoop-bucket
+#   commit_author:
+#     name: goreleaserbot
+#     email: applereleaser@skyaaron.com
+#   homepage: https://aaronsky.github.io/applereleaser
+#   description: Submit your builds to the Apple App Store in seconds
+#   license: MIT

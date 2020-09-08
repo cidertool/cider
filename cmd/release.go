@@ -77,13 +77,20 @@ func newReleaseCmd() *releaseCmd {
 }
 
 func releaseProject(options releaseOpts) (*context.Context, error) {
+	var forceAllSkips bool
 	cfg, err := loadConfig(options.config, options.currentDirectory)
 	if err != nil {
-		return nil, err
+		if err == ErrConfigNotFound {
+			log.Warn(err.Error())
+			log.Warn("using defaults and enabling all skips to avoid dangerous consequences...")
+			forceAllSkips = true
+		} else {
+			return nil, err
+		}
 	}
 	ctx, cancel := context.NewWithTimeout(cfg, options.timeout)
 	defer cancel()
-	setupReleaseContext(ctx, options)
+	setupReleaseContext(ctx, options, forceAllSkips)
 	return ctx, context.NewInterrupt().Run(ctx, func() error {
 		for _, pipe := range pipeline.Pipeline {
 			if err := middleware.Logging(
@@ -98,17 +105,17 @@ func releaseProject(options releaseOpts) (*context.Context, error) {
 	})
 }
 
-func setupReleaseContext(ctx *context.Context, options releaseOpts) *context.Context {
+func setupReleaseContext(ctx *context.Context, options releaseOpts, forceAllSkips bool) *context.Context {
 	ctx.AppsToRelease = ctx.Config.AppsMatching(options.appsToRelease, options.releaseAllApps)
 	if options.publishMode == "" {
 		ctx.PublishMode = context.PublishModeTestflight
 	} else {
 		ctx.PublishMode = options.publishMode
 	}
-	ctx.SkipGit = options.skipGit
-	ctx.SkipUpdatePricing = options.skipUpdatePricing
-	ctx.SkipUpdateMetadata = options.skipUpdateMetadata
-	ctx.SkipSubmit = options.skipSubmit
+	ctx.SkipGit = options.skipGit || forceAllSkips
+	ctx.SkipUpdatePricing = options.skipUpdatePricing || forceAllSkips
+	ctx.SkipUpdateMetadata = options.skipUpdateMetadata || forceAllSkips
+	ctx.SkipSubmit = options.skipSubmit || forceAllSkips
 	ctx.Version = options.versionOverride
 	ctx.CurrentDirectory = options.currentDirectory
 	return ctx

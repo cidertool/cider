@@ -1,12 +1,15 @@
 package cmd
 
 import (
+	"errors"
 	"os"
 	"path/filepath"
 
 	"github.com/aaronsky/applereleaser/pkg/config"
-	"github.com/apex/log"
 )
+
+// ErrConfigNotFound happens if a config file could not be found at any of the default locations.
+var ErrConfigNotFound = errors.New("config file not found at any default path")
 
 func loadConfig(path string, wd string) (config.Project, error) {
 	if path != "" {
@@ -24,6 +27,5 @@ func loadConfig(path string, wd string) (config.Project, error) {
 		}
 		return proj, err
 	}
-	log.Warn("could not find a config file, using defaults...")
-	return config.Project{}, nil
+	return config.Project{}, ErrConfigNotFound
 }

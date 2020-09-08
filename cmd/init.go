@@ -38,7 +38,7 @@ func newInitCmd() *initCmd {
 			}
 			defer closer.Close(f)
 
-			log.Infof(color.New(color.Bold).Sprintf("Generating %s file", root.config))
+			log.Info(color.New(color.Bold).Sprintf("Generating %s file", root.config))
 
 			return initProject(f)
 		},

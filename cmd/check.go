@@ -37,7 +37,7 @@ func newCheckCmd() *checkCmd {
 				return fmt.Errorf("invalid config: %w", err)
 			}
 
-			log.Infof(color.New(color.Bold).Sprintf("config is valid"))
+			log.Info(color.New(color.Bold).Sprintf("config is valid"))
 			return nil
 		},
 	}

@@ -48,6 +48,12 @@ func (p Pipe) Run(ctx *context.Context) error {
 		return err
 	}
 	ctx.Git = info
+	log.WithFields(log.Fields{
+		"commit": info.Commit,
+		"tag":    info.CurrentTag,
+		"date":   info.CommitDate.String(),
+		"url":    info.URL,
+	}).Debug("git info")
 
 	if ctx.Version == "" {
 		tag, err := getTag(client)
@@ -61,14 +67,16 @@ func (p Pipe) Run(ctx *context.Context) error {
 	log.WithFields(log.Fields{
 		"version": ctx.Version,
 		"commit":  info.Commit,
-	}).Infof("releasing")
+	}).Info("releasing")
 
 	return validate(ctx, client)
 }
 
 func getInfo(client *git.Git) (context.GitInfo, error) {
 	if !client.IsRepo() {
-		return context.GitInfo{}, git.ErrNotRepository{Dir: client.CurrentDirectory()}
+		return context.GitInfo{}, git.ErrNotRepository{
+			Dir: client.CurrentDirectory(),
+		}
 	}
 	return getGitInfo(client)
 }
@@ -118,7 +126,7 @@ func validate(ctx *context.Context, client *git.Git) error {
 }
 
 func getCommitDate(client *git.Git) (time.Time, error) {
-	commit, err := client.SanitizeProcess(client.Run("show", "--format='%ct'", "HEAD", "--quiet"))
+	commit, err := client.Show("%ct")
 	if err != nil {
 		return time.Time{}, err
 	}
@@ -134,11 +142,11 @@ func getCommitDate(client *git.Git) (time.Time, error) {
 }
 
 func getShortCommit(client *git.Git) (string, error) {
-	return client.SanitizeProcess(client.Run("show", "--format='%h'", "HEAD", "--quiet"))
+	return client.Show("%h")
 }
 
 func getFullCommit(client *git.Git) (string, error) {
-	return client.SanitizeProcess(client.Run("show", "--format='%H'", "HEAD", "--quiet"))
+	return client.Show("%H")
 }
 
 func getTag(client *git.Git) (string, error) {

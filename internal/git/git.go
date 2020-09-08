@@ -3,6 +3,7 @@ package git
 
 import (
 	"errors"
+	"fmt"
 	"path/filepath"
 	"strings"
 
@@ -73,6 +74,16 @@ func (git *Git) SanitizeProcess(proc *shell.CompletedProcess, err error) (string
 }
 
 // MARK: Helpers
+
+// Show returns the requested information for the commit pointed to by HEAD.
+func (git *Git) Show(spec string) (string, error) {
+	return git.ShowRef(spec, "HEAD")
+}
+
+// ShowRef returns the requested information for the given ref.
+func (git *Git) ShowRef(spec, ref string) (string, error) {
+	return git.SanitizeProcess(git.Run("show", fmt.Sprintf("--format=%s", spec), ref, "--quiet"))
+}
 
 // ExtractRepoFromConfig gets the repo name from the Git config.
 func (git *Git) ExtractRepoFromConfig() (result config.Repo, err error) {

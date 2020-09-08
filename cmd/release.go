@@ -49,14 +49,14 @@ func newReleaseCmd() *releaseCmd {
 
 			start := time.Now()
 
-			log.Infof(color.New(color.Bold).Sprint("releasing..."))
+			log.Info(color.New(color.Bold).Sprint("releasing..."))
 
 			_, err := releaseProject(root.opts)
 			if err != nil {
 				return wrapError(err, color.New(color.Bold).Sprintf("release failed after %0.2fs", time.Since(start).Seconds()))
 			}
 
-			log.Infof(color.New(color.Bold).Sprintf("release succeeded after %0.2fs", time.Since(start).Seconds()))
+			log.Info(color.New(color.Bold).Sprintf("release succeeded after %0.2fs", time.Since(start).Seconds()))
 			return nil
 		},
 	}

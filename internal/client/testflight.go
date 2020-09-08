@@ -15,19 +15,20 @@ func (c *ascClient) UpdateBetaAppLocalizations(ctx *context.Context, app *asc.Ap
 	found := make(map[string]bool)
 	for _, loc := range locListResp.Data {
 		locale := *loc.Attributes.Locale
-		if locConfig, ok := config[locale]; ok {
-			found[locale] = true
+		locConfig, ok := config[locale]
+		if !ok {
+			continue
+		}
+		found[locale] = true
 
-			_, _, err := c.client.TestFlight.UpdateBetaAppLocalization(ctx, loc.ID, &asc.BetaAppLocalizationUpdateRequestAttributes{
-				Description:       &locConfig.Description,
-				FeedbackEmail:     &locConfig.FeedbackEmail,
-				MarketingURL:      &locConfig.MarketingURL,
-				PrivacyPolicyURL:  &locConfig.PrivacyPolicyURL,
-				TVOSPrivacyPolicy: &locConfig.TVOSPrivacyPolicy,
-			})
-			if err != nil {
-				return err
-			}
+		if _, _, err = c.client.TestFlight.UpdateBetaAppLocalization(ctx, loc.ID, &asc.BetaAppLocalizationUpdateRequestAttributes{
+			Description:       &locConfig.Description,
+			FeedbackEmail:     &locConfig.FeedbackEmail,
+			MarketingURL:      &locConfig.MarketingURL,
+			PrivacyPolicyURL:  &locConfig.PrivacyPolicyURL,
+			TVOSPrivacyPolicy: &locConfig.TVOSPrivacyPolicy,
+		}); err != nil {
+			return err
 		}
 	}
 
@@ -35,15 +36,15 @@ func (c *ascClient) UpdateBetaAppLocalizations(ctx *context.Context, app *asc.Ap
 		if found[locale] {
 			continue
 		}
-		_, _, err := c.client.TestFlight.CreateBetaAppLocalization(ctx.Context, asc.BetaAppLocalizationCreateRequestAttributes{
+
+		if _, _, err = c.client.TestFlight.CreateBetaAppLocalization(ctx.Context, asc.BetaAppLocalizationCreateRequestAttributes{
 			Description:       &locConfig.Description,
 			FeedbackEmail:     &locConfig.FeedbackEmail,
 			Locale:            locale,
 			MarketingURL:      &locConfig.MarketingURL,
 			PrivacyPolicyURL:  &locConfig.PrivacyPolicyURL,
 			TVOSPrivacyPolicy: &locConfig.TVOSPrivacyPolicy,
-		}, app.ID)
-		if err != nil {
+		}, app.ID); err != nil {
 			return err
 		}
 	}
@@ -68,8 +69,7 @@ func (c *ascClient) UpdateBetaBuildLocalizations(ctx *context.Context, build *as
 		if locConfig, ok := config[locale]; ok {
 			found[locale] = true
 
-			_, _, err := c.client.TestFlight.UpdateBetaBuildLocalization(ctx, loc.ID, &locConfig.WhatsNew)
-			if err != nil {
+			if _, _, err := c.client.TestFlight.UpdateBetaBuildLocalization(ctx, loc.ID, &locConfig.WhatsNew); err != nil {
 				return err
 			}
 		}
@@ -79,8 +79,8 @@ func (c *ascClient) UpdateBetaBuildLocalizations(ctx *context.Context, build *as
 		if found[locale] {
 			continue
 		}
-		_, _, err := c.client.TestFlight.CreateBetaBuildLocalization(ctx.Context, locale, &locConfig.WhatsNew, build.ID)
-		if err != nil {
+
+		if _, _, err = c.client.TestFlight.CreateBetaBuildLocalization(ctx.Context, locale, &locConfig.WhatsNew, build.ID); err != nil {
 			return err
 		}
 	}
@@ -93,6 +93,7 @@ func (c *ascClient) UpdateBetaLicenseAgreement(ctx *context.Context, app *asc.Ap
 	if err != nil {
 		return err
 	}
+
 	_, _, err = c.client.TestFlight.UpdateBetaLicenseAgreement(ctx, resp.Data.ID, &config.LicenseAgreement)
 	return err
 }

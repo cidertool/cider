@@ -73,12 +73,9 @@ apps:
           startDate: null
           # The end date a price schedule should be in effect until. Field is currently a no-op.
           endDate: null
-      # Array of IDs of territories to make your app available in. The IDs are special
-      # App Store Connect territory IDs documented here:
-      #
-      # https://help.apple.com/app-store-connect/#/dev997f9cf7c
+      # Array of ISO 3166-1 Alpha-3 country codes corresponding to territories to make your app available in.
       territories:
-        - US
+        - USA
     # Map of locale IDs to localization configurations for app information. (required)
     localizations:
       en-US:
@@ -130,17 +127,28 @@ apps:
       # Copyright text
       copyright: ''
       # Earliest release date, in Go's RFC3339 format. Set to null to release
-      # as soon as
-      # is permitted by the release type.
+      # as soon as is permitted by the release type.
       earliestReleaseDate: null
       # Release type. Valid values: "manual", "afterApproval", "scheduled"
       releaseType: afterApproval
       # Indicates whether phased release is enabled
       enablePhasedRelease: true
-      # Information about an app's IDFA declaration
-      idfaDeclaration: null
+      # Information about an app's IDFA declaration. Omit or set to null to declare to
+      # Apple that your app does not use an IDFA. 
+      idfaDeclaration:
+        # Indicates that the app attributes user action with previous ads
+        attributesActionWithPreviousAd: false
+        # Indicates that the app attributes user installation with previous ads
+        attributesAppInstallationToPreviousAd: false
+        # Indicates that the app developer will honor Apple's guidelines around tracking when
+        # the user has chosen to limit ad tracking. 
+        honorsLimitedAdTracking: false
+        # Indicates that the app serves ads
+        servesAds: false
       # Routing coverage resource
-      routingCoverage: null
+      routingCoverage:
+        # Path to an asset, relative to the current directory. (required)
+        path: assets/store/coverage.json
       # Details about an app to share with the App Store reviewer.
       reviewDetails:
         # Point of contact for the App Store reviewer.

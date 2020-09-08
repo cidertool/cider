@@ -11,27 +11,27 @@ import (
 )
 
 func (c *ascClient) UpdateApp(ctx *context.Context, app *asc.App, appInfo *asc.AppInfo, config config.App) error {
-	availableTerritoryIDs, err := c.AvailableTerritoryIDsInConfig(ctx, config.Availability.Territories)
-	if err != nil {
-		return err
+	updateParams := asc.AppUpdateRequestAttributes{
+		ContentRightsDeclaration: contentRightsDeclaration(config.UsesThirdPartyContent),
 	}
 
+	var availableTerritoryIDs []string
 	var prices []asc.NewAppPriceRelationship
-	if !ctx.SkipUpdatePricing {
+
+	if !ctx.SkipUpdateMetadata && config.Availability != nil {
+		var err error
+		availableTerritoryIDs, err = c.AvailableTerritoryIDsInConfig(ctx, config.Availability.Territories)
+		if err != nil {
+			return err
+		}
 		prices = priceSchedules(config.Availability.Pricing)
+		updateParams.AvailableInNewTerritories = config.Availability.AvailableInNewTerritories
+	}
+	if config.PrimaryLocale != "" {
+		updateParams.PrimaryLocale = &config.PrimaryLocale
 	}
 
-	if _, _, err := c.client.Apps.UpdateApp(
-		ctx,
-		app.ID,
-		&asc.AppUpdateRequestAttributes{
-			PrimaryLocale:             &config.PrimaryLocale,
-			ContentRightsDeclaration:  contentRightsDeclaration(config.UsesThirdPartyContent),
-			AvailableInNewTerritories: config.Availability.AvailableInNewTerritories,
-		},
-		availableTerritoryIDs,
-		prices,
-	); err != nil {
+	if _, _, err := c.client.Apps.UpdateApp(ctx, app.ID, &updateParams, availableTerritoryIDs, prices); err != nil {
 		return err
 	}
 

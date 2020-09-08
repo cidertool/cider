@@ -16,7 +16,7 @@ func TestExec(t *testing.T) {
 		t.Error(err)
 	}
 	if ps.Stdout != "dogs" {
-		t.Error("expected output \"dogs\" does not equal", ps.Stdout)
+		t.Error(`expected output "dogs" does not equal`, ps.Stdout)
 	}
 }
 

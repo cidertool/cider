@@ -7,10 +7,14 @@ import (
 	"github.com/aaronsky/applereleaser/pkg/config"
 	"github.com/aaronsky/applereleaser/pkg/context"
 	"github.com/aaronsky/asc-go/asc"
+	"github.com/hashicorp/go-multierror"
 	"github.com/stretchr/testify/assert"
 )
 
-const badTemplatePattern = "{{ .projectName "
+const (
+	goodTemplatePattern = "{{ .projectName }}"
+	badTemplatePattern  = "{{ .projectName "
+)
 
 func TestTemplatePipeHeader(t *testing.T) {
 	pipe := Pipe{}
@@ -21,18 +25,21 @@ func TestTemplateEmptyProjectPasses(t *testing.T) {
 	ctx := context.New(config.Project{})
 	pipe := Pipe{}
 	err := pipe.Run(ctx)
+	assert.Nil(t, err)
 	assert.NoError(t, err)
 	assert.Equal(t, ctx.RawConfig, ctx.Config)
 }
 
 func TestTemplateFullyDefinedProjectWithGoodTemplatesPasses(t *testing.T) {
-	ctx := context.New(fullyPopulatedProject())
+	ctx := context.New(fullyPopulatedProject(true))
 	expected := ctx.Config.Name
+
 	pipe := Pipe{}
 	err := pipe.Run(ctx)
 
 	assert.NoError(t, err)
 	assert.NotEqual(t, ctx.RawConfig, ctx.Config)
+
 	assert.Equal(t, expected, ctx.Config.Name)
 	for _, app := range ctx.Config.Apps {
 		for _, loc := range app.Localizations {
@@ -93,376 +100,25 @@ func TestTemplateFullyDefinedProjectWithGoodTemplatesPasses(t *testing.T) {
 	}
 }
 
-func TestTemplateWithBadAppLocalizationName(t *testing.T) {
-	proj := fullyPopulatedProject()
-	loc := proj.Apps["First"].Localizations["en-US"]
-	loc.Name = badTemplatePattern
-	proj.Apps["First"].Localizations["en-US"] = loc
+func TestTemplateWithBadPatterns(t *testing.T) {
+	proj := fullyPopulatedProject(false)
 	ctx := context.New(proj)
 	pipe := Pipe{}
 	err := pipe.Run(ctx)
 	assert.Error(t, err)
+	merr, ok := err.(*multierror.Error)
+	assert.True(t, ok)
+	assert.NotNil(t, merr)
+	assert.Equal(t, 55, merr.Len())
 }
 
-func TestTemplateWithBadAppLocalizationSubtitle(t *testing.T) {
-	proj := fullyPopulatedProject()
-	loc := proj.Apps["First"].Localizations["en-US"]
-	loc.Subtitle = badTemplatePattern
-	proj.Apps["First"].Localizations["en-US"] = loc
-	ctx := context.New(proj)
-	pipe := Pipe{}
-	err := pipe.Run(ctx)
-	assert.Error(t, err)
-}
-
-func TestTemplateWithBadAppLocalizationPrivacyPolicyText(t *testing.T) {
-	proj := fullyPopulatedProject()
-	loc := proj.Apps["First"].Localizations["en-US"]
-	loc.PrivacyPolicyText = badTemplatePattern
-	proj.Apps["First"].Localizations["en-US"] = loc
-	ctx := context.New(proj)
-	pipe := Pipe{}
-	err := pipe.Run(ctx)
-	assert.Error(t, err)
-}
-
-func TestTemplateWithAppLocalizationPrivacyPolicyURL(t *testing.T) {
-	proj := fullyPopulatedProject()
-	loc := proj.Apps["First"].Localizations["en-US"]
-	loc.PrivacyPolicyURL = badTemplatePattern
-	proj.Apps["First"].Localizations["en-US"] = loc
-	ctx := context.New(proj)
-	pipe := Pipe{}
-	err := pipe.Run(ctx)
-	assert.Error(t, err)
-}
-
-func TestTemplateWithBadAppVersionsCopyright(t *testing.T) {
-	proj := fullyPopulatedProject()
-	app := proj.Apps["First"]
-	app.Versions.Copyright = badTemplatePattern
-	proj.Apps["First"] = app
-	ctx := context.New(proj)
-	pipe := Pipe{}
-	err := pipe.Run(ctx)
-	assert.Error(t, err)
-}
-
-func TestTemplateWithBadAppVersionLocalizationDescription(t *testing.T) {
-	proj := fullyPopulatedProject()
-	loc := proj.Apps["First"].Versions.Localizations["en-US"]
-	loc.Description = badTemplatePattern
-	proj.Apps["First"].Versions.Localizations["en-US"] = loc
-	ctx := context.New(proj)
-	pipe := Pipe{}
-	err := pipe.Run(ctx)
-	assert.Error(t, err)
-}
-
-func TestTemplateWithBadAppVersionLocalizationKeywords(t *testing.T) {
-	proj := fullyPopulatedProject()
-	loc := proj.Apps["First"].Versions.Localizations["en-US"]
-	loc.Keywords = badTemplatePattern
-	proj.Apps["First"].Versions.Localizations["en-US"] = loc
-	ctx := context.New(proj)
-	pipe := Pipe{}
-	err := pipe.Run(ctx)
-	assert.Error(t, err)
-}
-
-func TestTemplateWithAppVersionLocalizationMarketingURL(t *testing.T) {
-	proj := fullyPopulatedProject()
-	loc := proj.Apps["First"].Versions.Localizations["en-US"]
-	loc.MarketingURL = badTemplatePattern
-	proj.Apps["First"].Versions.Localizations["en-US"] = loc
-	ctx := context.New(proj)
-	pipe := Pipe{}
-	err := pipe.Run(ctx)
-	assert.Error(t, err)
-}
-
-func TestTemplateWithBadAppVersionLocalizationPromotionalText(t *testing.T) {
-	proj := fullyPopulatedProject()
-	loc := proj.Apps["First"].Versions.Localizations["en-US"]
-	loc.PromotionalText = badTemplatePattern
-	proj.Apps["First"].Versions.Localizations["en-US"] = loc
-	ctx := context.New(proj)
-	pipe := Pipe{}
-	err := pipe.Run(ctx)
-	assert.Error(t, err)
-}
-
-func TestTemplateWithBadAppVersionLocalizationSupportURL(t *testing.T) {
-	proj := fullyPopulatedProject()
-	loc := proj.Apps["First"].Versions.Localizations["en-US"]
-	loc.SupportURL = badTemplatePattern
-	proj.Apps["First"].Versions.Localizations["en-US"] = loc
-	ctx := context.New(proj)
-	pipe := Pipe{}
-	err := pipe.Run(ctx)
-	assert.Error(t, err)
-}
-
-func TestTemplateWithBadAppVersionLocalizationWhatsNewText(t *testing.T) {
-	proj := fullyPopulatedProject()
-	loc := proj.Apps["First"].Versions.Localizations["en-US"]
-	loc.WhatsNewText = badTemplatePattern
-	proj.Apps["First"].Versions.Localizations["en-US"] = loc
-	ctx := context.New(proj)
-	pipe := Pipe{}
-	err := pipe.Run(ctx)
-	assert.Error(t, err)
-}
-
-func TestTemplateWithBadAppVersionLocalizationPreviewSets(t *testing.T) {
-	proj := fullyPopulatedProject()
-	proj.Apps["First"].Versions.Localizations["en-US"].PreviewSets[config.PreviewTypeDesktop][0].Path = badTemplatePattern
-	ctx := context.New(proj)
-	pipe := Pipe{}
-	err := pipe.Run(ctx)
-	assert.Error(t, err)
-}
-
-func TestTemplateWithBadAppVersionLocalizationScreenshotSets(t *testing.T) {
-	proj := fullyPopulatedProject()
-	proj.Apps["First"].Versions.Localizations["en-US"].ScreenshotSets[config.ScreenshotTypeDesktop][0].Path = badTemplatePattern
-	ctx := context.New(proj)
-	pipe := Pipe{}
-	err := pipe.Run(ctx)
-	assert.Error(t, err)
-}
-
-func TestTemplateWithBadAppVersionReviewDetailsEmail(t *testing.T) {
-	proj := fullyPopulatedProject()
-	proj.Apps["First"].Versions.ReviewDetails.Contact.Email = badTemplatePattern
-	ctx := context.New(proj)
-	pipe := Pipe{}
-	err := pipe.Run(ctx)
-	assert.Error(t, err)
-}
-
-func TestTemplateWithBadAppVersionReviewDetailsFirstName(t *testing.T) {
-	proj := fullyPopulatedProject()
-	proj.Apps["First"].Versions.ReviewDetails.Contact.FirstName = badTemplatePattern
-	ctx := context.New(proj)
-	pipe := Pipe{}
-	err := pipe.Run(ctx)
-	assert.Error(t, err)
-}
-
-func TestTemplateWithBadAppVersionReviewDetailsLastName(t *testing.T) {
-	proj := fullyPopulatedProject()
-	proj.Apps["First"].Versions.ReviewDetails.Contact.LastName = badTemplatePattern
-	ctx := context.New(proj)
-	pipe := Pipe{}
-	err := pipe.Run(ctx)
-	assert.Error(t, err)
-}
-
-func TestTemplateWithAppVersionReviewDetailsPhone(t *testing.T) {
-	proj := fullyPopulatedProject()
-	proj.Apps["First"].Versions.ReviewDetails.Contact.Phone = badTemplatePattern
-	ctx := context.New(proj)
-	pipe := Pipe{}
-	err := pipe.Run(ctx)
-	assert.Error(t, err)
-}
-
-func TestTemplateWithBadAppVersionReviewDetailsAccountName(t *testing.T) {
-	proj := fullyPopulatedProject()
-	proj.Apps["First"].Versions.ReviewDetails.DemoAccount.Name = badTemplatePattern
-	ctx := context.New(proj)
-	pipe := Pipe{}
-	err := pipe.Run(ctx)
-	assert.Error(t, err)
-}
-
-func TestTemplateWithBadAppVersionReviewDetailsAccountPassword(t *testing.T) {
-	proj := fullyPopulatedProject()
-	proj.Apps["First"].Versions.ReviewDetails.DemoAccount.Password = badTemplatePattern
-	ctx := context.New(proj)
-	pipe := Pipe{}
-	err := pipe.Run(ctx)
-	assert.Error(t, err)
-}
-
-func TestTemplateWithBadAppVersionReviewDetailsNotes(t *testing.T) {
-	proj := fullyPopulatedProject()
-	proj.Apps["First"].Versions.ReviewDetails.Notes = badTemplatePattern
-	ctx := context.New(proj)
-	pipe := Pipe{}
-	err := pipe.Run(ctx)
-	assert.Error(t, err)
-}
-
-func TestTemplateWithBadAppVersionReviewDetailsAttachment(t *testing.T) {
-	proj := fullyPopulatedProject()
-	proj.Apps["First"].Versions.ReviewDetails.Attachments[0].Path = badTemplatePattern
-	ctx := context.New(proj)
-	pipe := Pipe{}
-	err := pipe.Run(ctx)
-	assert.Error(t, err)
-}
-
-func TestTemplateWithBadAppVersionRoutingCoveragePath(t *testing.T) {
-	proj := fullyPopulatedProject()
-	proj.Apps["First"].Versions.RoutingCoverage.Path = badTemplatePattern
-	ctx := context.New(proj)
-	pipe := Pipe{}
-	err := pipe.Run(ctx)
-	assert.Error(t, err)
-}
-
-func TestTemplateWithBadAppTestflightLicenseAgreement(t *testing.T) {
-	proj := fullyPopulatedProject()
-	app := proj.Apps["First"]
-	app.Testflight.LicenseAgreement = badTemplatePattern
-	proj.Apps["First"] = app
-	ctx := context.New(proj)
-	pipe := Pipe{}
-	err := pipe.Run(ctx)
-	assert.Error(t, err)
-}
-
-func TestTemplateWithBadAppTestflightLocalizationDescription(t *testing.T) {
-	proj := fullyPopulatedProject()
-	loc := proj.Apps["First"].Testflight.Localizations["en-US"]
-	loc.Description = badTemplatePattern
-	proj.Apps["First"].Testflight.Localizations["en-US"] = loc
-	ctx := context.New(proj)
-	pipe := Pipe{}
-	err := pipe.Run(ctx)
-	assert.Error(t, err)
-}
-
-func TestTemplateWithBadAppTestflightLocalizationFeedbackEmail(t *testing.T) {
-	proj := fullyPopulatedProject()
-	loc := proj.Apps["First"].Testflight.Localizations["en-US"]
-	loc.FeedbackEmail = badTemplatePattern
-	proj.Apps["First"].Testflight.Localizations["en-US"] = loc
-	ctx := context.New(proj)
-	pipe := Pipe{}
-	err := pipe.Run(ctx)
-	assert.Error(t, err)
-}
-
-func TestTemplateWithBadAppTestflightLocalizationMarketingURL(t *testing.T) {
-	proj := fullyPopulatedProject()
-	loc := proj.Apps["First"].Testflight.Localizations["en-US"]
-	loc.MarketingURL = badTemplatePattern
-	proj.Apps["First"].Testflight.Localizations["en-US"] = loc
-	ctx := context.New(proj)
-	pipe := Pipe{}
-	err := pipe.Run(ctx)
-	assert.Error(t, err)
-}
-
-func TestTemplateWithBadAppTestflightLocalizationPrivacyPolicyURL(t *testing.T) {
-	proj := fullyPopulatedProject()
-	loc := proj.Apps["First"].Testflight.Localizations["en-US"]
-	loc.PrivacyPolicyURL = badTemplatePattern
-	proj.Apps["First"].Testflight.Localizations["en-US"] = loc
-	ctx := context.New(proj)
-	pipe := Pipe{}
-	err := pipe.Run(ctx)
-	assert.Error(t, err)
-}
-
-func TestTemplateWithBadAppTestflightLocalizationTVOSPrivacyPolicy(t *testing.T) {
-	proj := fullyPopulatedProject()
-	loc := proj.Apps["First"].Testflight.Localizations["en-US"]
-	loc.TVOSPrivacyPolicy = badTemplatePattern
-	proj.Apps["First"].Testflight.Localizations["en-US"] = loc
-	ctx := context.New(proj)
-	pipe := Pipe{}
-	err := pipe.Run(ctx)
-	assert.Error(t, err)
-}
-
-func TestTemplateWithBadAppTestflightLocalizationWhatsNewText(t *testing.T) {
-	proj := fullyPopulatedProject()
-	loc := proj.Apps["First"].Testflight.Localizations["en-US"]
-	loc.WhatsNew = badTemplatePattern
-	proj.Apps["First"].Testflight.Localizations["en-US"] = loc
-	ctx := context.New(proj)
-	pipe := Pipe{}
-	err := pipe.Run(ctx)
-	assert.Error(t, err)
-}
-
-func TestTemplateWithBadAppTestflightReviewDetailsEmail(t *testing.T) {
-	proj := fullyPopulatedProject()
-	proj.Apps["First"].Testflight.ReviewDetails.Contact.Email = badTemplatePattern
-	ctx := context.New(proj)
-	pipe := Pipe{}
-	err := pipe.Run(ctx)
-	assert.Error(t, err)
-}
-
-func TestTemplateWithBadAppTestflightReviewDetailsFirstName(t *testing.T) {
-	proj := fullyPopulatedProject()
-	proj.Apps["First"].Testflight.ReviewDetails.Contact.FirstName = badTemplatePattern
-	ctx := context.New(proj)
-	pipe := Pipe{}
-	err := pipe.Run(ctx)
-	assert.Error(t, err)
-}
-
-func TestTemplateWithBadAppTestflightReviewDetailsLastName(t *testing.T) {
-	proj := fullyPopulatedProject()
-	proj.Apps["First"].Testflight.ReviewDetails.Contact.LastName = badTemplatePattern
-	ctx := context.New(proj)
-	pipe := Pipe{}
-	err := pipe.Run(ctx)
-	assert.Error(t, err)
-}
-
-func TestTemplateWithBadAppTestflightReviewDetailsPhoneNumber(t *testing.T) {
-	proj := fullyPopulatedProject()
-	proj.Apps["First"].Testflight.ReviewDetails.Contact.Phone = badTemplatePattern
-	ctx := context.New(proj)
-	pipe := Pipe{}
-	err := pipe.Run(ctx)
-	assert.Error(t, err)
-}
-
-func TestTemplateWithBadAppTestflightReviewDetailsAccountName(t *testing.T) {
-	proj := fullyPopulatedProject()
-	proj.Apps["First"].Testflight.ReviewDetails.DemoAccount.Name = badTemplatePattern
-	ctx := context.New(proj)
-	pipe := Pipe{}
-	err := pipe.Run(ctx)
-	assert.Error(t, err)
-}
-
-func TestTemplateWithBadAppTestflightReviewDetailsAccountPassword(t *testing.T) {
-	proj := fullyPopulatedProject()
-	proj.Apps["First"].Testflight.ReviewDetails.DemoAccount.Password = badTemplatePattern
-	ctx := context.New(proj)
-	pipe := Pipe{}
-	err := pipe.Run(ctx)
-	assert.Error(t, err)
-}
-
-func TestTemplateWithBadAppTestflightReviewDetailsNotes(t *testing.T) {
-	proj := fullyPopulatedProject()
-	proj.Apps["First"].Testflight.ReviewDetails.Notes = badTemplatePattern
-	ctx := context.New(proj)
-	pipe := Pipe{}
-	err := pipe.Run(ctx)
-	assert.Error(t, err)
-}
-
-func TestTemplateWithBadAppTestflightReviewDetailsAttachments(t *testing.T) {
-	proj := fullyPopulatedProject()
-	proj.Apps["First"].Testflight.ReviewDetails.Attachments[0].Path = badTemplatePattern
-	ctx := context.New(proj)
-	pipe := Pipe{}
-	err := pipe.Run(ctx)
-	assert.Error(t, err)
-}
-
-func fullyPopulatedProject() config.Project {
+func fullyPopulatedProject(good bool) config.Project {
+	var pattern string
+	if good {
+		pattern = goodTemplatePattern
+	} else {
+		pattern = badTemplatePattern
+	}
 	return config.Project{
 		Name: "My Project",
 		Testflight: config.Testflight{
@@ -511,33 +167,33 @@ func fullyPopulatedProject() config.Project {
 				},
 				Localizations: map[string]config.AppLocalization{
 					"en-US": {
-						Name:              "{{ .projectName }}",
-						Subtitle:          "{{ .projectName }}",
-						PrivacyPolicyText: "{{ .projectName }}",
-						PrivacyPolicyURL:  "{{ .projectName }}",
+						Name:              pattern,
+						Subtitle:          pattern,
+						PrivacyPolicyText: pattern,
+						PrivacyPolicyURL:  pattern,
 					},
 					"ja": {
-						Name:              "{{ .projectName }}",
-						Subtitle:          "{{ .projectName }}",
-						PrivacyPolicyText: "{{ .projectName }}",
-						PrivacyPolicyURL:  "{{ .projectName }}",
+						Name:              pattern,
+						Subtitle:          pattern,
+						PrivacyPolicyText: pattern,
+						PrivacyPolicyURL:  pattern,
 					},
 				},
 				Versions: config.Version{
 					Platform: "",
 					Localizations: map[string]config.VersionLocalization{
 						"en-US": {
-							Description:     "{{ .projectName }}",
-							Keywords:        "{{ .projectName }}",
-							MarketingURL:    "{{ .projectName }}",
-							PromotionalText: "{{ .projectName }}",
-							SupportURL:      "{{ .projectName }}",
-							WhatsNewText:    "{{ .projectName }}",
+							Description:     pattern,
+							Keywords:        pattern,
+							MarketingURL:    pattern,
+							PromotionalText: pattern,
+							SupportURL:      pattern,
+							WhatsNewText:    pattern,
 							PreviewSets: config.PreviewSets{
 								config.PreviewTypeDesktop: {
 									{
 										File: config.File{
-											Path: "{{ .projectName }}",
+											Path: pattern,
 										},
 										MIMEType:             "image/jpg",
 										PreviewFrameTimeCode: "0",
@@ -547,23 +203,23 @@ func fullyPopulatedProject() config.Project {
 							ScreenshotSets: config.ScreenshotSets{
 								config.ScreenshotTypeDesktop: {
 									{
-										Path: "{{ .projectName }}",
+										Path: pattern,
 									},
 								},
 							},
 						},
 						"ja": {
-							Description:     "{{ .projectName }}",
-							Keywords:        "{{ .projectName }}",
-							MarketingURL:    "{{ .projectName }}",
-							PromotionalText: "{{ .projectName }}",
-							SupportURL:      "{{ .projectName }}",
-							WhatsNewText:    "{{ .projectName }}",
+							Description:     pattern,
+							Keywords:        pattern,
+							MarketingURL:    pattern,
+							PromotionalText: pattern,
+							SupportURL:      pattern,
+							WhatsNewText:    pattern,
 							PreviewSets: config.PreviewSets{
 								config.PreviewTypeDesktop: {
 									{
 										File: config.File{
-											Path: "{{ .projectName }}",
+											Path: pattern,
 										},
 										MIMEType:             "image/jpg",
 										PreviewFrameTimeCode: "0",
@@ -573,13 +229,13 @@ func fullyPopulatedProject() config.Project {
 							ScreenshotSets: config.ScreenshotSets{
 								config.ScreenshotTypeDesktop: {
 									{
-										Path: "{{ .projectName }}",
+										Path: pattern,
 									},
 								},
 							},
 						},
 					},
-					Copyright:            "{{ .projectName }}",
+					Copyright:            pattern,
 					EarliestReleaseDate:  &time.Time{},
 					ReleaseType:          config.ReleaseTypeAfterApproval,
 					PhasedReleaseEnabled: false,
@@ -590,47 +246,47 @@ func fullyPopulatedProject() config.Project {
 						ServesAds:                             false,
 					},
 					RoutingCoverage: &config.File{
-						Path: "{{ .projectName }}",
+						Path: pattern,
 					},
 					ReviewDetails: &config.ReviewDetails{
 						Contact: &config.ContactPerson{
-							Email:     "{{ .projectName }}",
-							FirstName: "{{ .projectName }}",
-							LastName:  "{{ .projectName }}",
-							Phone:     "{{ .projectName }}",
+							Email:     pattern,
+							FirstName: pattern,
+							LastName:  pattern,
+							Phone:     pattern,
 						},
 						DemoAccount: &config.DemoAccount{
 							Required: false,
-							Name:     "{{ .projectName }}",
-							Password: "{{ .projectName }}",
+							Name:     pattern,
+							Password: pattern,
 						},
-						Notes: "{{ .projectName }}",
+						Notes: pattern,
 						Attachments: []config.File{
 							{
-								Path: "{{ .projectName }}",
+								Path: pattern,
 							},
 						},
 					},
 				},
 				Testflight: config.TestflightForApp{
 					EnableAutoNotify: false,
-					LicenseAgreement: "{{ .projectName }}",
+					LicenseAgreement: pattern,
 					Localizations: map[string]config.TestflightLocalization{
 						"en-US": {
-							Description:       "{{ .projectName }}",
-							FeedbackEmail:     "{{ .projectName }}",
-							MarketingURL:      "{{ .projectName }}",
-							PrivacyPolicyURL:  "{{ .projectName }}",
-							TVOSPrivacyPolicy: "{{ .projectName }}",
-							WhatsNew:          "{{ .projectName }}",
+							Description:       pattern,
+							FeedbackEmail:     pattern,
+							MarketingURL:      pattern,
+							PrivacyPolicyURL:  pattern,
+							TVOSPrivacyPolicy: pattern,
+							WhatsNew:          pattern,
 						},
 						"ja": {
-							Description:       "{{ .projectName }}",
-							FeedbackEmail:     "{{ .projectName }}",
-							MarketingURL:      "{{ .projectName }}",
-							PrivacyPolicyURL:  "{{ .projectName }}",
-							TVOSPrivacyPolicy: "{{ .projectName }}",
-							WhatsNew:          "{{ .projectName }}",
+							Description:       pattern,
+							FeedbackEmail:     pattern,
+							MarketingURL:      pattern,
+							PrivacyPolicyURL:  pattern,
+							TVOSPrivacyPolicy: pattern,
+							WhatsNew:          pattern,
 						},
 					},
 					BetaGroups: []string{
@@ -645,20 +301,20 @@ func fullyPopulatedProject() config.Project {
 					},
 					ReviewDetails: &config.ReviewDetails{
 						Contact: &config.ContactPerson{
-							Email:     "{{ .projectName }}",
-							FirstName: "{{ .projectName }}",
-							LastName:  "{{ .projectName }}",
-							Phone:     "{{ .projectName }}",
+							Email:     pattern,
+							FirstName: pattern,
+							LastName:  pattern,
+							Phone:     pattern,
 						},
 						DemoAccount: &config.DemoAccount{
 							Required: false,
-							Name:     "{{ .projectName }}",
-							Password: "{{ .projectName }}",
+							Name:     pattern,
+							Password: pattern,
 						},
-						Notes: "{{ .projectName }}",
+						Notes: pattern,
 						Attachments: []config.File{
 							{
-								Path: "{{ .projectName }}",
+								Path: pattern,
 							},
 						},
 					},

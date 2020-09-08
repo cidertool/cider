@@ -18,7 +18,7 @@ func (c *ascClient) UpdateApp(ctx *context.Context, app *asc.App, appInfo *asc.A
 	var availableTerritoryIDs []string
 	var prices []asc.NewAppPriceRelationship
 
-	if !ctx.SkipUpdateMetadata && config.Availability != nil {
+	if !ctx.SkipUpdatePricing && config.Availability != nil {
 		var err error
 		availableTerritoryIDs, err = c.AvailableTerritoryIDsInConfig(ctx, config.Availability.Territories)
 		if err != nil {

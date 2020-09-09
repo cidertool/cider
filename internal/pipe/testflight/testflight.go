@@ -69,6 +69,7 @@ func doRelease(ctx *context.Context, config config.App, client client.Client) er
 	log.
 		WithField("build", buildVersionLog).
 		Info("submitting to testflight")
+
 	return client.SubmitBetaApp(ctx, build)
 }
 

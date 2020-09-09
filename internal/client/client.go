@@ -54,6 +54,8 @@ type Client interface {
 	UpdateReviewDetails(ctx *context.Context, version *asc.AppStoreVersion, config config.ReviewDetails) error
 	// SubmitApp submits the given app store version for review
 	SubmitApp(ctx *context.Context, version *asc.AppStoreVersion) error
+
+	Project() (*config.Project, error)
 }
 
 // New returns a new Client.

@@ -45,6 +45,20 @@ func (errReader) Read(p []byte) (n int, err error) {
 	return 0, errors.New("test error")
 }
 
+func TestCopy(t *testing.T) {
+	p := Project{
+		Apps: map[string]App{
+			"App1": {},
+			"App2": {},
+			"App3": {},
+		},
+	}
+	pPrime, err := p.Copy()
+	assert.NoError(t, err)
+	assert.Equal(t, p, pPrime)
+	assert.NotSame(t, p, pPrime)
+}
+
 func TestAppsMatching(t *testing.T) {
 	p := Project{
 		Apps: map[string]App{

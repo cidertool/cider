@@ -17,7 +17,7 @@ builds:
     flags:
       - -trimpath
     ldflags:
-      - -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{ .CommitDate }} -X main.builtBy=aaronsky
+      - -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{ .CommitDate }} -X main.builtBy=cidertool
 checksum:
   name_template: 'checksums.txt'
 snapshot:
@@ -58,25 +58,25 @@ archives:
     format_overrides:
       - goos: windows
         format: zip
-# brews:
-#   - tap:
-#       owner: aaronsky
-#       name: homebrew-tap
-#     commit_author:
-#       name: goreleaserbot
-#       email: cider@skyaaron.com
-#     folder: Formula
-#     homepage: https://cidertool.github.io/cider
-#     description: Submit your builds to the Apple App Store in seconds
-#     test: |
-#       system "#{bin}/cider -v"
-# scoop:
-#   bucket:
-#     owner: aaronsky
-#     name: scoop-bucket
-#   commit_author:
-#     name: goreleaserbot
-#     email: cider@skyaaron.com
-#   homepage: https://cidertool.github.io/cider
-#   description: Submit your builds to the Apple App Store in seconds
-#   license: MIT
+brews:
+  - tap:
+      owner: cidertool
+      name: homebrew-tap
+    commit_author:
+      name: goreleaserbot
+      email: cider@skyaaron.com
+    folder: Formula
+    homepage: https://cidertool.github.io/cider
+    description: Submit your builds to the Apple App Store in seconds
+    test: |
+      system "#{bin}/cider -v"
+scoop:
+  bucket:
+    owner: cidertool
+    name: scoop-bucket
+  commit_author:
+    name: goreleaserbot
+    email: cider@skyaaron.com
+  homepage: https://cidertool.github.io/cider
+  description: Submit your builds to the Apple App Store in seconds
+  license: MIT

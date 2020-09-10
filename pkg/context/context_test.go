@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/aaronsky/applereleaser/pkg/config"
+	"github.com/cidertool/cider/pkg/config"
 	"github.com/stretchr/testify/assert"
 )
 

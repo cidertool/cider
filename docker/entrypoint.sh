@@ -2,4 +2,4 @@
 
 set -euo pipefail
 
-applereleaser "$@"
+cider "$@"

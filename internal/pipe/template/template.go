@@ -2,9 +2,9 @@
 package template
 
 import (
-	"github.com/aaronsky/applereleaser/internal/template"
-	"github.com/aaronsky/applereleaser/pkg/config"
-	"github.com/aaronsky/applereleaser/pkg/context"
+	"github.com/cidertool/cider/internal/template"
+	"github.com/cidertool/cider/pkg/config"
+	"github.com/cidertool/cider/pkg/context"
 	"github.com/hashicorp/go-multierror"
 )
 

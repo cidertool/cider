@@ -4,10 +4,10 @@ import (
 	"errors"
 	"time"
 
-	"github.com/aaronsky/applereleaser/internal/middleware"
-	"github.com/aaronsky/applereleaser/internal/pipeline"
-	"github.com/aaronsky/applereleaser/pkg/context"
 	"github.com/apex/log"
+	"github.com/cidertool/cider/internal/middleware"
+	"github.com/cidertool/cider/internal/pipeline"
+	"github.com/cidertool/cider/pkg/context"
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 )

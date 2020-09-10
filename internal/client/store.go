@@ -4,10 +4,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/aaronsky/applereleaser/internal/closer"
-	"github.com/aaronsky/applereleaser/pkg/config"
-	"github.com/aaronsky/applereleaser/pkg/context"
 	"github.com/aaronsky/asc-go/asc"
+	"github.com/cidertool/cider/internal/closer"
+	"github.com/cidertool/cider/pkg/config"
+	"github.com/cidertool/cider/pkg/context"
 )
 
 func (c *ascClient) UpdateApp(ctx *context.Context, app *asc.App, appInfo *asc.AppInfo, config config.App) error {

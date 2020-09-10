@@ -1,9 +1,9 @@
 package middleware
 
 import (
-	"github.com/aaronsky/applereleaser/internal/pipe"
-	"github.com/aaronsky/applereleaser/pkg/context"
 	"github.com/apex/log"
+	"github.com/cidertool/cider/internal/pipe"
+	"github.com/cidertool/cider/pkg/context"
 )
 
 // ErrHandler handles an action error, ignoring and logging pipe skipped

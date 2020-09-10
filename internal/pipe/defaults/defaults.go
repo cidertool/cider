@@ -2,9 +2,9 @@
 package defaults
 
 import (
-	"github.com/aaronsky/applereleaser/internal/defaults"
-	"github.com/aaronsky/applereleaser/internal/middleware"
-	"github.com/aaronsky/applereleaser/pkg/context"
+	"github.com/cidertool/cider/internal/defaults"
+	"github.com/cidertool/cider/internal/middleware"
+	"github.com/cidertool/cider/pkg/context"
 )
 
 // Pipe that sets the defaults.

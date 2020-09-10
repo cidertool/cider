@@ -7,9 +7,9 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/aaronsky/applereleaser/pkg/context"
 	"github.com/alessio/shellescape"
 	"github.com/apex/log"
+	"github.com/cidertool/cider/pkg/context"
 )
 
 // Shell is an abstraction for shell-program execution meant to make

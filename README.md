@@ -1,29 +1,29 @@
 <p align="center">
-  <!-- <img alt="applereleaser logo" src="assets/go.png" height="150" /> -->
-  <h3 align="center">applereleaser</h3>
+  <!-- <img alt="cider logo" src="assets/go.png" height="150" /> -->
+  <h3 align="center">cider</h3>
   <p align="center">Submit to the App Store in seconds!</p>
 </p>
 
 ---
 
-`applereleaser` is a tool managing the entire release process of an iOS, macOS or tvOS application, supported by official Apple APIs. It takes the builds you've uploaded to App Store Connect, updates their metadata, and submits them for review automatically using an expressive YAML configuration. Unlike Xcode or altool, `applereleaser` is designed to be useful on Linux and Windows, in addition to macOS. 
+Cider is a tool managing the entire release process of an iOS, macOS or tvOS application, supported by official Apple APIs. It takes the builds you've uploaded to App Store Connect, updates their metadata, and submits them for review automatically using an expressive YAML configuration. Unlike Xcode or altool, Cider is designed to be useful on Linux and Windows, in addition to macOS. 
 
-## Install `applereleaser`
+## Installation
 
-- [On my machine](https://aaronsky.github.io/applereleaser/install#local);
-- [On CI/CD systems](https://aaronsky.github.io/applereleaser/install#ci).
+- [On my machine](https://cidertool.github.io/cider/install#local);
+- [On CI/CD systems](https://cidertool.github.io/cider/install#ci).
 
 ## Documentation
 
-Documentation is hosted at <https://aaronsky.github.io/applereleaser>.
+Documentation is hosted at <https://cidertool.github.io/cider>.
 
 ## Badges
 
-![build](https://github.com/aaronsky/applereleaser/workflows/build/badge.svg)
-[![License](https://img.shields.io/github/license/aaronsky/applereleaser)](/LICENSE)
-[![Release](https://img.shields.io/github/release/aaronsky/applereleaser.svg)](https://github.com/aaronsky/applereleaser/releases/latest)
-[![Docker](https://img.shields.io/docker/pulls/aaronsky/applereleaser)](https://hub.docker.com/r/aaronsky/applereleaser)
-[![Github Releases Stats of applereleaser](https://img.shields.io/github/downloads/aaronsky/applereleaser/total.svg?logo=github)](https://somsubhra.com/github-release-stats/?username=aaronsky&repository=applereleaser)
+![build](https://github.com/cidertool/cider/workflows/build/badge.svg)
+[![License](https://img.shields.io/github/license/cidertool/cider)](/LICENSE)
+[![Release](https://img.shields.io/github/release/cidertool/cider.svg)](https://github.com/cidertool/cider/releases/latest)
+[![Docker](https://img.shields.io/docker/pulls/cidertool/cider)](https://hub.docker.com/r/cidertool/cider)
+[![Github Releases Stats of cider](https://img.shields.io/github/downloads/cidertool/cider/total.svg?logo=github)](https://somsubhra.com/github-release-stats/?username=cidertool&repository=cider)
 
 ## Contributing
 
@@ -33,7 +33,7 @@ This project's primary goal is to simplify the process to release on the App Sto
 
 Special thanks to:
 
-- [GoReleaser](https://goreleaser.com/) for inspiring the architecture and open sourcing several components used in applereleaser
+- [GoReleaser](https://goreleaser.com/) for inspiring the architecture and open sourcing several components used in Cider
 
 ## License
 

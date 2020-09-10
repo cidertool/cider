@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/aaronsky/applereleaser/pkg/config"
-	"github.com/aaronsky/applereleaser/pkg/context"
 	"github.com/aaronsky/asc-go/asc"
+	"github.com/cidertool/cider/pkg/config"
+	"github.com/cidertool/cider/pkg/context"
 )
 
 // Client is an abstraction of an App Store Connect API client's functionality.
@@ -26,12 +26,12 @@ type Client interface {
 	// Testflight
 
 	// UpdateBetaAppLocalizations updates an App's beta app localizations, and creates any new ones that do not exist.
-	// It will not delete or update any locales that are associated with the app but are not configured in applereleaser.
+	// It will not delete or update any locales that are associated with the app but are not configured in cider.
 	UpdateBetaAppLocalizations(ctx *context.Context, app *asc.App, config config.TestflightLocalizations) error
 	// UpdateBetaBuildDetails updates an App's beta build details, or creates new ones if they do not yet exist.
 	UpdateBetaBuildDetails(ctx *context.Context, build *asc.Build, config config.TestflightForApp) error
 	// UpdateBetaBuildLocalizations updates an App's beta build localizations, and creates any new ones that do not exist.
-	// It will not delete or update any locales that are associated with the app but are not configured in applereleaser.
+	// It will not delete or update any locales that are associated with the app but are not configured in cider.
 	UpdateBetaBuildLocalizations(ctx *context.Context, build *asc.Build, config config.TestflightLocalizations) error
 	// UpdateBetaLicenseAgreement updates an App's beta license agreement, or creates a new one if one does not yet exist.
 	UpdateBetaLicenseAgreement(ctx *context.Context, app *asc.App, config config.TestflightForApp) error

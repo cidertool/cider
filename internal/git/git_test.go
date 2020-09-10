@@ -5,9 +5,9 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/aaronsky/applereleaser/internal/shell"
-	"github.com/aaronsky/applereleaser/pkg/config"
-	"github.com/aaronsky/applereleaser/pkg/context"
+	"github.com/cidertool/cider/internal/shell"
+	"github.com/cidertool/cider/pkg/config"
+	"github.com/cidertool/cider/pkg/context"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -66,14 +66,14 @@ func TestSanitizeProcess(t *testing.T) {
 
 func TestExtractRemoteFromConfig(t *testing.T) {
 	expected := config.Repo{
-		Name:  "applereleaser",
-		Owner: "aaronsky",
+		Name:  "cider",
+		Owner: "cidertool",
 	}
 
 	// happy path
 	client := newMockGit(
 		command{Stdout: "true"},
-		command{Stdout: "git@github.com:aaronsky/applereleaser.git"},
+		command{Stdout: "git@github.com:cidertool/cider.git"},
 	)
 	repo, err := client.ExtractRepoFromConfig()
 	assert.NoError(t, err)
@@ -98,18 +98,18 @@ func TestExtractRemoteFromConfig(t *testing.T) {
 func TestExtractRepoFromURL(t *testing.T) {
 	var repo config.Repo
 	expected := config.Repo{
-		Name:  "applereleaser",
-		Owner: "aaronsky",
+		Name:  "cider",
+		Owner: "cidertool",
 	}
-	repo = ExtractRepoFromURL("https://github.com/aaronsky/applereleaser")
+	repo = ExtractRepoFromURL("https://github.com/cidertool/cider")
 	assert.Equal(t, expected, repo)
-	repo = ExtractRepoFromURL("https://github.com/aaronsky/applereleaser.git")
+	repo = ExtractRepoFromURL("https://github.com/cidertool/cider.git")
 	assert.Equal(t, expected, repo)
-	repo = ExtractRepoFromURL("ssh://github.com/aaronsky/applereleaser.git")
+	repo = ExtractRepoFromURL("ssh://github.com/cidertool/cider.git")
 	assert.Equal(t, expected, repo)
-	repo = ExtractRepoFromURL("ssh://git@github.com/aaronsky/applereleaser.git")
+	repo = ExtractRepoFromURL("ssh://git@github.com/cidertool/cider.git")
 	assert.Equal(t, expected, repo)
-	repo = ExtractRepoFromURL("git@github.com:aaronsky/applereleaser.git")
+	repo = ExtractRepoFromURL("git@github.com:cidertool/cider.git")
 	assert.Equal(t, expected, repo)
 }
 

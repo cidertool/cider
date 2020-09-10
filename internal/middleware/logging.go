@@ -1,9 +1,9 @@
 package middleware
 
 import (
-	"github.com/aaronsky/applereleaser/pkg/context"
 	"github.com/apex/log"
 	"github.com/apex/log/handlers/cli"
+	"github.com/cidertool/cider/pkg/context"
 	"github.com/fatih/color"
 )
 

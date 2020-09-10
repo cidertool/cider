@@ -2,12 +2,12 @@
 package store
 
 import (
-	"github.com/aaronsky/applereleaser/internal/client"
-	"github.com/aaronsky/applereleaser/internal/pipe"
-	"github.com/aaronsky/applereleaser/pkg/config"
-	"github.com/aaronsky/applereleaser/pkg/context"
 	"github.com/aaronsky/asc-go/asc"
 	"github.com/apex/log"
+	"github.com/cidertool/cider/internal/client"
+	"github.com/cidertool/cider/internal/pipe"
+	"github.com/cidertool/cider/pkg/config"
+	"github.com/cidertool/cider/pkg/context"
 )
 
 // Pipe is a global hook pipe.

@@ -4,7 +4,7 @@ package defaults
 import (
 	"fmt"
 
-	"github.com/aaronsky/applereleaser/pkg/context"
+	"github.com/cidertool/cider/pkg/context"
 )
 
 // Defaulter can be implemented by a Piper to set default values for its

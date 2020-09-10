@@ -34,11 +34,11 @@ changelog:
 dockers:
   - dockerfile: docker/Dockerfile
     image_templates:
-      - applereleaser/applereleaser:{{ .Tag }}
-      - applereleaser/applereleaser:v{{ .Major }}.{{ .Minor }}
-      - applereleaser/applereleaser:latest
+      - cidertool/cider:{{ .Tag }}
+      - cidertool/cider:v{{ .Major }}.{{ .Minor }}
+      - cidertool/cider:latest
     binaries:
-      - applereleaser
+      - cider
     extra_files:
       - docker/entrypoint.sh
     build_flag_templates:
@@ -48,9 +48,9 @@ dockers:
       - --label=org.opencontainers.image.revision={{ .FullCommit }}
       - --label=org.opencontainers.image.version={{ .Version }}
       - --label=org.opencontainers.image.source={{ .GitURL }}
-      - --label=repository=http://github.com/aaronsky/applereleaser
-      - --label=homepage=http://aaronsky.github.io/applereleaser
-      - --label=maintainer=Aaron Sky <applereleaser@skyaaron.com>
+      - --label=repository=http://github.com/cidertool/cider
+      - --label=homepage=http://cidertool.github.io/cider
+      - --label=maintainer=Aaron Sky <cider@skyaaron.com>
 archives:
   - name_template: '{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
     replacements:
@@ -64,19 +64,19 @@ archives:
 #       name: homebrew-tap
 #     commit_author:
 #       name: goreleaserbot
-#       email: applereleaser@skyaaron.com
+#       email: cider@skyaaron.com
 #     folder: Formula
-#     homepage: https://aaronsky.github.io/applereleaser
+#     homepage: https://cidertool.github.io/cider
 #     description: Submit your builds to the Apple App Store in seconds
 #     test: |
-#       system "#{bin}/applereleaser -v"
+#       system "#{bin}/cider -v"
 # scoop:
 #   bucket:
 #     owner: aaronsky
 #     name: scoop-bucket
 #   commit_author:
 #     name: goreleaserbot
-#     email: applereleaser@skyaaron.com
-#   homepage: https://aaronsky.github.io/applereleaser
+#     email: cider@skyaaron.com
+#   homepage: https://cidertool.github.io/cider
 #   description: Submit your builds to the Apple App Store in seconds
 #   license: MIT

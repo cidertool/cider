@@ -3,9 +3,9 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/aaronsky/applereleaser/internal/pipe/defaults"
-	"github.com/aaronsky/applereleaser/pkg/context"
 	"github.com/apex/log"
+	"github.com/cidertool/cider/internal/pipe/defaults"
+	"github.com/cidertool/cider/pkg/context"
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 )

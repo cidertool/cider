@@ -8,7 +8,7 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/aaronsky/applereleaser/pkg/context"
+	"github.com/cidertool/cider/pkg/context"
 )
 
 const (

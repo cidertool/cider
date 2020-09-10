@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/aaronsky/applereleaser/cmd"
+	"github.com/cidertool/cider/cmd"
 )
 
 // nolint: gochecknoglobals

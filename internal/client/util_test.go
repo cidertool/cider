@@ -8,9 +8,9 @@ import (
 	"net/url"
 	"path"
 
-	"github.com/aaronsky/applereleaser/pkg/config"
-	"github.com/aaronsky/applereleaser/pkg/context"
 	"github.com/apex/log"
+	"github.com/cidertool/cider/pkg/config"
+	"github.com/cidertool/cider/pkg/context"
 )
 
 type response struct {

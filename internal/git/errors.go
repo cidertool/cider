@@ -29,7 +29,7 @@ func (e ErrWrongRef) Error() string {
 // ErrNoTag happens if the underlying git repository doesn't contain any tags.
 var ErrNoTag = errors.New("git doesn't contain any tags")
 
-// ErrNotRepository happens if you try to run applereleaser against a folder
+// ErrNotRepository happens if you try to run Cider against a folder
 // which is not a git repository.
 type ErrNotRepository struct {
 	Dir string

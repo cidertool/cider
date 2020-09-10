@@ -7,14 +7,14 @@ nav_order: 7
 
 ## Global Options
 
-You can provide the `--debug` flag on any of the `applereleaser` commands in order to glean more logging information. 
+You can provide the `--debug` flag on any of the `cider` commands in order to glean more logging information. 
 
 ## `init`
 
-Use to initialize a new applereleaser project. This will create a new configuration file in the current directory that should be checked into source control. Use the `--config` flag to provide a customized configuration file path. For example:
+Use to initialize a new Cider project. This will create a new configuration file in the current directory that should be checked into source control. Use the `--config` flag to provide a customized configuration file path. For example:
 
 ```shell
-applereleaser check
+cider check
 ```
 
 ## `release`
@@ -26,7 +26,7 @@ env \
     ASC_KEY_ID="..." \
     ASC_ISSUER_ID="..." \
     ASC_PRIVATE_KEY_PATH="..." \
-  applereleaser release --mode="appstore" --version="1.0"
+  cider release --mode="appstore" --version="1.0"
 ```
 
 You can provide a path to a project directory as an argument to be the root directory of all relative path expansions in the program, such as the Git repository, preview sets, and screenshot resources. An exception to this is if you set a custom configuration file path with the `--config` flag.
@@ -44,30 +44,30 @@ The release command provides a variety of skip flags:
 - `--skip-update-metadata`: Skips updating metadata (app info, localizations, assets, review details, etc.)
 - `--skip-update-pricing`: Skips updating app pricing
 
-Finally, you can provide a `--timeout` flag with a duration value to place a limit on the runtime of the release process. While `applereleaser` is intended to be fast, apps with a lot of localization fields or many apps will take a while longer to run through all of their metadata.
+Finally, you can provide a `--timeout` flag with a duration value to place a limit on the runtime of the release process. While Cider is intended to be fast, apps with a lot of localization fields or many apps will take a while longer to run through all of their metadata.
 
 ### Environment
 
-In addition to flags, `applereleaser` requires a few environment variables to be set in order to operate. They each correspond to an element of authorization described by [Creating API Keys for App Store Connect API](https://developer.apple.com/documentation/appstoreconnectapi/creating_api_keys_for_app_store_connect_api) from the Apple Developer Documentation.
+In addition to flags, Cider requires a few environment variables to be set in order to operate. They each correspond to an element of authorization described by [Creating API Keys for App Store Connect API](https://developer.apple.com/documentation/appstoreconnectapi/creating_api_keys_for_app_store_connect_api) from the Apple Developer Documentation.
 
 - `ASC_KEY_ID` – Your key ID
 - `ASC_ISSUER_ID` – Your team's issuer ID
 - `ASC_PRIVATE_KEY_PATH` – A path to your .p8 private key
 
-These three values each have varying degrees of sensetivity and should be treated as secrets. Store them securely in your environment so `applereleaser` can leverage them safely.
+These three values each have varying degrees of sensetivity and should be treated as secrets. Store them securely in your environment so Cider can leverage them safely.
 
 ## `check`
 
 Use to validate your configuration file. Use the `--config` flag to provide a customized configuration file path. For example:
 
 ```shell
-applereleaser check
+cider check
 ```
 
 ## `help`
 
-Invoke to get help information for the entire program, or `applereleaser help [command]` to get help information for a specific command. For example:
+Invoke to get help information for the entire program, or `cider help [command]` to get help information for a specific command. For example:
 
 ```shell
-applereleaser help release
+cider help release
 ```

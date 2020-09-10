@@ -8,10 +8,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aaronsky/applereleaser/internal/git"
-	"github.com/aaronsky/applereleaser/internal/pipe"
-	"github.com/aaronsky/applereleaser/pkg/context"
 	"github.com/apex/log"
+	"github.com/cidertool/cider/internal/git"
+	"github.com/cidertool/cider/internal/pipe"
+	"github.com/cidertool/cider/pkg/context"
 )
 
 // NoTag is a constant value representing an absent tag. This is used in the case of a hardcoded version string, or an invalid Git tag value.
@@ -150,7 +150,7 @@ func getFullCommit(client *git.Git) (string, error) {
 }
 
 func getTag(client *git.Git) (string, error) {
-	if tag := os.Getenv("APPLERELEASER_CURRENT_TAG"); tag != "" {
+	if tag := os.Getenv("CIDER_CURRENT_TAG"); tag != "" {
 		return tag, nil
 	}
 	return client.SanitizeProcess(client.Run("describe", "--tags", "--abbrev=0"))

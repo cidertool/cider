@@ -4,9 +4,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/aaronsky/applereleaser/pkg/config"
-	"github.com/aaronsky/applereleaser/pkg/context"
 	"github.com/aaronsky/asc-go/asc"
+	"github.com/cidertool/cider/pkg/config"
+	"github.com/cidertool/cider/pkg/context"
 	"github.com/hashicorp/go-multierror"
 	"github.com/stretchr/testify/assert"
 )

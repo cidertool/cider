@@ -7,9 +7,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/aaronsky/applereleaser/internal/shell"
-	"github.com/aaronsky/applereleaser/pkg/config"
-	"github.com/aaronsky/applereleaser/pkg/context"
+	"github.com/cidertool/cider/internal/shell"
+	"github.com/cidertool/cider/pkg/config"
+	"github.com/cidertool/cider/pkg/context"
 )
 
 // Git wraps a shell.Shell provider to provide an interface over

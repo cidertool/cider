@@ -1,4 +1,4 @@
-module github.com/aaronsky/applereleaser
+module github.com/cidertool/cider
 
 go 1.15
 

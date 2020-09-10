@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/aaronsky/applereleaser/pkg/config"
+	"github.com/cidertool/cider/pkg/config"
 )
 
 // ErrConfigNotFound happens if a config file could not be found at any of the default locations.
@@ -16,10 +16,10 @@ func loadConfig(path string, wd string) (config.Project, error) {
 		return config.Load(path)
 	}
 	for _, f := range [4]string{
-		".applereleaser.yml",
-		".applereleaser.yaml",
-		"applereleaser.yml",
-		"applereleaser.yaml",
+		".cider.yml",
+		".cider.yaml",
+		"cider.yml",
+		"cider.yaml",
 	} {
 		proj, err := config.Load(filepath.Join(wd, f))
 		if err != nil && os.IsNotExist(err) {

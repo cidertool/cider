@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aaronsky/applereleaser/pkg/config"
+	"github.com/cidertool/cider/pkg/config"
 )
 
 // PublishMode describes which review destination to publish to.

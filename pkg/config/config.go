@@ -1,4 +1,4 @@
-// Package config contains types and helpers to describe the configuration of an applereleaser project
+// Package config contains types and helpers to describe the configuration of an cider project
 package config
 
 import (
@@ -10,8 +10,8 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/aaronsky/applereleaser/internal/closer"
 	"github.com/aaronsky/asc-go/asc"
+	"github.com/cidertool/cider/internal/closer"
 	"gopkg.in/yaml.v2"
 )
 

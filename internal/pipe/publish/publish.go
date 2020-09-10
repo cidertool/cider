@@ -4,11 +4,11 @@ package publish
 import (
 	"fmt"
 
-	"github.com/aaronsky/applereleaser/internal/middleware"
-	"github.com/aaronsky/applereleaser/internal/pipe"
-	"github.com/aaronsky/applereleaser/internal/pipe/store"
-	"github.com/aaronsky/applereleaser/internal/pipe/testflight"
-	"github.com/aaronsky/applereleaser/pkg/context"
+	"github.com/cidertool/cider/internal/middleware"
+	"github.com/cidertool/cider/internal/pipe"
+	"github.com/cidertool/cider/internal/pipe/store"
+	"github.com/cidertool/cider/internal/pipe/testflight"
+	"github.com/cidertool/cider/pkg/context"
 )
 
 // Pipe that publishes artifacts.

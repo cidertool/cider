@@ -3,8 +3,8 @@ package template
 import (
 	"testing"
 
-	"github.com/aaronsky/applereleaser/pkg/config"
-	"github.com/aaronsky/applereleaser/pkg/context"
+	"github.com/cidertool/cider/pkg/config"
+	"github.com/cidertool/cider/pkg/context"
 	"github.com/stretchr/testify/assert"
 )
 

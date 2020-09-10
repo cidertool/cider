@@ -8,7 +8,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/aaronsky/applereleaser/pkg/context"
+	"github.com/cidertool/cider/pkg/context"
 )
 
 // ErrMissingEnvVar indicates an error when a required variable is missing in the environment.

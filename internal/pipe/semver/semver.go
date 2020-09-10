@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/Masterminds/semver/v3"
-	"github.com/aaronsky/applereleaser/pkg/context"
+	"github.com/cidertool/cider/pkg/context"
 )
 
 // Pipe is a global hook pipe.

@@ -52,7 +52,8 @@ In addition to flags, Cider requires a few environment variables to be set in or
 
 - `ASC_KEY_ID` – Your key ID
 - `ASC_ISSUER_ID` – Your team's issuer ID
-- `ASC_PRIVATE_KEY_PATH` – A path to your .p8 private key
+- `ASC_PRIVATE_KEY` – Your .p8 private key issued by Apple
+  - You can alternatively use `ASC_PRIVATE_KEY_PATH` if you'd rather supply a path to a key instead. 
 
 These three values each have varying degrees of sensetivity and should be treated as secrets. Store them securely in your environment so Cider can leverage them safely.
 

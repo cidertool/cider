@@ -25,11 +25,10 @@ scoop install cider
 ```shell
 docker run --rm \
     --volume $PWD:/app \
-    --volume $ASC_PRIVATE_KEY_PATH:/keys \
     --workdir /app \
     --env ASC_KEY_ID \
     --env ASC_ISSUER_ID \
-    --env ASC_PRIVATE_KEY_PATH=/keys/priv.p8 \
+    --env ASC_PRIVATE_KEY \
     cidertool/cider release
 ```
 

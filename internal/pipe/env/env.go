@@ -32,9 +32,12 @@ func (p Pipe) Run(ctx *context.Context) error {
 	if err != nil {
 		return err
 	}
-	privateKey, err := loadEnvFromPath("ASC_PRIVATE_KEY_PATH", true)
+	privateKey, err := loadEnv("ASC_PRIVATE_KEY", true)
 	if err != nil {
-		return err
+		privateKey, err = loadEnvFromPath("ASC_PRIVATE_KEY_PATH", true)
+		if err != nil {
+			return err
+		}
 	}
 	creds, err := context.NewCredentials(keyID, issuerID, []byte(privateKey))
 	if err != nil {

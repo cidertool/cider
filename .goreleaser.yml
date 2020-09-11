@@ -35,6 +35,7 @@ dockers:
   - dockerfile: docker/Dockerfile
     image_templates:
       - cidertool/cider:{{ .Tag }}
+      - cidertool/cider:v{{ .Major }}
       - cidertool/cider:v{{ .Major }}.{{ .Minor }}
       - cidertool/cider:latest
     binaries:

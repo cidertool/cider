@@ -50,7 +50,6 @@ jobs:
 
   release:
     name: release
-    if: github.event == 'push'
     needs:
       - tests
       - lint

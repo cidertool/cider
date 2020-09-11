@@ -50,7 +50,7 @@ jobs:
 
   release:
     name: release
-    if: github.event == 'push' && startsWith(github.ref, 'refs/tags/v')
+    if: github.event == 'push'
     needs:
       - tests
       - lint

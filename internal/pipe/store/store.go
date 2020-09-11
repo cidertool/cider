@@ -2,8 +2,8 @@
 package store
 
 import (
-	"github.com/aaronsky/asc-go/asc"
 	"github.com/apex/log"
+	"github.com/cidertool/asc-go/asc"
 	"github.com/cidertool/cider/internal/client"
 	"github.com/cidertool/cider/internal/pipe"
 	"github.com/cidertool/cider/pkg/config"

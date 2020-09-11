@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/aaronsky/asc-go/asc"
+	"github.com/cidertool/asc-go/asc"
 	"github.com/stretchr/testify/assert"
 )
 

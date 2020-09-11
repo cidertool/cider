@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/aaronsky/asc-go/asc"
+	"github.com/cidertool/asc-go/asc"
 	"github.com/cidertool/cider/internal/closer"
 	"gopkg.in/yaml.v2"
 )

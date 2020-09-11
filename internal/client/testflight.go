@@ -1,7 +1,7 @@
 package client
 
 import (
-	"github.com/aaronsky/asc-go/asc"
+	"github.com/cidertool/asc-go/asc"
 	"github.com/cidertool/cider/pkg/config"
 	"github.com/cidertool/cider/pkg/context"
 )

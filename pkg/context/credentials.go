@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/aaronsky/asc-go/asc"
+	"github.com/cidertool/asc-go/asc"
 )
 
 // Credentials stores credentials used by clients.

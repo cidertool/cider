@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// Execute is the primary function to initiate the command line interface for cider.
+// Execute is the primary function to initiate the command line interface for Cider.
 func Execute(version string, exit func(int), args []string) {
 	if os.Getenv("CI") != "" {
 		color.NoColor = false

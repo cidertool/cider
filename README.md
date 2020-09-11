@@ -1,6 +1,6 @@
 <p align="center">
-  <!-- <img alt="cider logo" src="assets/go.png" height="150" /> -->
-  <h3 align="center">cider</h3>
+  <!-- <img alt="Cider logo" src="assets/go.png" height="150" /> -->
+  <h3 align="center">Cider</h3>
   <p align="center">Submit to the App Store in seconds!</p>
 </p>
 
@@ -23,7 +23,7 @@ Documentation is hosted at <https://cidertool.github.io/cider>.
 [![License](https://img.shields.io/github/license/cidertool/cider)](/LICENSE)
 [![Release](https://img.shields.io/github/release/cidertool/cider.svg)](https://github.com/cidertool/cider/releases/latest)
 [![Docker](https://img.shields.io/docker/pulls/cidertool/cider)](https://hub.docker.com/r/cidertool/cider)
-[![Github Releases Stats of cider](https://img.shields.io/github/downloads/cidertool/cider/total.svg?logo=github)](https://somsubhra.com/github-release-stats/?username=cidertool&repository=cider)
+[![Github Releases Stats of Cider](https://img.shields.io/github/downloads/cidertool/cider/total.svg?logo=github)](https://somsubhra.com/github-release-stats/?username=cidertool&repository=cider)
 
 ## Contributing
 

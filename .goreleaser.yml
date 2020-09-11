@@ -64,7 +64,7 @@ brews:
       owner: cidertool
       name: homebrew-tap
     commit_author:
-      name: goreleaserbot
+      name: cider-bot
       email: cider@skyaaron.com
     folder: Formula
     homepage: https://cidertool.github.io/cider
@@ -76,7 +76,7 @@ scoop:
     owner: cidertool
     name: scoop-bucket
   commit_author:
-    name: goreleaserbot
+    name: cider-bot
     email: cider@skyaaron.com
   homepage: https://cidertool.github.io/cider
   description: Submit your builds to the Apple App Store in seconds

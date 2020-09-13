@@ -8,14 +8,9 @@
 
 Cider is a tool managing the entire release process of an iOS, macOS or tvOS application, supported by official Apple APIs. It takes the builds you've uploaded to App Store Connect, updates their metadata, and submits them for review automatically using an expressive YAML configuration. Unlike Xcode or altool, Cider is designed to be useful on Linux and Windows, in addition to macOS. 
 
-## Installation
-
-- [On my machine](https://cidertool.github.io/cider/install#local);
-- [On CI/CD systems](https://cidertool.github.io/cider/install#ci).
-
 ## Documentation
 
-Documentation is hosted at <https://cidertool.github.io/cider>.
+Documentation is hosted at <https://cidertool.github.io/cider>. Check out our installation and quick start documentation!
 
 ## Badges
 

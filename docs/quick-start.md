@@ -19,8 +19,37 @@ Once this file is set up, you can either proceed to run `cider` [locally](#local
 
 ## Local
 
-Follow the guide on the [`release` command in the Command Reference](../commands#release)
+The most simple invocation of Cider to submit an app is as follows:
+
+```
+cider release --mode appstore
+```
+
+Cider contains a host of options enabling you to customize its runtime. Follow the guide on the [`release` command in the Command Reference](../commands#release).
 
 ## CI
+
+### GitHub Actions
+
+Cider can also be run autonomously using the official Cider Action hosted on the GitHub Marketplace. The Action is versioned independently of Cider, and all of Cider's commands and internal capabilities are available. 
+
+#### Usage
+
+```yaml
+- uses: actions/checkout@v2
+- uses: cidertool/cider-action@v0
+  with:
+      version: latest
+      args: release --mode appstore --version ${{ env.VERSION }}
+  env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+```
+
+You can run this job in any context you see fit to use Cider to update app metadata or submit new versions of your apps to the App Store.
+
+### Buildkite
 
 Coming soon!

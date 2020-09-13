@@ -12,6 +12,11 @@ Cider is a tool managing the entire release process of an iOS, macOS or tvOS app
 
 Documentation is hosted at <https://cidertool.github.io/cider>. Check out our installation and quick start documentation!
 
+## Integrations
+
+- [GitHub Action](https://github.com/marketplace/actions/cider-action)
+- Buildkite Plugin – _Coming soon!_
+
 ## Badges
 
 ![build](https://github.com/cidertool/cider/workflows/build/badge.svg)

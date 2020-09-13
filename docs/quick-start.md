@@ -31,7 +31,7 @@ Cider contains a host of options enabling you to customize its runtime. Follow t
 
 ### GitHub Actions
 
-Cider can also be run autonomously using the official Cider Action hosted on the GitHub Marketplace. The Action is versioned independently of Cider, and all of Cider's commands and internal capabilities are available. 
+Cider can also be run autonomously using the official [Cider Action](https://github.com/marketplace/actions/cider-action) hosted on the GitHub Marketplace. The Action is versioned independently of Cider, and all of Cider's commands and internal capabilities are available. 
 
 #### Usage
 

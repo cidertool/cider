@@ -26,7 +26,7 @@ jobs:
         with:
           go-version: 1.15.x
 
-      - name: Cache Go modules
+      - name: Cache Go Modules
         uses: actions/cache@v2
         with:
           path: ~/go/pkg/mod
@@ -34,8 +34,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
 
-      - name: Run tests
+      - name: Run Tests
         run: go test -v -race -coverprofile coverage.out -covermode atomic ./...
+
+      - name: Upload Coverage to Codecov
+        if: success()
+        uses: codecov/codecov-action@v1
+        with:
+          file: ./coverage.out
 
   lint:
     name: lint

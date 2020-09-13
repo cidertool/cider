@@ -20,6 +20,7 @@ Documentation is hosted at <https://cidertool.github.io/cider>.
 ## Badges
 
 ![build](https://github.com/cidertool/cider/workflows/build/badge.svg)
+[![codecov](https://codecov.io/gh/cidertool/cider/branch/main/graph/badge.svg)](https://codecov.io/gh/cidertool/cider)
 [![License](https://img.shields.io/github/license/cidertool/cider)](/LICENSE)
 [![Release](https://img.shields.io/github/release/cidertool/cider.svg)](https://github.com/cidertool/cider/releases/latest)
 [![Docker](https://img.shields.io/docker/pulls/cidertool/cider)](https://hub.docker.com/r/cidertool/cider)

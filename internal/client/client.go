@@ -5,6 +5,7 @@ import (
 	"crypto/md5" // #nosec
 	"fmt"
 	"io"
+	"strings"
 
 	"github.com/cidertool/asc-go/asc"
 	"github.com/cidertool/cider/pkg/config"
@@ -16,9 +17,9 @@ type Client interface {
 	// GetAppForBundleID returns the App resource matching the given bundle ID
 	GetAppForBundleID(ctx *context.Context, id string) (*asc.App, error)
 	GetAppInfo(ctx *context.Context, app *asc.App) (*asc.AppInfo, error)
-	// GetRelevantBuild returns the latest Build resource for the given app. Returns an error if
-	// the latest build is still processing.
-	GetRelevantBuild(ctx *context.Context, app *asc.App) (*asc.Build, error)
+	// GetBuild returns the Build resource for the given app, depending on the value set for
+	// ctx.Build. Returns an error if the selected build is still processing.
+	GetBuild(ctx *context.Context, app *asc.App) (*asc.Build, error)
 	// ReleaseForAppIsInitial returns true if the App resource has never released before,
 	// i.e. has one or less associated App Store Version relationships.
 	ReleaseForAppIsInitial(ctx *context.Context, app *asc.App) (bool, error)
@@ -100,18 +101,66 @@ func (c *ascClient) GetAppInfo(ctx *context.Context, app *asc.App) (*asc.AppInfo
 	return nil, fmt.Errorf("app info not found matching %s", app.ID)
 }
 
-func (c *ascClient) GetRelevantBuild(ctx *context.Context, app *asc.App) (*asc.Build, error) {
+type errBuildNotFound struct {
+	AppID         string
+	BuildVersion  string
+	VersionString string
+	InnerErr      error
+}
+
+func (e errBuildNotFound) Error() string {
+	str := strings.Builder{}
+	str.WriteString("build not found")
+	listingFields := false
+	if e.AppID != "" {
+		if !listingFields {
+			str.WriteString(" matching ")
+		}
+		str.WriteString(fmt.Sprintf("app=%s", e.AppID))
+		listingFields = true
+	}
+	if e.VersionString != "" {
+		if listingFields {
+			str.WriteString(", ")
+		} else {
+			str.WriteString(" matching ")
+		}
+		str.WriteString(fmt.Sprintf("version=%s", e.VersionString))
+		listingFields = true
+	}
+	if e.BuildVersion != "" {
+		if listingFields {
+			str.WriteString(", ")
+		} else {
+			str.WriteString(" matching ")
+		}
+		str.WriteString(fmt.Sprintf("build=%s", e.BuildVersion))
+	}
+	if e.InnerErr != nil {
+		str.WriteString(fmt.Errorf(": %w", e.InnerErr).Error())
+	}
+	return str.String()
+}
+
+func (c *ascClient) GetBuild(ctx *context.Context, app *asc.App) (*asc.Build, error) {
 	if ctx.Version == "" {
 		return nil, fmt.Errorf("no version provided to lookup build with")
 	}
-	resp, _, err := c.client.Builds.ListBuilds(ctx, &asc.ListBuildsQuery{
+	query := asc.ListBuildsQuery{
 		FilterApp:                      []string{app.ID},
 		FilterPreReleaseVersionVersion: []string{ctx.Version},
-	})
-	if err != nil {
-		return nil, fmt.Errorf("build not found matching app %s and version %s: %w", *app.Attributes.BundleID, ctx.Version, err)
-	} else if len(resp.Data) == 0 {
-		return nil, fmt.Errorf("build not found matching app %s and version %s", *app.Attributes.BundleID, ctx.Version)
+	}
+	if ctx.Build != "" {
+		query.FilterVersion = []string{ctx.Build}
+	}
+	resp, _, err := c.client.Builds.ListBuilds(ctx, &query)
+	if err != nil || len(resp.Data) == 0 {
+		return nil, errBuildNotFound{
+			AppID:         *app.Attributes.BundleID,
+			VersionString: ctx.Version,
+			BuildVersion:  ctx.Build,
+			InnerErr:      err,
+		}
 	}
 	build := resp.Data[0]
 	if build.Attributes == nil {

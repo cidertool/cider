@@ -42,7 +42,7 @@ func doRelease(ctx *context.Context, config config.App, client client.Client) er
 	if err != nil {
 		return err
 	}
-	build, err := client.GetRelevantBuild(ctx, app)
+	build, err := client.GetBuild(ctx, app)
 	if err != nil {
 		return err
 	}

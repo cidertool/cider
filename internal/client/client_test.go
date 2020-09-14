@@ -95,7 +95,8 @@ func TestGetAppInfo(t *testing.T) {
 	assert.Nil(t, info)
 }
 
-func TestGetRelevantBuild(t *testing.T) {
+func TestGetBuild(t *testing.T) {
+	expectedVersion := "1.0"
 	expectedProcessingState := "VALID"
 	app := asc.App{
 		Attributes: &asc.AppAttributes{
@@ -103,7 +104,13 @@ func TestGetRelevantBuild(t *testing.T) {
 		},
 	}
 
-	ctx := newTestContext(response{
+	ctx := newTestContext()
+	defer ctx.Close()
+	client := New(ctx.Context)
+
+	// happy, no build
+	ctx.Context.Version = expectedVersion
+	ctx.SetResponses(response{
 		Response: asc.BuildsResponse{
 			Data: []asc.Build{
 				{
@@ -114,12 +121,26 @@ func TestGetRelevantBuild(t *testing.T) {
 			},
 		},
 	})
-	defer ctx.Close()
-	client := New(ctx.Context)
+	build, err := client.GetBuild(ctx.Context, &app)
+	assert.NoError(t, err)
+	assert.NotNil(t, build)
+	assert.Equal(t, expectedProcessingState, *build.Attributes.ProcessingState)
 
-	// happy
-	ctx.Context.Version = "1.0"
-	build, err := client.GetRelevantBuild(ctx.Context, &app)
+	// happy, set build
+	ctx.Context.Version = expectedVersion
+	ctx.Context.Build = "3"
+	ctx.SetResponses(response{
+		Response: asc.BuildsResponse{
+			Data: []asc.Build{
+				{
+					Attributes: &asc.BuildAttributes{
+						ProcessingState: &expectedProcessingState,
+					},
+				},
+			},
+		},
+	})
+	build, err = client.GetBuild(ctx.Context, &app)
 	assert.NoError(t, err)
 	assert.NotNil(t, build)
 	assert.Equal(t, expectedProcessingState, *build.Attributes.ProcessingState)
@@ -129,17 +150,17 @@ func TestGetRelevantBuild(t *testing.T) {
 	ctx.SetResponses(response{
 		RawResponse: `{"data":[]}`,
 	})
-	build, err = client.GetRelevantBuild(ctx.Context, &app)
+	build, err = client.GetBuild(ctx.Context, &app)
 	assert.Error(t, err)
 	assert.Nil(t, build)
-	ctx.Context.Version = "1.0"
+	ctx.Context.Version = expectedVersion
 
 	// err raise err
 	ctx.SetResponses(response{
 		StatusCode:  http.StatusNotFound,
 		RawResponse: `{}`,
 	})
-	build, err = client.GetRelevantBuild(ctx.Context, &app)
+	build, err = client.GetBuild(ctx.Context, &app)
 	assert.Error(t, err)
 	assert.Nil(t, build)
 
@@ -147,7 +168,7 @@ func TestGetRelevantBuild(t *testing.T) {
 	ctx.SetResponses(response{
 		RawResponse: `{"data":[]}`,
 	})
-	build, err = client.GetRelevantBuild(ctx.Context, &app)
+	build, err = client.GetBuild(ctx.Context, &app)
 	assert.Error(t, err)
 	assert.Nil(t, build)
 
@@ -155,7 +176,7 @@ func TestGetRelevantBuild(t *testing.T) {
 	ctx.SetResponses(response{
 		RawResponse: `{"data":[{}]}`,
 	})
-	build, err = client.GetRelevantBuild(ctx.Context, &app)
+	build, err = client.GetBuild(ctx.Context, &app)
 	assert.Error(t, err)
 	assert.Nil(t, build)
 
@@ -163,7 +184,7 @@ func TestGetRelevantBuild(t *testing.T) {
 	ctx.SetResponses(response{
 		RawResponse: `{"data":[{"attributes":{}}]}`,
 	})
-	build, err = client.GetRelevantBuild(ctx.Context, &app)
+	build, err = client.GetBuild(ctx.Context, &app)
 	assert.Error(t, err)
 	assert.Nil(t, build)
 
@@ -171,7 +192,7 @@ func TestGetRelevantBuild(t *testing.T) {
 	ctx.SetResponses(response{
 		RawResponse: `{"data":[{"attributes":{"processingState":"PROCESSING"}}]}`,
 	})
-	build, err = client.GetRelevantBuild(ctx.Context, &app)
+	build, err = client.GetBuild(ctx.Context, &app)
 	assert.Error(t, err)
 	assert.Nil(t, build)
 }

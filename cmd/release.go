@@ -28,6 +28,7 @@ type releaseOpts struct {
 	skipSubmit         bool
 	timeout            time.Duration
 	versionOverride    string
+	buildOverride      string
 	currentDirectory   string
 }
 
@@ -44,7 +45,7 @@ func newReleaseCmd() *releaseCmd {
 				root.opts.currentDirectory = args[0]
 			}
 			if root.opts.skipGit && root.opts.versionOverride == "" {
-				return errors.New("if --skip-git is set, --version must also be set")
+				return errors.New("if --skip-git is set, --set-version must also be set")
 			}
 
 			start := time.Now()
@@ -65,11 +66,12 @@ func newReleaseCmd() *releaseCmd {
 	cmd.Flags().StringArrayVarP(&root.opts.appsToRelease, "app", "a", make([]string, 0), "App to release, using key name in configuration")
 	cmd.Flags().Var(&root.opts.publishMode, "mode", `Publish mode (default: "testflight")`)
 	cmd.Flags().BoolVarP(&root.opts.releaseAllApps, "all-apps", "A", false, "Release all apps")
-	cmd.Flags().BoolVar(&root.opts.skipGit, "skip-git", false, "Skips deriving version information from Git. Must only be used in conjunction with --version")
+	cmd.Flags().BoolVar(&root.opts.skipGit, "skip-git", false, "Skips deriving version information from Git. Must only be used in conjunction with --set-version")
 	cmd.Flags().BoolVar(&root.opts.skipUpdatePricing, "skip-update-pricing", false, "Skips updating pricing")
 	cmd.Flags().BoolVar(&root.opts.skipUpdateMetadata, "skip-update-metadata", false, "Skips updating metadata")
 	cmd.Flags().BoolVar(&root.opts.skipSubmit, "skip-submit", false, "Skips submitting for review")
-	cmd.Flags().StringVarP(&root.opts.versionOverride, "version", "V", "", "Version override to use instead of Git tags")
+	cmd.Flags().StringVarP(&root.opts.versionOverride, "set-version", "V", "", "Version override to use instead of Git tags")
+	cmd.Flags().StringVarP(&root.opts.buildOverride, "set-build", "B", "", `Build override to use instead of "latest".`)
 	cmd.Flags().DurationVar(&root.opts.timeout, "timeout", 30*time.Minute, "Timeout to the entire release process")
 
 	root.cmd = cmd
@@ -117,6 +119,7 @@ func setupReleaseContext(ctx *context.Context, options releaseOpts, forceAllSkip
 	ctx.SkipUpdateMetadata = options.skipUpdateMetadata || forceAllSkips
 	ctx.SkipSubmit = options.skipSubmit || forceAllSkips
 	ctx.Version = options.versionOverride
+	ctx.Build = options.buildOverride
 	ctx.CurrentDirectory = options.currentDirectory
 	return ctx
 }

@@ -65,7 +65,7 @@ func (git *Git) SanitizeProcess(proc *shell.CompletedProcess, err error) (string
 	var out string
 	if proc != nil {
 		firstline := strings.Split(proc.Stdout, "\n")[0]
-		out = strings.Replace(firstline, "'", "", -1)
+		out = strings.ReplaceAll(firstline, "'", "")
 		if err != nil {
 			err = errors.New(strings.TrimSuffix(proc.Stderr, "\n"))
 		}

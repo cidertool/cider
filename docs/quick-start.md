@@ -40,7 +40,7 @@ Cider can also be run autonomously using the official [Cider Action](https://git
 - uses: cidertool/cider-action@v0
   with:
       version: latest
-      args: release --mode appstore --version ${{ env.VERSION }}
+      args: release --mode appstore --set-version ${{ env.VERSION }}
   env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}

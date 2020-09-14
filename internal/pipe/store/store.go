@@ -45,7 +45,7 @@ func doRelease(ctx *context.Context, config config.App, client client.Client) er
 		return err
 	}
 	ctx.VersionIsInitialRelease = isInitial
-	build, err := client.GetRelevantBuild(ctx, app)
+	build, err := client.GetBuild(ctx, app)
 	if err != nil {
 		return err
 	}

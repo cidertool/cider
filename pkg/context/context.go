@@ -39,6 +39,7 @@ type Context struct {
 	SkipSubmit              bool
 	VersionIsInitialRelease bool
 	Version                 string
+	Build                   string
 	Semver                  Semver
 }
 

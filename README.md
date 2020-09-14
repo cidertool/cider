@@ -15,7 +15,7 @@ Documentation is hosted at <https://cidertool.github.io/cider>. Check out our in
 ## Integrations
 
 - [GitHub Action](https://github.com/marketplace/actions/cider-action)
-- Buildkite Plugin – _Coming soon!_
+- [Buildkite Plugin](https://github.com/cidertool/cider-buildkite-plugin)
 
 ## Badges
 

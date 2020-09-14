@@ -52,4 +52,18 @@ You can run this job in any context you see fit to use Cider to update app metad
 
 ### Buildkite
 
-Coming soon!
+If you're using Buildkite, you can use the [Cider Buildkite Plugin](https://github.com/cidertool/cider-buildkite-plugin). Similarly to the GitHub Action, the plugin is versioned independently of Cider and any function available in the Cider command line can be used. This plugin requires Docker. 
+
+#### Usage
+
+```yaml
+steps:
+  - label: ':apple: Release with Cider'
+    plugins:
+      - cidertool/cider#v0.1.0:
+          args: release --mode appstore
+    env:
+      ASC_KEY_ID: '...'
+      ASC_ISSUER_ID: '...'
+      ASC_PRIVATE_KEY: '...'
+```

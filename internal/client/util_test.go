@@ -36,7 +36,7 @@ type mockTransport struct {
 	Transport http.RoundTripper
 }
 
-func newTestContext(resp ...response) *testContext {
+func newTestContext(resp ...response) (*testContext, Client) {
 	ctx := testContext{}
 	ctx.Context = context.New(config.Project{
 		Name: "TEST",
@@ -48,7 +48,8 @@ func newTestContext(resp ...response) *testContext {
 	}
 	ctx.Responses = resp
 	ctx.server = server
-	return &ctx
+	client := New(ctx.Context)
+	return &ctx, client
 }
 
 func (c *testContext) Close() {

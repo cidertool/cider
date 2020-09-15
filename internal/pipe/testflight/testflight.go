@@ -70,24 +70,24 @@ func doRelease(ctx *context.Context, config config.App, client client.Client) er
 		WithField("build", buildVersionLog).
 		Info("submitting to testflight")
 
-	return client.SubmitBetaApp(ctx, build)
+	return client.SubmitBetaApp(ctx, build.ID)
 }
 
 func updateBetaDetails(ctx *context.Context, config config.App, client client.Client, app *asc.App, build *asc.Build) error {
 	log.Infof("updating %d beta app localizations", len(config.Testflight.Localizations))
-	if err := client.UpdateBetaAppLocalizations(ctx, app, config.Testflight.Localizations); err != nil {
+	if err := client.UpdateBetaAppLocalizations(ctx, app.ID, config.Testflight.Localizations); err != nil {
 		return err
 	}
 	log.Info("updating beta build details")
-	if err := client.UpdateBetaBuildDetails(ctx, build, config.Testflight); err != nil {
+	if err := client.UpdateBetaBuildDetails(ctx, build.ID, config.Testflight); err != nil {
 		return err
 	}
 	log.Infof("updating %d beta build localizations", len(config.Testflight.Localizations))
-	if err := client.UpdateBetaBuildLocalizations(ctx, build, config.Testflight.Localizations); err != nil {
+	if err := client.UpdateBetaBuildLocalizations(ctx, build.ID, config.Testflight.Localizations); err != nil {
 		return err
 	}
 	log.Info("updating beta license agreement")
-	if err := client.UpdateBetaLicenseAgreement(ctx, app, config.Testflight); err != nil {
+	if err := client.UpdateBetaLicenseAgreement(ctx, app.ID, config.Testflight); err != nil {
 		return err
 	}
 	log.Info("updating build beta groups")
@@ -100,7 +100,7 @@ func updateBetaDetails(ctx *context.Context, config config.App, client client.Cl
 	}
 	if config.Testflight.ReviewDetails != nil {
 		log.Info("updating beta review details")
-		if err := client.UpdateBetaReviewDetails(ctx, app, *config.Testflight.ReviewDetails); err != nil {
+		if err := client.UpdateBetaReviewDetails(ctx, app.ID, *config.Testflight.ReviewDetails); err != nil {
 			return err
 		}
 	}

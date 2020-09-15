@@ -40,7 +40,7 @@ func doRelease(ctx *context.Context, config config.App, client client.Client) er
 	if err != nil {
 		return err
 	}
-	isInitial, err := client.ReleaseForAppIsInitial(ctx, app)
+	isInitial, err := client.ReleaseForAppIsInitial(ctx, app.ID)
 	if err != nil {
 		return err
 	}
@@ -49,7 +49,7 @@ func doRelease(ctx *context.Context, config config.App, client client.Client) er
 	if err != nil {
 		return err
 	}
-	version, err := client.CreateVersionIfNeeded(ctx, app, build, config.Versions)
+	version, err := client.CreateVersionIfNeeded(ctx, app.ID, build.ID, config.Versions)
 	if err != nil {
 		return err
 	}
@@ -76,41 +76,41 @@ func doRelease(ctx *context.Context, config config.App, client client.Client) er
 	log.
 		WithField("version", *version.Attributes.VersionString).
 		Info("submitting to app store")
-	return client.SubmitApp(ctx, version)
+	return client.SubmitApp(ctx, version.ID)
 }
 
 func updateVersionDetails(ctx *context.Context, config config.App, client client.Client, app *asc.App, version *asc.AppStoreVersion) error {
-	appInfo, err := client.GetAppInfo(ctx, app)
+	appInfo, err := client.GetAppInfo(ctx, app.ID)
 	if err != nil {
 		return err
 	}
 	log.Info("updating app details")
-	if err := client.UpdateApp(ctx, app, appInfo, config); err != nil {
+	if err := client.UpdateApp(ctx, app.ID, appInfo.ID, config); err != nil {
 		return err
 	}
 	log.Infof("updating %d app localizations", len(config.Localizations))
-	if err := client.UpdateAppLocalizations(ctx, app, appInfo, config.Localizations); err != nil {
+	if err := client.UpdateAppLocalizations(ctx, app.ID, config.Localizations); err != nil {
 		return err
 	}
 	log.Infof("updating %d app store version localizations", len(config.Versions.Localizations))
-	if err := client.UpdateVersionLocalizations(ctx, version, config.Versions.Localizations); err != nil {
+	if err := client.UpdateVersionLocalizations(ctx, version.ID, config.Versions.Localizations); err != nil {
 		return err
 	}
 	if config.Versions.IDFADeclaration != nil {
 		log.Info("updating IDFA declaration")
-		if err := client.UpdateIDFADeclaration(ctx, version, *config.Versions.IDFADeclaration); err != nil {
+		if err := client.UpdateIDFADeclaration(ctx, version.ID, *config.Versions.IDFADeclaration); err != nil {
 			return err
 		}
 	}
 	if config.Versions.RoutingCoverage != nil {
 		log.Info("uploading routing coverage asset")
-		if err := client.UploadRoutingCoverage(ctx, version, *config.Versions.RoutingCoverage); err != nil {
+		if err := client.UploadRoutingCoverage(ctx, version.ID, *config.Versions.RoutingCoverage); err != nil {
 			return err
 		}
 	}
 	if config.Versions.ReviewDetails != nil {
 		log.Info("updating review details")
-		if err := client.UpdateReviewDetails(ctx, version, *config.Versions.ReviewDetails); err != nil {
+		if err := client.UpdateReviewDetails(ctx, version.ID, *config.Versions.ReviewDetails); err != nil {
 			return err
 		}
 	}

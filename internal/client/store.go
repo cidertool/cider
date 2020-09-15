@@ -10,7 +10,7 @@ import (
 	"github.com/cidertool/cider/pkg/context"
 )
 
-func (c *ascClient) UpdateApp(ctx *context.Context, app *asc.App, appInfo *asc.AppInfo, config config.App) error {
+func (c *ascClient) UpdateApp(ctx *context.Context, appID string, appInfoID string, config config.App) error {
 	updateParams := asc.AppUpdateRequestAttributes{
 		ContentRightsDeclaration: contentRightsDeclaration(config.UsesThirdPartyContent),
 	}
@@ -31,13 +31,13 @@ func (c *ascClient) UpdateApp(ctx *context.Context, app *asc.App, appInfo *asc.A
 		updateParams.PrimaryLocale = &config.PrimaryLocale
 	}
 
-	if _, _, err := c.client.Apps.UpdateApp(ctx, app.ID, &updateParams, availableTerritoryIDs, prices); err != nil {
+	if _, _, err := c.client.Apps.UpdateApp(ctx, appID, &updateParams, availableTerritoryIDs, prices); err != nil {
 		return err
 	}
 
 	// TODO: Man, category IDs are kind of wild, aren't they? Will need to fix this at some point.
 
-	// if _, _, err := c.client.Apps.UpdateAppInfo(ctx, appInfo.ID, &asc.AppInfoUpdateRequestRelationships{
+	// if _, _, err := c.client.Apps.UpdateAppInfo(ctx, appInfoID, &asc.AppInfoUpdateRequestRelationships{
 	// 	PrimaryCategoryID:         nil,
 	// 	PrimarySubcategoryOneID:   nil,
 	// 	PrimarySubcategoryTwoID:   nil,
@@ -97,8 +97,8 @@ func priceSchedules(schedules []config.PriceSchedule) (priceSchedules []asc.NewA
 	return priceSchedules
 }
 
-func (c *ascClient) UpdateAppLocalizations(ctx *context.Context, app *asc.App, appInfo *asc.AppInfo, config config.AppLocalizations) error {
-	appInfosResp, _, err := c.client.Apps.ListAppInfosForApp(ctx, app.ID, nil)
+func (c *ascClient) UpdateAppLocalizations(ctx *context.Context, appID string, config config.AppLocalizations) error {
+	appInfosResp, _, err := c.client.Apps.ListAppInfosForApp(ctx, appID, nil)
 	if err != nil {
 		return err
 	}
@@ -151,7 +151,7 @@ func (c *ascClient) UpdateAppLocalizations(ctx *context.Context, app *asc.App, a
 	return nil
 }
 
-func (c *ascClient) CreateVersionIfNeeded(ctx *context.Context, app *asc.App, build *asc.Build, config config.Version) (*asc.AppStoreVersion, error) {
+func (c *ascClient) CreateVersionIfNeeded(ctx *context.Context, appID string, buildID string, config config.Version) (*asc.AppStoreVersion, error) {
 	platform, err := config.Platform.APIValue()
 	if err != nil {
 		return nil, err
@@ -166,7 +166,7 @@ func (c *ascClient) CreateVersionIfNeeded(ctx *context.Context, app *asc.App, bu
 		earliestReleaseDate = &asc.DateTime{Time: *config.EarliestReleaseDate}
 	}
 	var versionResp *asc.AppStoreVersionResponse
-	versionsResp, _, err := c.client.Apps.ListAppStoreVersionsForApp(ctx, app.ID, &asc.ListAppStoreVersionsQuery{
+	versionsResp, _, err := c.client.Apps.ListAppStoreVersionsForApp(ctx, appID, &asc.ListAppStoreVersionsQuery{
 		FilterVersionString: []string{ctx.Version},
 		FilterPlatform:      []string{string(platform)},
 	})
@@ -178,7 +178,7 @@ func (c *ascClient) CreateVersionIfNeeded(ctx *context.Context, app *asc.App, bu
 			ReleaseType:         releaseTypeP,
 			UsesIDFA:            asc.Bool(config.IDFADeclaration != nil),
 			VersionString:       ctx.Version,
-		}, app.ID, &build.ID)
+		}, appID, &buildID)
 	} else {
 		latestVersion := versionsResp.Data[0]
 		versionResp, _, err = c.client.Apps.UpdateAppStoreVersion(ctx, latestVersion.ID, &asc.AppStoreVersionUpdateRequestAttributes{
@@ -187,13 +187,13 @@ func (c *ascClient) CreateVersionIfNeeded(ctx *context.Context, app *asc.App, bu
 			ReleaseType:         releaseTypeP,
 			UsesIDFA:            asc.Bool(config.IDFADeclaration != nil),
 			VersionString:       &ctx.Version,
-		}, &build.ID)
+		}, &buildID)
 	}
 	return &versionResp.Data, err
 }
 
-func (c *ascClient) UpdateVersionLocalizations(ctx *context.Context, version *asc.AppStoreVersion, config config.VersionLocalizations) error {
-	locListResp, _, err := c.client.Apps.ListLocalizationsForAppStoreVersion(ctx, version.ID, nil)
+func (c *ascClient) UpdateVersionLocalizations(ctx *context.Context, versionID string, config config.VersionLocalizations) error {
+	locListResp, _, err := c.client.Apps.ListLocalizationsForAppStoreVersion(ctx, versionID, nil)
 	if err != nil {
 		return err
 	}
@@ -243,7 +243,7 @@ func (c *ascClient) UpdateVersionLocalizations(ctx *context.Context, version *as
 		if !ctx.VersionIsInitialRelease {
 			attrs.WhatsNew = &locConfig.WhatsNewText
 		}
-		locResp, _, err := c.client.Apps.CreateAppStoreVersionLocalization(ctx.Context, attrs, version.ID)
+		locResp, _, err := c.client.Apps.CreateAppStoreVersionLocalization(ctx.Context, attrs, versionID)
 		if err != nil {
 			return err
 		}
@@ -282,15 +282,15 @@ func (c *ascClient) UpdatePreviewsAndScreenshotsIfNeeded(ctx *context.Context, l
 	return nil
 }
 
-func (c *ascClient) UpdateIDFADeclaration(ctx *context.Context, version *asc.AppStoreVersion, config config.IDFADeclaration) error {
-	existingDeclResp, _, err := c.client.Submission.GetIDFADeclarationForAppStoreVersion(ctx, version.ID, nil)
+func (c *ascClient) UpdateIDFADeclaration(ctx *context.Context, versionID string, config config.IDFADeclaration) error {
+	existingDeclResp, _, err := c.client.Submission.GetIDFADeclarationForAppStoreVersion(ctx, versionID, nil)
 	if err != nil || existingDeclResp.Data.ID == "" {
 		_, _, err = c.client.Submission.CreateIDFADeclaration(ctx, asc.IDFADeclarationCreateRequestAttributes{
 			AttributesActionWithPreviousAd:        config.AttributesActionWithPreviousAd,
 			AttributesAppInstallationToPreviousAd: config.AttributesAppInstallationToPreviousAd,
 			HonorsLimitedAdTracking:               config.HonorsLimitedAdTracking,
 			ServesAds:                             config.ServesAds,
-		}, version.ID)
+		}, versionID)
 	} else {
 		_, _, err = c.client.Submission.UpdateIDFADeclaration(ctx, existingDeclResp.Data.ID, &asc.IDFADeclarationUpdateRequestAttributes{
 			AttributesActionWithPreviousAd:        &config.AttributesActionWithPreviousAd,
@@ -302,15 +302,15 @@ func (c *ascClient) UpdateIDFADeclaration(ctx *context.Context, version *asc.App
 	return err
 }
 
-func (c *ascClient) UploadRoutingCoverage(ctx *context.Context, version *asc.AppStoreVersion, config config.File) error {
+func (c *ascClient) UploadRoutingCoverage(ctx *context.Context, versionID string, config config.File) error {
 	// TODO: I'm silencing an error here
-	if covResp, _, _ := c.client.Apps.GetRoutingAppCoverageForAppStoreVersion(ctx, version.ID, nil); covResp != nil {
+	if covResp, _, _ := c.client.Apps.GetRoutingAppCoverageForAppStoreVersion(ctx, versionID, nil); covResp != nil {
 		if _, err := c.client.Apps.DeleteRoutingAppCoverage(ctx, covResp.Data.ID); err != nil {
 			return err
 		}
 	}
 	create := func(name string, size int64) (id string, ops []asc.UploadOperation, err error) {
-		resp, _, err := c.client.Apps.CreateRoutingAppCoverage(ctx, name, size, version.ID)
+		resp, _, err := c.client.Apps.CreateRoutingAppCoverage(ctx, name, size, versionID)
 		if err != nil {
 			return "", nil, err
 		}
@@ -421,37 +421,53 @@ func (c *ascClient) UploadScreenshots(ctx *context.Context, screenshotSet *asc.A
 	return nil
 }
 
-func (c *ascClient) UpdateReviewDetails(ctx *context.Context, version *asc.AppStoreVersion, config config.ReviewDetails) error {
-	detailsResp, _, err := c.client.Submission.GetReviewDetailsForAppStoreVersion(ctx, version.ID, nil)
+func (c *ascClient) UpdateReviewDetails(ctx *context.Context, versionID string, config config.ReviewDetails) error {
+	detailsResp, _, err := c.client.Submission.GetReviewDetailsForAppStoreVersion(ctx, versionID, nil)
 
 	if err != nil {
-		_, _, err = c.client.Submission.CreateReviewDetail(ctx, &asc.AppStoreReviewDetailCreateRequestAttributes{
-			ContactEmail:        &config.Contact.Email,
-			ContactFirstName:    &config.Contact.FirstName,
-			ContactLastName:     &config.Contact.LastName,
-			ContactPhone:        &config.Contact.Phone,
-			DemoAccountName:     &config.DemoAccount.Name,
-			DemoAccountPassword: &config.DemoAccount.Password,
-			DemoAccountRequired: &config.DemoAccount.Required,
-			Notes:               &config.Notes,
-		}, version.ID)
-	} else {
-		_, _, err = c.client.Submission.UpdateReviewDetail(ctx, detailsResp.Data.ID, &asc.AppStoreReviewDetailUpdateRequestAttributes{
-			ContactEmail:        &config.Contact.Email,
-			ContactFirstName:    &config.Contact.FirstName,
-			ContactLastName:     &config.Contact.LastName,
-			ContactPhone:        &config.Contact.Phone,
-			DemoAccountName:     &config.DemoAccount.Name,
-			DemoAccountPassword: &config.DemoAccount.Password,
-			DemoAccountRequired: &config.DemoAccount.Required,
-			Notes:               &config.Notes,
-		})
+		return c.CreateReviewDetail(ctx, versionID, config)
 	}
+	return c.UpdateReviewDetail(ctx, detailsResp.Data.ID, config)
+}
+
+func (c *ascClient) CreateReviewDetail(ctx *context.Context, versionID string, config config.ReviewDetails) error {
+	attributes := asc.AppStoreReviewDetailCreateRequestAttributes{}
+	if config.Contact != nil {
+		attributes.ContactEmail = &config.Contact.Email
+		attributes.ContactFirstName = &config.Contact.FirstName
+		attributes.ContactLastName = &config.Contact.LastName
+		attributes.ContactPhone = &config.Contact.Phone
+	}
+	if config.DemoAccount != nil {
+		attributes.DemoAccountName = &config.DemoAccount.Name
+		attributes.DemoAccountPassword = &config.DemoAccount.Password
+		attributes.DemoAccountRequired = &config.DemoAccount.Required
+	}
+	attributes.Notes = &config.Notes
+	_, _, err := c.client.Submission.CreateReviewDetail(ctx, &attributes, versionID)
 	return err
 }
 
-func (c *ascClient) SubmitApp(ctx *context.Context, version *asc.AppStoreVersion) error {
-	_, _, err := c.client.Submission.CreateSubmission(ctx, version.ID)
+func (c *ascClient) UpdateReviewDetail(ctx *context.Context, reviewDetailID string, config config.ReviewDetails) error {
+	attributes := asc.AppStoreReviewDetailUpdateRequestAttributes{}
+	if config.Contact != nil {
+		attributes.ContactEmail = &config.Contact.Email
+		attributes.ContactFirstName = &config.Contact.FirstName
+		attributes.ContactLastName = &config.Contact.LastName
+		attributes.ContactPhone = &config.Contact.Phone
+	}
+	if config.DemoAccount != nil {
+		attributes.DemoAccountName = &config.DemoAccount.Name
+		attributes.DemoAccountPassword = &config.DemoAccount.Password
+		attributes.DemoAccountRequired = &config.DemoAccount.Required
+	}
+	attributes.Notes = &config.Notes
+	_, _, err := c.client.Submission.UpdateReviewDetail(ctx, reviewDetailID, &attributes)
+	return err
+}
+
+func (c *ascClient) SubmitApp(ctx *context.Context, versionID string) error {
+	_, _, err := c.client.Submission.CreateSubmission(ctx, versionID)
 	return err
 }
 

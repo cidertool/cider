@@ -35,7 +35,11 @@ Use multiple `--app` flags, each one set to a key in the `apps` map in your conf
 
 The `--mode` flag is used to declare the publishing mode for submission. The default is `"testflight"` for submitting to Testflight, and the other alternative option is `"appstore"` for submitting to the App Store.
 
-The `--set-version` is used to override the version string used when creating new App Store versions or querying the API. It should correspond to a version string used in your app builds, and it should follow semver. If this flag is omitted, Git will be leveraged to determine the latest tag. The tag will be used to calculate the version string under the same constraints. You can also use the `--set-build` flag to override the specific build you want to operate on.
+The `--set-version` is used to override the version string used when creating new App Store versions or querying the API. It should correspond to a version string used in your app builds, and it should follow semver. If this flag is omitted, Git will be leveraged to determine the latest tag. The tag will be used to calculate the version string under the same constraints. 
+
+You can also use the `--set-build` flag to override the specific build you want to operate on. The default behavior without this flag is to select the latest build. In both cases, if the selected build has an invalid processing state, Cider will abort with an error to ensure your release is handled safely. 
+
+The `--set-beta-group` and `--set-beta-tester` flags can be invoked repeatedly for any number of beta group names or beta tester emails you want to include. Use of these flags will totally override the beta group and beta tester configurations used for all apps included during a single process. For `--set-beta-group`, provide a name of a beta group that already exists in App Store Connect, or that is declared in the top-level TestFlight settings of your configuration file. For `--set-beta-tester`, provide the email address of a beta tester that has already been added as a beta tester on your App Store Connect team, or that has been declared in the top-level TestFlight settings of your configuration file. 
 
 The release command provides a variety of skip flags:
 

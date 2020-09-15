@@ -7,6 +7,7 @@ import (
 	"github.com/apex/log"
 	"github.com/cidertool/cider/internal/middleware"
 	"github.com/cidertool/cider/internal/pipeline"
+	"github.com/cidertool/cider/pkg/config"
 	"github.com/cidertool/cider/pkg/context"
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
@@ -18,18 +19,20 @@ type releaseCmd struct {
 }
 
 type releaseOpts struct {
-	config             string
-	appsToRelease      []string
-	publishMode        context.PublishMode
-	releaseAllApps     bool
-	skipGit            bool
-	skipUpdatePricing  bool
-	skipUpdateMetadata bool
-	skipSubmit         bool
-	timeout            time.Duration
-	versionOverride    string
-	buildOverride      string
-	currentDirectory   string
+	config              string
+	appsToRelease       []string
+	publishMode         context.PublishMode
+	releaseAllApps      bool
+	skipGit             bool
+	skipUpdatePricing   bool
+	skipUpdateMetadata  bool
+	skipSubmit          bool
+	timeout             time.Duration
+	versionOverride     string
+	buildOverride       string
+	betaGroupsOverride  []string
+	betaTestersOverride []string
+	currentDirectory    string
 }
 
 func newReleaseCmd() *releaseCmd {
@@ -71,7 +74,9 @@ func newReleaseCmd() *releaseCmd {
 	cmd.Flags().BoolVar(&root.opts.skipUpdateMetadata, "skip-update-metadata", false, "Skips updating metadata")
 	cmd.Flags().BoolVar(&root.opts.skipSubmit, "skip-submit", false, "Skips submitting for review")
 	cmd.Flags().StringVarP(&root.opts.versionOverride, "set-version", "V", "", "Version override to use instead of Git tags")
-	cmd.Flags().StringVarP(&root.opts.buildOverride, "set-build", "B", "", `Build override to use instead of "latest".`)
+	cmd.Flags().StringVarP(&root.opts.buildOverride, "set-build", "B", "", `Build override to use instead of "latest"`)
+	cmd.Flags().StringArrayVar(&root.opts.betaGroupsOverride, "set-beta-group", []string{}, `Beta group names override to use instead of the YAML configuration`)
+	cmd.Flags().StringArrayVar(&root.opts.betaTestersOverride, "set-beta-tester", []string{}, `Beta tester emails override to use instead of the YAML configuration`)
 	cmd.Flags().DurationVar(&root.opts.timeout, "timeout", 30*time.Minute, "Timeout to the entire release process")
 
 	root.cmd = cmd
@@ -120,6 +125,26 @@ func setupReleaseContext(ctx *context.Context, options releaseOpts, forceAllSkip
 	ctx.SkipSubmit = options.skipSubmit || forceAllSkips
 	ctx.Version = options.versionOverride
 	ctx.Build = options.buildOverride
+
+	if len(options.betaGroupsOverride) > 0 || len(options.betaTestersOverride) > 0 {
+		var betaTesters = make([]config.BetaTester, len(options.betaTestersOverride))
+
+		for i, email := range options.betaTestersOverride {
+			betaTesters[i] = config.BetaTester{Email: email}
+		}
+
+		for appName, app := range ctx.Config.Apps {
+			if len(options.betaGroupsOverride) > 0 {
+				app.Testflight.BetaGroups = options.betaGroupsOverride
+			}
+			if len(betaTesters) > 0 {
+				app.Testflight.BetaTesters = betaTesters
+			}
+			ctx.Config.Apps[appName] = app
+		}
+	}
+
 	ctx.CurrentDirectory = options.currentDirectory
+
 	return ctx
 }

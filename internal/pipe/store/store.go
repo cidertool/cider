@@ -84,32 +84,32 @@ func updateVersionDetails(ctx *context.Context, config config.App, client client
 	if err != nil {
 		return err
 	}
-	log.Debug("updating app details")
+	log.Info("updating app details")
 	if err := client.UpdateApp(ctx, app, appInfo, config); err != nil {
 		return err
 	}
-	log.Debugf("updating %d app localizations", len(config.Localizations))
+	log.Infof("updating %d app localizations", len(config.Localizations))
 	if err := client.UpdateAppLocalizations(ctx, app, appInfo, config.Localizations); err != nil {
 		return err
 	}
-	log.Debugf("updating %d app store version localizations", len(config.Versions.Localizations))
+	log.Infof("updating %d app store version localizations", len(config.Versions.Localizations))
 	if err := client.UpdateVersionLocalizations(ctx, version, config.Versions.Localizations); err != nil {
 		return err
 	}
 	if config.Versions.IDFADeclaration != nil {
-		log.Debug("updating IDFA declaration")
+		log.Info("updating IDFA declaration")
 		if err := client.UpdateIDFADeclaration(ctx, version, *config.Versions.IDFADeclaration); err != nil {
 			return err
 		}
 	}
 	if config.Versions.RoutingCoverage != nil {
-		log.Debug("uploading routing coverage asset")
+		log.Info("uploading routing coverage asset")
 		if err := client.UploadRoutingCoverage(ctx, version, *config.Versions.RoutingCoverage); err != nil {
 			return err
 		}
 	}
 	if config.Versions.ReviewDetails != nil {
-		log.Debug("updating review details")
+		log.Info("updating review details")
 		if err := client.UpdateReviewDetails(ctx, version, *config.Versions.ReviewDetails); err != nil {
 			return err
 		}

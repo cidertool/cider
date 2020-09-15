@@ -1,6 +1,7 @@
 package client
 
 import (
+	"github.com/apex/log"
 	"github.com/cidertool/asc-go/asc"
 	"github.com/cidertool/cider/pkg/config"
 	"github.com/cidertool/cider/pkg/context"
@@ -100,6 +101,7 @@ func (c *ascClient) UpdateBetaLicenseAgreement(ctx *context.Context, app *asc.Ap
 
 func (c *ascClient) AssignBetaGroups(ctx *context.Context, build *asc.Build, groups []string) error {
 	if len(groups) == 0 {
+		log.Debug("no groups provided as input to add")
 		return nil
 	}
 	groupsResp, _, err := c.client.TestFlight.ListBetaGroups(ctx, &asc.ListBetaGroupsQuery{
@@ -108,17 +110,22 @@ func (c *ascClient) AssignBetaGroups(ctx *context.Context, build *asc.Build, gro
 	if err != nil {
 		return err
 	}
+	if len(groupsResp.Data) == 0 {
+		log.WithField("groups", groups).Warn("no matching groups found")
+	}
 	for _, group := range groupsResp.Data {
 		_, err := c.client.TestFlight.AddBuildsToBetaGroup(ctx, group.ID, []string{build.ID})
 		if err != nil {
 			return err
 		}
 	}
+	log.Infof("assigned %d beta group(s)", len(groupsResp.Data))
 	return nil
 }
 
 func (c *ascClient) AssignBetaTesters(ctx *context.Context, build *asc.Build, testers []config.BetaTester) error {
 	if len(testers) == 0 {
+		log.Debug("no testers provided as input to add")
 		return nil
 	}
 	emailFilters := make([]string, 0)
@@ -144,12 +151,20 @@ func (c *ascClient) AssignBetaTesters(ctx *context.Context, build *asc.Build, te
 	if err != nil {
 		return err
 	}
+	if len(testersResp.Data) == 0 {
+		log.WithFields(log.Fields{
+			"emails":     emailFilters,
+			"firstNames": firstNameFilters,
+			"lastNames":  lastNameFilters,
+		}).Warn("no matching testers found")
+	}
 	for _, tester := range testersResp.Data {
 		_, err := c.client.TestFlight.AssignSingleBetaTesterToBuilds(ctx, tester.ID, []string{build.ID})
 		if err != nil {
 			return err
 		}
 	}
+	log.Infof("assigned %d beta tester(s)", len(testersResp.Data))
 	return nil
 }
 

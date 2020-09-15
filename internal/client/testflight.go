@@ -99,13 +99,14 @@ func (c *ascClient) UpdateBetaLicenseAgreement(ctx *context.Context, app *asc.Ap
 	return err
 }
 
-func (c *ascClient) AssignBetaGroups(ctx *context.Context, build *asc.Build, groups []string) error {
+func (c *ascClient) AssignBetaGroups(ctx *context.Context, appID string, buildID string, groups []string) error {
 	if len(groups) == 0 {
 		log.Debug("no groups provided as input to add")
 		return nil
 	}
 	groupsResp, _, err := c.client.TestFlight.ListBetaGroups(ctx, &asc.ListBetaGroupsQuery{
 		FilterName: groups,
+		FilterApp:  []string{appID},
 	})
 	if err != nil {
 		return err
@@ -114,7 +115,7 @@ func (c *ascClient) AssignBetaGroups(ctx *context.Context, build *asc.Build, gro
 		log.WithField("groups", groups).Warn("no matching groups found")
 	}
 	for _, group := range groupsResp.Data {
-		_, err := c.client.TestFlight.AddBuildsToBetaGroup(ctx, group.ID, []string{build.ID})
+		_, err := c.client.TestFlight.AddBuildsToBetaGroup(ctx, group.ID, []string{buildID})
 		if err != nil {
 			return err
 		}
@@ -123,7 +124,7 @@ func (c *ascClient) AssignBetaGroups(ctx *context.Context, build *asc.Build, gro
 	return nil
 }
 
-func (c *ascClient) AssignBetaTesters(ctx *context.Context, build *asc.Build, testers []config.BetaTester) error {
+func (c *ascClient) AssignBetaTesters(ctx *context.Context, appID string, buildID string, testers []config.BetaTester) error {
 	if len(testers) == 0 {
 		log.Debug("no testers provided as input to add")
 		return nil
@@ -147,6 +148,7 @@ func (c *ascClient) AssignBetaTesters(ctx *context.Context, build *asc.Build, te
 		FilterEmail:     emailFilters,
 		FilterFirstName: firstNameFilters,
 		FilterLastName:  lastNameFilters,
+		FilterApps:      []string{appID},
 	})
 	if err != nil {
 		return err
@@ -159,7 +161,7 @@ func (c *ascClient) AssignBetaTesters(ctx *context.Context, build *asc.Build, te
 		}).Warn("no matching testers found")
 	}
 	for _, tester := range testersResp.Data {
-		_, err := c.client.TestFlight.AssignSingleBetaTesterToBuilds(ctx, tester.ID, []string{build.ID})
+		_, err := c.client.TestFlight.AssignSingleBetaTesterToBuilds(ctx, tester.ID, []string{buildID})
 		if err != nil {
 			return err
 		}

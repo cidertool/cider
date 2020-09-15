@@ -36,8 +36,8 @@ type Client interface {
 	UpdateBetaBuildLocalizations(ctx *context.Context, build *asc.Build, config config.TestflightLocalizations) error
 	// UpdateBetaLicenseAgreement updates an App's beta license agreement, or creates a new one if one does not yet exist.
 	UpdateBetaLicenseAgreement(ctx *context.Context, app *asc.App, config config.TestflightForApp) error
-	AssignBetaGroups(ctx *context.Context, build *asc.Build, groups []string) error
-	AssignBetaTesters(ctx *context.Context, build *asc.Build, testers []config.BetaTester) error
+	AssignBetaGroups(ctx *context.Context, appID string, buildID string, groups []string) error
+	AssignBetaTesters(ctx *context.Context, appID string, buildID string, testers []config.BetaTester) error
 	// UpdateBetaReviewDetails updates an App's beta review details, or creates new ones if they do not yet exist.
 	UpdateBetaReviewDetails(ctx *context.Context, app *asc.App, config config.ReviewDetails) error
 	// SubmitBetaApp submits the given beta build for review

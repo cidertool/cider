@@ -91,11 +91,11 @@ func updateBetaDetails(ctx *context.Context, config config.App, client client.Cl
 		return err
 	}
 	log.Info("updating build beta groups")
-	if err := client.AssignBetaGroups(ctx, build, config.Testflight.BetaGroups); err != nil {
+	if err := client.AssignBetaGroups(ctx, app.ID, build.ID, config.Testflight.BetaGroups); err != nil {
 		return err
 	}
 	log.Info("updating build beta testers")
-	if err := client.AssignBetaTesters(ctx, build, config.Testflight.BetaTesters); err != nil {
+	if err := client.AssignBetaTesters(ctx, app.ID, build.ID, config.Testflight.BetaTesters); err != nil {
 		return err
 	}
 	if config.Testflight.ReviewDetails != nil {

@@ -6,6 +6,7 @@ import (
 
 	"github.com/cidertool/asc-go/asc"
 	"github.com/cidertool/cider/internal/closer"
+	"github.com/cidertool/cider/internal/semerrgroup"
 	"github.com/cidertool/cider/pkg/config"
 	"github.com/cidertool/cider/pkg/context"
 )
@@ -351,7 +352,9 @@ func (c *ascClient) UpdatePreviewSets(ctx *context.Context, previewSets []asc.Ap
 }
 
 func (c *ascClient) UploadPreviews(ctx *context.Context, previewSet *asc.AppPreviewSet, previewConfigs []config.Preview) error {
+	var g = semerrgroup.New(ctx.MaxProcesses)
 	for _, previewConfig := range previewConfigs {
+		path := previewConfig.Path
 		create := func(name string, size int64) (id string, ops []asc.UploadOperation, err error) {
 			resp, _, err := c.client.Apps.CreateAppPreview(ctx, name, size, previewSet.ID)
 			if err != nil {
@@ -365,12 +368,11 @@ func (c *ascClient) UploadPreviews(ctx *context.Context, previewSet *asc.AppPrev
 				return err
 			}
 		}(previewConfig)
-
-		if err := c.uploadFile(ctx, previewConfig.Path, create, commit); err != nil {
-			return err
-		}
+		g.Go(func() error {
+			return c.uploadFile(ctx, path, create, commit)
+		})
 	}
-	return nil
+	return g.Wait()
 }
 
 func (c *ascClient) UpdateScreenshotSets(ctx *context.Context, screenshotSets []asc.AppScreenshotSet, appStoreVersionLocalizationID string, config config.ScreenshotSets) error {
@@ -401,7 +403,9 @@ func (c *ascClient) UpdateScreenshotSets(ctx *context.Context, screenshotSets []
 }
 
 func (c *ascClient) UploadScreenshots(ctx *context.Context, screenshotSet *asc.AppScreenshotSet, config []config.File) error {
+	var g = semerrgroup.New(ctx.MaxProcesses)
 	for _, screenshotConfig := range config {
+		path := screenshotConfig.Path
 		create := func(name string, size int64) (id string, ops []asc.UploadOperation, err error) {
 			resp, _, err := c.client.Apps.CreateAppScreenshot(ctx, name, size, screenshotSet.ID)
 			if err != nil {
@@ -413,12 +417,11 @@ func (c *ascClient) UploadScreenshots(ctx *context.Context, screenshotSet *asc.A
 			_, _, err := c.client.Apps.CommitAppScreenshot(ctx, id, asc.Bool(true), &checksum)
 			return err
 		}
-
-		if err := c.uploadFile(ctx, screenshotConfig.Path, create, commit); err != nil {
-			return err
-		}
+		g.Go(func() error {
+			return c.uploadFile(ctx, path, create, commit)
+		})
 	}
-	return nil
+	return g.Wait()
 }
 
 func (c *ascClient) UpdateReviewDetails(ctx *context.Context, versionID string, config config.ReviewDetails) error {

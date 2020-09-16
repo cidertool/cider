@@ -37,3 +37,6 @@ docs/_site
 
 # GoReleaser
 dist/
+
+# Integration Tests
+test/integration/testdata/

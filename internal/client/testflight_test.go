@@ -55,7 +55,6 @@ func TestUpdateBetaAppLocalizations_Happy(t *testing.T) {
 	)
 	defer ctx.Close()
 
-	// happy
 	err := client.UpdateBetaAppLocalizations(ctx.Context, testID, localizations)
 	assert.NoError(t, err)
 }
@@ -69,7 +68,6 @@ func TestUpdateBetaAppLocalizations_ErrList(t *testing.T) {
 	)
 	defer ctx.Close()
 
-	// err raise err
 	err := client.UpdateBetaAppLocalizations(ctx.Context, testID, config.TestflightLocalizations{})
 	assert.Error(t, err)
 }
@@ -102,7 +100,6 @@ func TestUpdateBetaAppLocalizations_ErrUpdate(t *testing.T) {
 	)
 	defer ctx.Close()
 
-	// err raise err
 	err := client.UpdateBetaAppLocalizations(ctx.Context, testID, localizations)
 	assert.Error(t, err)
 }
@@ -142,7 +139,6 @@ func TestUpdateBetaAppLocalizations_ErrCreate(t *testing.T) {
 	)
 	defer ctx.Close()
 
-	// err raise err
 	err := client.UpdateBetaAppLocalizations(ctx.Context, testID, localizations)
 	assert.Error(t, err)
 }
@@ -157,7 +153,6 @@ func TestUpdateBetaBuildDetails_Happy(t *testing.T) {
 	)
 	defer ctx.Close()
 
-	// happy
 	err := client.UpdateBetaBuildDetails(ctx.Context, testID, config.TestflightForApp{})
 	assert.NoError(t, err)
 }
@@ -171,7 +166,6 @@ func TestUpdateBetaBuildDetails_Err(t *testing.T) {
 	)
 	defer ctx.Close()
 
-	// happy
 	err := client.UpdateBetaBuildDetails(ctx.Context, testID, config.TestflightForApp{
 		EnableAutoNotify: true,
 	})
@@ -220,7 +214,6 @@ func TestUpdateBetaBuildLocalizations_Happy(t *testing.T) {
 	)
 	defer ctx.Close()
 
-	// happy
 	err := client.UpdateBetaBuildLocalizations(ctx.Context, testID, localizations)
 	assert.NoError(t, err)
 }
@@ -234,7 +227,6 @@ func TestUpdateBetaBuildLocalizations_ErrList(t *testing.T) {
 	)
 	defer ctx.Close()
 
-	// err raise err
 	err := client.UpdateBetaBuildLocalizations(ctx.Context, testID, config.TestflightLocalizations{})
 	assert.Error(t, err)
 }
@@ -267,7 +259,6 @@ func TestUpdateBetaBuildLocalizations_ErrUpdate(t *testing.T) {
 	)
 	defer ctx.Close()
 
-	// err raise err
 	err := client.UpdateBetaBuildLocalizations(ctx.Context, testID, localizations)
 	assert.Error(t, err)
 }
@@ -307,7 +298,6 @@ func TestUpdateBetaBuildLocalizations_ErrCreate(t *testing.T) {
 	)
 	defer ctx.Close()
 
-	// err raise err
 	err := client.UpdateBetaBuildLocalizations(ctx.Context, testID, localizations)
 	assert.Error(t, err)
 }
@@ -325,7 +315,6 @@ func TestUpdateBetaLicenseAgreement_Happy(t *testing.T) {
 	)
 	defer ctx.Close()
 
-	// happy
 	err := client.UpdateBetaLicenseAgreement(ctx.Context, testID, config.TestflightForApp{})
 	assert.NoError(t, err)
 }
@@ -339,7 +328,6 @@ func TestUpdateBetaLicenseAgreement_ErrGet(t *testing.T) {
 	)
 	defer ctx.Close()
 
-	// happy
 	err := client.UpdateBetaLicenseAgreement(ctx.Context, testID, config.TestflightForApp{})
 	assert.Error(t, err)
 }
@@ -356,7 +344,6 @@ func TestUpdateBetaLicenseAgreement_ErrUpdate(t *testing.T) {
 	)
 	defer ctx.Close()
 
-	// happy
 	err := client.UpdateBetaLicenseAgreement(ctx.Context, testID, config.TestflightForApp{})
 	assert.Error(t, err)
 }
@@ -382,7 +369,6 @@ func TestAssignBetaGroups_Happy(t *testing.T) {
 	)
 	defer ctx.Close()
 
-	// happy
 	err := client.AssignBetaGroups(ctx.Context, testID, testID, []string{
 		testID,
 		testID,
@@ -394,7 +380,6 @@ func TestAssignBetaGroups_WarnNoTestersInput(t *testing.T) {
 	ctx, client := newTestContext()
 	defer ctx.Close()
 
-	// warn no testers
 	err := client.AssignBetaGroups(ctx.Context, testID, testID, []string{})
 	assert.NoError(t, err)
 }
@@ -465,7 +450,6 @@ func TestAssignBetaTesters_Happy(t *testing.T) {
 	)
 	defer ctx.Close()
 
-	// happy
 	err := client.AssignBetaTesters(ctx.Context, testID, testID, []config.BetaTester{
 		{
 			Email:     "test@email.com",
@@ -490,7 +474,6 @@ func TestAssignBetaTesters_WarnNoTestersInput(t *testing.T) {
 	ctx, client := newTestContext()
 	defer ctx.Close()
 
-	// warn no testers
 	err := client.AssignBetaTesters(ctx.Context, testID, testID, []config.BetaTester{})
 	assert.NoError(t, err)
 }
@@ -553,7 +536,6 @@ func TestUpdateBetaReviewDetails_Happy(t *testing.T) {
 	)
 	defer ctx.Close()
 
-	// happy
 	err := client.UpdateBetaReviewDetails(ctx.Context, testID, config.ReviewDetails{
 		Contact:     &config.ContactPerson{},
 		DemoAccount: &config.DemoAccount{},
@@ -600,7 +582,6 @@ func TestSubmitBetaApp_Happy(t *testing.T) {
 	)
 	defer ctx.Close()
 
-	// happy
 	err := client.SubmitBetaApp(ctx.Context, testID)
 	assert.NoError(t, err)
 }
@@ -614,7 +595,6 @@ func TestSubmitBetaApp_Err(t *testing.T) {
 	)
 	defer ctx.Close()
 
-	// happy
 	err := client.SubmitBetaApp(ctx.Context, testID)
 	assert.Error(t, err)
 }

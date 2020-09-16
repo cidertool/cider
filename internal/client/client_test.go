@@ -26,7 +26,6 @@ func TestGetApp_Happy(t *testing.T) {
 	})
 	defer ctx.Close()
 
-	// happy
 	app, err := client.GetAppForBundleID(ctx.Context, expectedBundleID)
 	assert.NoError(t, err)
 	assert.NotNil(t, app)
@@ -40,7 +39,6 @@ func TestGetApp_Err(t *testing.T) {
 	})
 	defer ctx.Close()
 
-	// err raise err
 	app, err := client.GetAppForBundleID(ctx.Context, "com.app.bundleid")
 	assert.Error(t, err)
 	assert.Nil(t, app)
@@ -52,7 +50,6 @@ func TestGetApp_ErrNoApps(t *testing.T) {
 	})
 	defer ctx.Close()
 
-	// err no apps
 	app, err := client.GetAppForBundleID(ctx.Context, "com.app.bundleid")
 	assert.Error(t, err)
 	assert.Nil(t, app)
@@ -80,7 +77,6 @@ func TestGetAppInfo_Happy(t *testing.T) {
 	})
 	defer ctx.Close()
 
-	// happy
 	info, err := client.GetAppInfo(ctx.Context, app.ID)
 	assert.NoError(t, err)
 	assert.NotNil(t, info)
@@ -95,7 +91,6 @@ func TestGetAppInfo_Err(t *testing.T) {
 	})
 	defer ctx.Close()
 
-	// err raise err
 	info, err := client.GetAppInfo(ctx.Context, app.ID)
 	assert.Error(t, err)
 	assert.Nil(t, info)
@@ -108,7 +103,6 @@ func TestGetAppInfo_ErrNoData(t *testing.T) {
 	})
 	defer ctx.Close()
 
-	// err no applicable data
 	info, err := client.GetAppInfo(ctx.Context, app.ID)
 	assert.Error(t, err)
 	assert.Nil(t, info)
@@ -141,7 +135,6 @@ func TestGetBuild_Happy(t *testing.T) {
 	})
 	defer ctx.Close()
 
-	// happy, no build
 	ctx.Context.Version = testGetBuildVersion
 	build, err := client.GetBuild(ctx.Context, &app)
 	assert.NoError(t, err)
@@ -170,7 +163,6 @@ func TestGetBuild_HappyOverrideBuild(t *testing.T) {
 	})
 	defer ctx.Close()
 
-	// happy, set build
 	ctx.Context.Version = testGetBuildVersion
 	ctx.Context.Build = "3"
 	build, err := client.GetBuild(ctx.Context, &app)
@@ -191,7 +183,6 @@ func TestGetBuild_ErrNoVersion(t *testing.T) {
 	})
 	defer ctx.Close()
 
-	// err no version
 	build, err := client.GetBuild(ctx.Context, &app)
 	assert.Error(t, err)
 	assert.Equal(t, "no version provided to lookup build with", err.Error())
@@ -211,7 +202,6 @@ func TestGetBuild_Err(t *testing.T) {
 	})
 	defer ctx.Close()
 
-	// err raise err
 	ctx.Context.Version = testGetBuildVersion
 	build, err := client.GetBuild(ctx.Context, &app)
 	assert.Error(t, err)
@@ -231,7 +221,6 @@ func TestGetBuild_ErrNoBuilds(t *testing.T) {
 	})
 	defer ctx.Close()
 
-	// err no builds
 	ctx.Context.Version = testGetBuildVersion
 	build, err := client.GetBuild(ctx.Context, &app)
 	assert.Error(t, err)
@@ -251,7 +240,6 @@ func TestGetBuild_ErrNoAttributes(t *testing.T) {
 	})
 	defer ctx.Close()
 
-	// err no attributes
 	ctx.Context.Version = testGetBuildVersion
 	build, err := client.GetBuild(ctx.Context, &app)
 	assert.Error(t, err)
@@ -271,7 +259,6 @@ func TestGetBuild_ErrNoProcessingState(t *testing.T) {
 	})
 	defer ctx.Close()
 
-	// err no processing state
 	ctx.Context.Version = testGetBuildVersion
 	build, err := client.GetBuild(ctx.Context, &app)
 	assert.Error(t, err)
@@ -291,7 +278,6 @@ func TestGetBuild_ErrInvalidProcessingState(t *testing.T) {
 	})
 	defer ctx.Close()
 
-	// err invalid processing state
 	ctx.Context.Version = testGetBuildVersion
 	build, err := client.GetBuild(ctx.Context, &app)
 	assert.Error(t, err)
@@ -312,7 +298,6 @@ func TestReleaseForAppIsInitial_HappyInitial(t *testing.T) {
 	})
 	defer ctx.Close()
 
-	// happy
 	initial, err := client.ReleaseForAppIsInitial(ctx.Context, app.ID)
 	assert.NoError(t, err)
 	assert.True(t, initial)
@@ -326,7 +311,6 @@ func TestReleaseForAppIsInitial_Err(t *testing.T) {
 	})
 	defer ctx.Close()
 
-	// err raise err
 	initial, err := client.ReleaseForAppIsInitial(ctx.Context, app.ID)
 	assert.Error(t, err)
 	assert.False(t, initial)
@@ -345,7 +329,6 @@ func TestReleaseForAppIsInitial_HappyNotInitial(t *testing.T) {
 	})
 	defer ctx.Close()
 
-	// not initial
 	initial, err := client.ReleaseForAppIsInitial(ctx.Context, app.ID)
 	assert.NoError(t, err)
 	assert.False(t, initial)

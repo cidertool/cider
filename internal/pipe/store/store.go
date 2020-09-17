@@ -73,6 +73,12 @@ func doRelease(ctx *context.Context, config config.App, client client.Client) er
 		return pipe.ErrSkipSubmitEnabled
 	}
 
+	if config.Versions.PhasedReleaseEnabled {
+		log.Info("preparing phased release details")
+		if err := client.EnablePhasedRelease(ctx, version.ID); err != nil {
+			return err
+		}
+	}
 	log.
 		WithField("version", *version.Attributes.VersionString).
 		Info("submitting to app store")

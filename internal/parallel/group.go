@@ -1,6 +1,6 @@
-// Package semerrgroup wraps a error group with a semaphore with configurable
+// Package parallel wraps a error group with a semaphore with configurable
 // size, so you can control the number of tasks being executed simultaneously.
-package semerrgroup
+package parallel
 
 import (
 	"sync"

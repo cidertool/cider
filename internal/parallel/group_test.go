@@ -1,4 +1,4 @@
-package semerrgroup
+package parallel
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestSemaphore(t *testing.T) {
+func TestGroup(t *testing.T) {
 	var g = New(4)
 	var lock sync.Mutex
 	var counter int
@@ -26,7 +26,7 @@ func TestSemaphore(t *testing.T) {
 	assert.Equal(t, counter, 10)
 }
 
-func TestSemaphoreOrder(t *testing.T) {
+func TestGroupOrder(t *testing.T) {
 	var num = 10
 	var g = New(1)
 	var output = []int{}
@@ -41,7 +41,7 @@ func TestSemaphoreOrder(t *testing.T) {
 	assert.Equal(t, []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}, output)
 }
 
-func TestSemaphoreOrderError(t *testing.T) {
+func TestGroupOrderError(t *testing.T) {
 	var g = New(1)
 	var output = []int{}
 	for i := 0; i < 10; i++ {

@@ -6,7 +6,7 @@ import (
 
 	"github.com/cidertool/asc-go/asc"
 	"github.com/cidertool/cider/internal/closer"
-	"github.com/cidertool/cider/internal/semerrgroup"
+	"github.com/cidertool/cider/internal/parallel"
 	"github.com/cidertool/cider/pkg/config"
 	"github.com/cidertool/cider/pkg/context"
 )
@@ -352,7 +352,7 @@ func (c *ascClient) UpdatePreviewSets(ctx *context.Context, previewSets []asc.Ap
 }
 
 func (c *ascClient) UploadPreviews(ctx *context.Context, previewSet *asc.AppPreviewSet, previewConfigs []config.Preview) error {
-	var g = semerrgroup.New(ctx.MaxProcesses)
+	var g = parallel.New(ctx.MaxProcesses)
 	for _, previewConfig := range previewConfigs {
 		path := previewConfig.Path
 		create := func(name string, size int64) (id string, ops []asc.UploadOperation, err error) {
@@ -403,7 +403,7 @@ func (c *ascClient) UpdateScreenshotSets(ctx *context.Context, screenshotSets []
 }
 
 func (c *ascClient) UploadScreenshots(ctx *context.Context, screenshotSet *asc.AppScreenshotSet, config []config.File) error {
-	var g = semerrgroup.New(ctx.MaxProcesses)
+	var g = parallel.New(ctx.MaxProcesses)
 	for _, screenshotConfig := range config {
 		path := screenshotConfig.Path
 		create := func(name string, size int64) (id string, ops []asc.UploadOperation, err error) {

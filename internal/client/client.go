@@ -57,6 +57,7 @@ type Client interface {
 	UploadRoutingCoverage(ctx *context.Context, versionID string, config config.File) error
 	// UpdateReviewDetails updates an App's review details, or creates new ones if they do not yet exist.
 	UpdateReviewDetails(ctx *context.Context, versionID string, config config.ReviewDetails) error
+	EnablePhasedRelease(ctx *context.Context, versionID string) error
 	// SubmitApp submits the given app store version for review
 	SubmitApp(ctx *context.Context, versionID string) error
 

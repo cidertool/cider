@@ -466,6 +466,17 @@ func (c *ascClient) UpdateReviewDetail(ctx *context.Context, reviewDetailID stri
 	return err
 }
 
+func (c *ascClient) EnablePhasedRelease(ctx *context.Context, versionID string) error {
+	activePhasedReleaseState := asc.PhasedReleaseStateActive
+	phasedResp, _, err := c.client.Publishing.GetAppStoreVersionPhasedReleaseForAppStoreVersion(ctx, versionID, nil)
+	if err == nil && phasedResp.Data.ID != "" {
+		_, _, err = c.client.Publishing.UpdatePhasedRelease(ctx, phasedResp.Data.ID, &activePhasedReleaseState)
+	} else {
+		_, _, err = c.client.Publishing.CreatePhasedRelease(ctx, &activePhasedReleaseState, versionID)
+	}
+	return err
+}
+
 func (c *ascClient) SubmitApp(ctx *context.Context, versionID string) error {
 	_, _, err := c.client.Submission.CreateSubmission(ctx, versionID)
 	return err

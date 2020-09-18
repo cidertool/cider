@@ -2,9 +2,7 @@
 package client
 
 import (
-	"crypto/md5" // #nosec
 	"fmt"
-	"io"
 	"strings"
 
 	"github.com/cidertool/asc-go/asc"
@@ -186,14 +184,4 @@ func (c *ascClient) ReleaseForAppIsInitial(ctx *context.Context, appID string) (
 		return false, err
 	}
 	return len(resp.Data) <= 1, nil
-}
-
-func md5Checksum(f io.Reader) (string, error) {
-	/* #nosec */
-	h := md5.New()
-	if _, err := io.Copy(h, f); err != nil {
-		return "", err
-	}
-
-	return fmt.Sprintf("%x", h.Sum(nil)), nil
 }

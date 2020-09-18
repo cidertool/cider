@@ -179,12 +179,6 @@ func TestUpdateIDFADeclaration_ErrCreate(t *testing.T) {
 	assert.Error(t, err)
 }
 
-// Test UploadRoutingCoverage
-
-func TestUploadRoutingCoverage_Happy(t *testing.T) {
-
-}
-
 // Test UpdateReviewDetails
 
 func TestUpdateReviewDetails_Happy(t *testing.T) {

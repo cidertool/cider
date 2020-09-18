@@ -48,7 +48,7 @@ The release command provides a variety of skip flags:
 - `--skip-update-metadata`: Skips updating metadata (app info, localizations, assets, review details, etc.)
 - `--skip-update-pricing`: Skips updating app pricing
 
-Finally, you can provide a `--timeout` flag with a duration value to place a limit on the runtime of the release process. While Cider is intended to be fast, apps with a lot of localization fields or many apps will take a while longer to run through all of their metadata.
+Finally, you can provide a `--timeout` flag with a duration value to place a limit on the runtime of the release process. While Cider is intended to be fast, apps with a lot of localization fields or many apps will take a while longer to run through all of their metadata. Also relevant is the `--max-processes` flag, which will run certain metadata syncing and asset uploading logic in parallel, limited by the number provided with the flag. 
 
 ### Environment
 

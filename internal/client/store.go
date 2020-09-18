@@ -565,6 +565,7 @@ func (c *ascClient) UpdateReviewDetails(ctx *context.Context, versionID string, 
 	if err := c.UploadReviewAttachments(ctx, reviewDetails.ID, config.Attachments); err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -611,6 +612,10 @@ func (c *ascClient) UpdateReviewDetail(ctx *context.Context, reviewDetailID stri
 }
 
 func (c *ascClient) UploadReviewAttachments(ctx *context.Context, reviewDetailID string, config []config.File) error {
+	if len(config) == 0 {
+		return nil
+	}
+
 	var g = parallel.New(ctx.MaxProcesses)
 
 	attachmentsResp, _, err := c.client.Submission.ListAttachmentsForReviewDetail(ctx, reviewDetailID, nil)

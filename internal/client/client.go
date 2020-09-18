@@ -47,7 +47,7 @@ type Client interface {
 
 	// App Store
 
-	UpdateApp(ctx *context.Context, appID string, appInfoID string, config config.App) error
+	UpdateApp(ctx *context.Context, appID string, appInfoID string, versionID string, config config.App) error
 	UpdateAppLocalizations(ctx *context.Context, appID string, config config.AppLocalizations) error
 	CreateVersionIfNeeded(ctx *context.Context, appID string, buildID string, config config.Version) (*asc.AppStoreVersion, error)
 	UpdateVersionLocalizations(ctx *context.Context, versionID string, config config.VersionLocalizations) error

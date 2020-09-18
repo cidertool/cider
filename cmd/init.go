@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 
 	"github.com/apex/log"
-	"github.com/cidertool/cider/internal/closer"
 	"github.com/cidertool/cider/pkg/config"
 	"github.com/fatih/color"
 	"github.com/manifoldco/promptui"
@@ -55,12 +54,21 @@ func newInitCmd() *initCmd {
 	return root
 }
 
-func initProject(opts initOpts) error {
+func initProject(opts initOpts) (err error) {
 	file, err := createFileIfNeeded(opts.config, opts.skipPrompt)
 	if err != nil {
 		return err
 	}
-	defer closer.Close(file)
+	defer func() {
+		closeErr := file.Close()
+		if closeErr != nil {
+			if err == nil {
+				err = closeErr
+			} else {
+				log.Fatal(closeErr.Error())
+			}
+		}
+	}()
 
 	log.Info(color.New(color.Bold).Sprintf("Populating project file at %s", opts.config))
 

@@ -3,15 +3,14 @@ package config
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"time"
 
+	"github.com/apex/log"
 	"github.com/cidertool/asc-go/asc"
-	"github.com/cidertool/cider/internal/closer"
 	"gopkg.in/yaml.v2"
 )
 
@@ -25,6 +24,28 @@ const (
 	PlatformMacOS Platform = "macOS"
 	// PlatformTvOS refers to the tvOS platform.
 	PlatformTvOS Platform = "tvOS"
+)
+
+type contentIntensity string
+
+const (
+	// ContentIntensityNone refers to the NONE content warning.
+	ContentIntensityNone contentIntensity = "none"
+	// ContentIntensityInfrequentOrMild refers to the INFREQUENT_OR_MILD content warning.
+	ContentIntensityInfrequentOrMild contentIntensity = "infrequentOrMild"
+	// ContentIntensityFrequentOrIntense refers to the FREQUENT_OR_INTENSE content warning.
+	ContentIntensityFrequentOrIntense contentIntensity = "frequentOrIntense"
+)
+
+type kidsAgeBand string
+
+const (
+	// KidsAgeBandFiveAndUnder refers to the FIVE_AND_UNDER kids age band.
+	KidsAgeBandFiveAndUnder kidsAgeBand = "5 and under"
+	// KidsAgeBandSixToEight refers to the SIX_TO_EIGHT kids age band.
+	KidsAgeBandSixToEight kidsAgeBand = "6-8"
+	// KidsAgeBandNineToEleven refers to the NINE_TO_ELEVEN kids age band.
+	KidsAgeBandNineToEleven kidsAgeBand = "9-11"
 )
 
 type releaseType string
@@ -166,12 +187,40 @@ type App struct {
 	// Bundle ID of the app. Required.
 	BundleID string `yaml:"id"`
 	// Primary locale of the app.
-	PrimaryLocale         string           `yaml:"primaryLocale,omitempty"`
-	UsesThirdPartyContent *bool            `yaml:"usesThirdPartyContent,omitempty"`
-	Availability          *Availability    `yaml:"availability,omitempty"`
-	Localizations         AppLocalizations `yaml:"localizations"`
-	Versions              Version          `yaml:"versions"`
-	Testflight            TestflightForApp `yaml:"testflight"`
+	PrimaryLocale         string                `yaml:"primaryLocale,omitempty"`
+	UsesThirdPartyContent *bool                 `yaml:"usesThirdPartyContent,omitempty"`
+	Availability          *Availability         `yaml:"availability,omitempty"`
+	Categories            *Categories           `yaml:"categories,omitempty"`
+	AgeRatingDeclaration  *AgeRatingDeclaration `yaml:"ageRatings,omitempty"`
+	Localizations         AppLocalizations      `yaml:"localizations"`
+	Versions              Version               `yaml:"versions"`
+	Testflight            TestflightForApp      `yaml:"testflight"`
+}
+
+// Categories describes the categories used for classificiation in the App Store.
+type Categories struct {
+	Primary                string    `yaml:"primary"`
+	PrimarySubcategories   [2]string `yaml:"primarySubcategories"`
+	Secondary              string    `yaml:"secondary,omitempty"`
+	SecondarySubcategories [2]string `yaml:"secondarySubcategories"`
+}
+
+// AgeRatingDeclaration describes the various content warnings you can provide or apply to your applications.
+type AgeRatingDeclaration struct {
+	GamblingAndContests                         *bool             `yaml:"gamblingAndContests,omitempty"`
+	UnrestrictedWebAccess                       *bool             `yaml:"unrestrictedWebAccess,omitempty"`
+	KidsAgeBand                                 *kidsAgeBand      `yaml:"kidsAgeBand,omitempty"`
+	AlcoholTobaccoOrDrugUseOrReferences         *contentIntensity `yaml:"alcoholTobaccoOrDrugUseOrReferences,omitempty"`
+	MedicalOrTreatmentInformation               *contentIntensity `yaml:"medicalOrTreatmentInformation,omitempty"`
+	ProfanityOrCrudeHumor                       *contentIntensity `yaml:"profanityOrCrudeHumor,omitempty"`
+	SexualContentOrNudity                       *contentIntensity `yaml:"sexualContentOrNudity,omitempty"`
+	GamblingSimulated                           *contentIntensity `yaml:"gamblingSimulated,omitempty"`
+	HorrorOrFearThemes                          *contentIntensity `yaml:"horrorOrFearThemes,omitempty"`
+	MatureOrSuggestiveThemes                    *contentIntensity `yaml:"matureOrSuggestiveThemes,omitempty"`
+	SexualContentGraphicAndNudity               *contentIntensity `yaml:"sexualContentGraphicAndNudity,omitempty"`
+	ViolenceCartoonOrFantasy                    *contentIntensity `yaml:"violenceCartoonOrFantasy,omitempty"`
+	ViolenceRealistic                           *contentIntensity `yaml:"violenceRealistic,omitempty"`
+	ViolenceRealisticProlongedGraphicOrSadistic *contentIntensity `yaml:"violenceRealisticProlongedGraphicOrSadistic,omitempty"`
 }
 
 // Availability wraps aspects of app availability, such as territories and pricing.
@@ -357,7 +406,16 @@ func Load(file string) (config Project, err error) {
 	if err != nil {
 		return
 	}
-	defer closer.Close(f)
+	defer func() {
+		closeErr := f.Close()
+		if closeErr != nil {
+			if err == nil {
+				err = closeErr
+			} else {
+				log.Fatal(closeErr.Error())
+			}
+		}
+	}()
 	return LoadReader(f)
 }
 
@@ -407,120 +465,180 @@ func (p *Project) AppsMatching(keys []string, shouldIncludeAll bool) []string {
 }
 
 // APIValue returns the corresponding API value type for this config type.
-func (p Platform) APIValue() (asc.Platform, error) {
-	switch p {
+func (p *Platform) APIValue() *asc.Platform {
+	if p == nil {
+		return nil
+	}
+	var value asc.Platform
+	switch *p {
 	case PlatformiOS:
-		return asc.PlatformIOS, nil
+		value = asc.PlatformIOS
 	case PlatformMacOS:
-		return asc.PlatformMACOS, nil
+		value = asc.PlatformMACOS
 	case PlatformTvOS:
-		return asc.PlatformTVOS, nil
+		value = asc.PlatformTVOS
+	default:
+		return nil
 	}
-	return asc.Platform(""), fmt.Errorf("could not convert platform %s to asc.Platform type", p)
+	return &value
 }
 
-func (t releaseType) APIValue() (string, error) {
-	switch t {
+func (c *contentIntensity) APIValue() *string {
+	if c == nil {
+		return nil
+	}
+	var value string
+	switch *c {
+	case ContentIntensityNone:
+		value = "NONE"
+	case ContentIntensityInfrequentOrMild:
+		value = "INFREQUENT_OR_MILD"
+	case ContentIntensityFrequentOrIntense:
+		value = "FREQUENT_OR_INTENSE"
+	default:
+		return nil
+	}
+	return &value
+}
+
+func (b *kidsAgeBand) APIValue() *asc.KidsAgeBand {
+	if b == nil {
+		return nil
+	}
+	var value asc.KidsAgeBand
+	switch *b {
+	case KidsAgeBandFiveAndUnder:
+		value = asc.KidsAgeBandFiveAndUnder
+	case KidsAgeBandSixToEight:
+		value = asc.KidsAgeBandSixToEight
+	case KidsAgeBandNineToEleven:
+		value = asc.KidsAgeBandNineToEleven
+	default:
+		return nil
+	}
+	return &value
+}
+
+func (t *releaseType) APIValue() *string {
+	if t == nil {
+		return nil
+	}
+	var value string
+	switch *t {
 	case ReleaseTypeManual:
-		return "MANUAL", nil
+		value = "MANUAL"
 	case ReleaseTypeAfterApproval:
-		return "AFTER_APPROVAL", nil
+		value = "AFTER_APPROVAL"
 	case ReleaseTypeScheduled:
-		return "SCHEDULED", nil
+		value = "SCHEDULED"
+	default:
+		return nil
 	}
-	return "", fmt.Errorf("could not convert releaseType %s to valid release type", t)
+	return &value
 }
 
-func (t previewType) APIValue() asc.PreviewType {
-	switch t {
+func (t *previewType) APIValue() *asc.PreviewType {
+	if t == nil {
+		return nil
+	}
+	var value asc.PreviewType
+	switch *t {
 	case PreviewTypeAppleTV:
-		return asc.PreviewTypeAppleTV
+		value = asc.PreviewTypeAppleTV
 	case PreviewTypeDesktop:
-		return asc.PreviewTypeDesktop
+		value = asc.PreviewTypeDesktop
 	case PreviewTypeiPad105:
-		return asc.PreviewTypeiPad105
+		value = asc.PreviewTypeiPad105
 	case PreviewTypeiPad97:
-		return asc.PreviewTypeiPad97
+		value = asc.PreviewTypeiPad97
 	case PreviewTypeiPadPro129:
-		return asc.PreviewTypeiPadPro129
+		value = asc.PreviewTypeiPadPro129
 	case PreviewTypeiPadPro3Gen11:
-		return asc.PreviewTypeiPadPro3Gen11
+		value = asc.PreviewTypeiPadPro3Gen11
 	case PreviewTypeiPadPro3Gen129:
-		return asc.PreviewTypeiPadPro3Gen129
+		value = asc.PreviewTypeiPadPro3Gen129
 	case PreviewTypeiPhone35:
-		return asc.PreviewTypeiPhone35
+		value = asc.PreviewTypeiPhone35
 	case PreviewTypeiPhone40:
-		return asc.PreviewTypeiPhone40
+		value = asc.PreviewTypeiPhone40
 	case PreviewTypeiPhone47:
-		return asc.PreviewTypeiPhone47
+		value = asc.PreviewTypeiPhone47
 	case PreviewTypeiPhone55:
-		return asc.PreviewTypeiPhone55
+		value = asc.PreviewTypeiPhone55
 	case PreviewTypeiPhone58:
-		return asc.PreviewTypeiPhone58
+		value = asc.PreviewTypeiPhone58
 	case PreviewTypeiPhone65:
-		return asc.PreviewTypeiPhone65
+		value = asc.PreviewTypeiPhone65
 	case PreviewTypeWatchSeries3:
-		return asc.PreviewTypeWatchSeries3
+		value = asc.PreviewTypeWatchSeries3
 	case PreviewTypeWatchSeries4:
-		return asc.PreviewTypeWatchSeries4
+		value = asc.PreviewTypeWatchSeries4
+	default:
+		return nil
 	}
-	return ""
+	return &value
 }
 
-func (t screenshotType) APIValue() asc.ScreenshotDisplayType {
-	switch t {
-	case ScreenshotTypeAppleTV:
-		return asc.ScreenshotDisplayTypeAppAppleTV
-	case ScreenshotTypeDesktop:
-		return asc.ScreenshotDisplayTypeAppDesktop
-	case ScreenshotTypeiPad105:
-		return asc.ScreenshotDisplayTypeAppiPad105
-	case ScreenshotTypeiPad97:
-		return asc.ScreenshotDisplayTypeAppiPad97
-	case ScreenshotTypeiPadPro129:
-		return asc.ScreenshotDisplayTypeAppiPadPro129
-	case ScreenshotTypeiPadPro3Gen11:
-		return asc.ScreenshotDisplayTypeAppiPadPro3Gen11
-	case ScreenshotTypeiPadPro3Gen129:
-		return asc.ScreenshotDisplayTypeAppiPadPro3Gen129
-	case ScreenshotTypeiPhone35:
-		return asc.ScreenshotDisplayTypeAppiPhone35
-	case ScreenshotTypeiPhone40:
-		return asc.ScreenshotDisplayTypeAppiPhone40
-	case ScreenshotTypeiPhone47:
-		return asc.ScreenshotDisplayTypeAppiPhone47
-	case ScreenshotTypeiPhone55:
-		return asc.ScreenshotDisplayTypeAppiPhone55
-	case ScreenshotTypeiPhone58:
-		return asc.ScreenshotDisplayTypeAppiPhone58
-	case ScreenshotTypeiPhone65:
-		return asc.ScreenshotDisplayTypeAppiPhone65
-	case ScreenshotTypeWatchSeries3:
-		return asc.ScreenshotDisplayTypeAppWatchSeries3
-	case ScreenshotTypeWatchSeries4:
-		return asc.ScreenshotDisplayTypeAppWatchSeries4
-	case ScreenshotTypeiMessageiPad105:
-		return asc.ScreenshotDisplayTypeiMessageAppIPad105
-	case ScreenshotTypeiMessageiPad97:
-		return asc.ScreenshotDisplayTypeiMessageAppIPad97
-	case ScreenshotTypeiMessageiPadPro129:
-		return asc.ScreenshotDisplayTypeiMessageAppIPadPro129
-	case ScreenshotTypeiMessageiPadPro3Gen11:
-		return asc.ScreenshotDisplayTypeiMessageAppIPadPro3Gen11
-	case ScreenshotTypeiMessageiPadPro3Gen129:
-		return asc.ScreenshotDisplayTypeiMessageAppIPadPro3Gen129
-	case ScreenshotTypeiMessageiPhone40:
-		return asc.ScreenshotDisplayTypeiMessageAppIPhone40
-	case ScreenshotTypeiMessageiPhone47:
-		return asc.ScreenshotDisplayTypeiMessageAppIPhone47
-	case ScreenshotTypeiMessageiPhone55:
-		return asc.ScreenshotDisplayTypeiMessageAppIPhone55
-	case ScreenshotTypeiMessageiPhone58:
-		return asc.ScreenshotDisplayTypeiMessageAppIPhone58
-	case ScreenshotTypeiMessageiPhone65:
-		return asc.ScreenshotDisplayTypeiMessageAppIPhone65
+func (t *screenshotType) APIValue() *asc.ScreenshotDisplayType {
+	if t == nil {
+		return nil
 	}
-	return ""
+	var value asc.ScreenshotDisplayType
+	switch *t {
+	case ScreenshotTypeAppleTV:
+		value = asc.ScreenshotDisplayTypeAppAppleTV
+	case ScreenshotTypeDesktop:
+		value = asc.ScreenshotDisplayTypeAppDesktop
+	case ScreenshotTypeiPad105:
+		value = asc.ScreenshotDisplayTypeAppiPad105
+	case ScreenshotTypeiPad97:
+		value = asc.ScreenshotDisplayTypeAppiPad97
+	case ScreenshotTypeiPadPro129:
+		value = asc.ScreenshotDisplayTypeAppiPadPro129
+	case ScreenshotTypeiPadPro3Gen11:
+		value = asc.ScreenshotDisplayTypeAppiPadPro3Gen11
+	case ScreenshotTypeiPadPro3Gen129:
+		value = asc.ScreenshotDisplayTypeAppiPadPro3Gen129
+	case ScreenshotTypeiPhone35:
+		value = asc.ScreenshotDisplayTypeAppiPhone35
+	case ScreenshotTypeiPhone40:
+		value = asc.ScreenshotDisplayTypeAppiPhone40
+	case ScreenshotTypeiPhone47:
+		value = asc.ScreenshotDisplayTypeAppiPhone47
+	case ScreenshotTypeiPhone55:
+		value = asc.ScreenshotDisplayTypeAppiPhone55
+	case ScreenshotTypeiPhone58:
+		value = asc.ScreenshotDisplayTypeAppiPhone58
+	case ScreenshotTypeiPhone65:
+		value = asc.ScreenshotDisplayTypeAppiPhone65
+	case ScreenshotTypeWatchSeries3:
+		value = asc.ScreenshotDisplayTypeAppWatchSeries3
+	case ScreenshotTypeWatchSeries4:
+		value = asc.ScreenshotDisplayTypeAppWatchSeries4
+	case ScreenshotTypeiMessageiPad105:
+		value = asc.ScreenshotDisplayTypeiMessageAppIPad105
+	case ScreenshotTypeiMessageiPad97:
+		value = asc.ScreenshotDisplayTypeiMessageAppIPad97
+	case ScreenshotTypeiMessageiPadPro129:
+		value = asc.ScreenshotDisplayTypeiMessageAppIPadPro129
+	case ScreenshotTypeiMessageiPadPro3Gen11:
+		value = asc.ScreenshotDisplayTypeiMessageAppIPadPro3Gen11
+	case ScreenshotTypeiMessageiPadPro3Gen129:
+		value = asc.ScreenshotDisplayTypeiMessageAppIPadPro3Gen129
+	case ScreenshotTypeiMessageiPhone40:
+		value = asc.ScreenshotDisplayTypeiMessageAppIPhone40
+	case ScreenshotTypeiMessageiPhone47:
+		value = asc.ScreenshotDisplayTypeiMessageAppIPhone47
+	case ScreenshotTypeiMessageiPhone55:
+		value = asc.ScreenshotDisplayTypeiMessageAppIPhone55
+	case ScreenshotTypeiMessageiPhone58:
+		value = asc.ScreenshotDisplayTypeiMessageAppIPhone58
+	case ScreenshotTypeiMessageiPhone65:
+		value = asc.ScreenshotDisplayTypeiMessageAppIPhone65
+	default:
+		return nil
+	}
+	return &value
 }
 
 // GetPreviews fetches the value from the map corresponding to the API value.

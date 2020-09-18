@@ -9,7 +9,6 @@ import (
 
 	"github.com/apex/log"
 	"github.com/cidertool/asc-go/asc"
-	"github.com/cidertool/cider/internal/closer"
 	"github.com/cidertool/cider/internal/parallel"
 	"github.com/cidertool/cider/pkg/config"
 	"github.com/cidertool/cider/pkg/context"
@@ -86,7 +85,7 @@ func (c *ascClient) UpdatePreviewSets(ctx *context.Context, g parallel.Group, pr
 	}
 
 	for previewType, previews := range config {
-		t := previewType.APIValue()
+		t := *previewType.APIValue()
 		if found[t] {
 			continue
 		}
@@ -185,7 +184,7 @@ func (c *ascClient) UpdateScreenshotSets(ctx *context.Context, g parallel.Group,
 	}
 
 	for screenshotType, screenshots := range config {
-		t := screenshotType.APIValue()
+		t := *screenshotType.APIValue()
 		if found[t] {
 			continue
 		}
@@ -350,12 +349,21 @@ type prepareFunc func(name string, checksum string) (shouldContinue bool, err er
 type createFunc func(name string, size int64) (id string, ops []asc.UploadOperation, err error)
 type commitFunc func(id string, checksum string) error
 
-func (c *ascClient) uploadFile(ctx *context.Context, path string, prepare prepareFunc, create createFunc, commit commitFunc) error {
+func (c *ascClient) uploadFile(ctx *context.Context, path string, prepare prepareFunc, create createFunc, commit commitFunc) (err error) {
 	f, err := os.Open(filepath.Clean(path))
 	if err != nil {
 		return err
 	}
-	defer closer.Close(f)
+	defer func() {
+		closeErr := f.Close()
+		if closeErr != nil {
+			if err == nil {
+				err = closeErr
+			} else {
+				log.Fatal(closeErr.Error())
+			}
+		}
+	}()
 
 	fstat, err := os.Stat(path)
 	if err != nil {

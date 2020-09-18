@@ -91,7 +91,7 @@ func updateVersionDetails(ctx *context.Context, config config.App, client client
 		return err
 	}
 	log.Info("updating app details")
-	if err := client.UpdateApp(ctx, app.ID, appInfo.ID, config); err != nil {
+	if err := client.UpdateApp(ctx, app.ID, appInfo.ID, version.ID, config); err != nil {
 		return err
 	}
 	log.Infof("updating %d app localizations", len(config.Localizations))

@@ -20,10 +20,21 @@ func TestUpdateApp_Happy(t *testing.T) {
 		response{
 			RawResponse: `{}`,
 		},
+		response{
+			RawResponse: `{}`,
+		},
+		response{
+			RawResponse: `{}`,
+		},
+		response{
+			RawResponse: `{}`,
+		},
 	)
 	defer ctx.Close()
 
-	err := client.UpdateApp(ctx.Context, testID, testID, config.App{
+	err := client.UpdateApp(ctx.Context, testID, testID, testID, config.App{
+		AgeRatingDeclaration:  &config.AgeRatingDeclaration{},
+		Categories:            &config.Categories{},
 		UsesThirdPartyContent: asc.Bool(true),
 		Availability: &config.Availability{
 			AvailableInNewTerritories: asc.Bool(true),

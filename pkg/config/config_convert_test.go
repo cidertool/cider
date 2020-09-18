@@ -8,121 +8,155 @@ import (
 )
 
 func TestPlatformAPIValue(t *testing.T) {
-	ios, err := PlatformiOS.APIValue()
-	assert.NoError(t, err)
-	assert.Equal(t, ios, asc.PlatformIOS)
-	macos, err := PlatformMacOS.APIValue()
-	assert.NoError(t, err)
-	assert.Equal(t, macos, asc.PlatformMACOS)
-	tvos, err := PlatformTvOS.APIValue()
-	assert.NoError(t, err)
-	assert.Equal(t, tvos, asc.PlatformTVOS)
-	_, err = Platform("watchOS").APIValue()
-	assert.Error(t, err)
+	var plat Platform
+	plat = PlatformiOS
+	assert.Equal(t, *plat.APIValue(), asc.PlatformIOS)
+	plat = PlatformMacOS
+	assert.Equal(t, *plat.APIValue(), asc.PlatformMACOS)
+	plat = PlatformTvOS
+	assert.Equal(t, *plat.APIValue(), asc.PlatformTVOS)
+	bad := Platform("watchOS")
+	assert.Empty(t, bad.APIValue())
+	var empty *Platform
+	assert.Empty(t, empty.APIValue())
 }
 
 func TestReleaseTypeAPIValue(t *testing.T) {
-	manual, err := ReleaseTypeManual.APIValue()
-	assert.NoError(t, err)
-	assert.Equal(t, manual, "MANUAL")
-	afterApproval, err := ReleaseTypeAfterApproval.APIValue()
-	assert.NoError(t, err)
-	assert.Equal(t, afterApproval, "AFTER_APPROVAL")
-	scheduled, err := ReleaseTypeScheduled.APIValue()
-	assert.NoError(t, err)
-	assert.Equal(t, scheduled, "SCHEDULED")
-	_, err = releaseType("never").APIValue()
-	assert.Error(t, err)
+	var release releaseType
+	release = ReleaseTypeManual
+	assert.Equal(t, *release.APIValue(), "MANUAL")
+	release = ReleaseTypeAfterApproval
+	assert.Equal(t, *release.APIValue(), "AFTER_APPROVAL")
+	release = ReleaseTypeScheduled
+	assert.Equal(t, *release.APIValue(), "SCHEDULED")
+	bad := releaseType("never")
+	assert.Empty(t, bad.APIValue())
+	var empty *releaseType
+	assert.Empty(t, empty.APIValue())
+}
+
+func TestContentIntensityAPIValue(t *testing.T) {
+	var intensity contentIntensity
+	intensity = ContentIntensityNone
+	assert.Equal(t, *intensity.APIValue(), "NONE")
+	intensity = ContentIntensityInfrequentOrMild
+	assert.Equal(t, *intensity.APIValue(), "INFREQUENT_OR_MILD")
+	intensity = ContentIntensityFrequentOrIntense
+	assert.Equal(t, *intensity.APIValue(), "FREQUENT_OR_INTENSE")
+	bad := contentIntensity("nothing but violence")
+	assert.Empty(t, bad.APIValue())
+	var empty *contentIntensity
+	assert.Empty(t, empty.APIValue())
+}
+
+func TestKidsAgeBandAPIValue(t *testing.T) {
+	var band kidsAgeBand
+	band = KidsAgeBandFiveAndUnder
+	assert.Equal(t, *band.APIValue(), asc.KidsAgeBandFiveAndUnder)
+	band = KidsAgeBandSixToEight
+	assert.Equal(t, *band.APIValue(), asc.KidsAgeBandSixToEight)
+	band = KidsAgeBandNineToEleven
+	assert.Equal(t, *band.APIValue(), asc.KidsAgeBandNineToEleven)
+	bad := kidsAgeBand("18+")
+	assert.Empty(t, bad.APIValue())
+	var empty *kidsAgeBand
+	assert.Empty(t, empty.APIValue())
 }
 
 func TestPreviewTypeAPIValue(t *testing.T) {
-	appleTV := PreviewTypeAppleTV.APIValue()
-	assert.Equal(t, appleTV, asc.PreviewTypeAppleTV)
-	desktop := PreviewTypeDesktop.APIValue()
-	assert.Equal(t, desktop, asc.PreviewTypeDesktop)
-	iPad105 := PreviewTypeiPad105.APIValue()
-	assert.Equal(t, iPad105, asc.PreviewTypeiPad105)
-	iPad97 := PreviewTypeiPad97.APIValue()
-	assert.Equal(t, iPad97, asc.PreviewTypeiPad97)
-	iPadPro129 := PreviewTypeiPadPro129.APIValue()
-	assert.Equal(t, iPadPro129, asc.PreviewTypeiPadPro129)
-	iPadPro3Gen11 := PreviewTypeiPadPro3Gen11.APIValue()
-	assert.Equal(t, iPadPro3Gen11, asc.PreviewTypeiPadPro3Gen11)
-	iPadPro3Gen129 := PreviewTypeiPadPro3Gen129.APIValue()
-	assert.Equal(t, iPadPro3Gen129, asc.PreviewTypeiPadPro3Gen129)
-	iPhone35 := PreviewTypeiPhone35.APIValue()
-	assert.Equal(t, iPhone35, asc.PreviewTypeiPhone35)
-	iPhone40 := PreviewTypeiPhone40.APIValue()
-	assert.Equal(t, iPhone40, asc.PreviewTypeiPhone40)
-	iPhone47 := PreviewTypeiPhone47.APIValue()
-	assert.Equal(t, iPhone47, asc.PreviewTypeiPhone47)
-	iPhone55 := PreviewTypeiPhone55.APIValue()
-	assert.Equal(t, iPhone55, asc.PreviewTypeiPhone55)
-	iPhone58 := PreviewTypeiPhone58.APIValue()
-	assert.Equal(t, iPhone58, asc.PreviewTypeiPhone58)
-	iPhone65 := PreviewTypeiPhone65.APIValue()
-	assert.Equal(t, iPhone65, asc.PreviewTypeiPhone65)
-	watchSeries3 := PreviewTypeWatchSeries3.APIValue()
-	assert.Equal(t, watchSeries3, asc.PreviewTypeWatchSeries3)
-	watchSeries4 := PreviewTypeWatchSeries4.APIValue()
-	assert.Equal(t, watchSeries4, asc.PreviewTypeWatchSeries4)
-	bad := previewType("Google Pixel").APIValue()
-	assert.Empty(t, bad)
+	var preview previewType
+	preview = PreviewTypeAppleTV
+	assert.Equal(t, *preview.APIValue(), asc.PreviewTypeAppleTV)
+	preview = PreviewTypeDesktop
+	assert.Equal(t, *preview.APIValue(), asc.PreviewTypeDesktop)
+	preview = PreviewTypeiPad105
+	assert.Equal(t, *preview.APIValue(), asc.PreviewTypeiPad105)
+	preview = PreviewTypeiPad97
+	assert.Equal(t, *preview.APIValue(), asc.PreviewTypeiPad97)
+	preview = PreviewTypeiPadPro129
+	assert.Equal(t, *preview.APIValue(), asc.PreviewTypeiPadPro129)
+	preview = PreviewTypeiPadPro3Gen11
+	assert.Equal(t, *preview.APIValue(), asc.PreviewTypeiPadPro3Gen11)
+	preview = PreviewTypeiPadPro3Gen129
+	assert.Equal(t, *preview.APIValue(), asc.PreviewTypeiPadPro3Gen129)
+	preview = PreviewTypeiPhone35
+	assert.Equal(t, *preview.APIValue(), asc.PreviewTypeiPhone35)
+	preview = PreviewTypeiPhone40
+	assert.Equal(t, *preview.APIValue(), asc.PreviewTypeiPhone40)
+	preview = PreviewTypeiPhone47
+	assert.Equal(t, *preview.APIValue(), asc.PreviewTypeiPhone47)
+	preview = PreviewTypeiPhone55
+	assert.Equal(t, *preview.APIValue(), asc.PreviewTypeiPhone55)
+	preview = PreviewTypeiPhone58
+	assert.Equal(t, *preview.APIValue(), asc.PreviewTypeiPhone58)
+	preview = PreviewTypeiPhone65
+	assert.Equal(t, *preview.APIValue(), asc.PreviewTypeiPhone65)
+	preview = PreviewTypeWatchSeries3
+	assert.Equal(t, *preview.APIValue(), asc.PreviewTypeWatchSeries3)
+	preview = PreviewTypeWatchSeries4
+	assert.Equal(t, *preview.APIValue(), asc.PreviewTypeWatchSeries4)
+	bad := previewType("Google Pixel")
+	assert.Empty(t, bad.APIValue())
+	var empty *previewType
+	assert.Empty(t, empty.APIValue())
 }
 
 func TestScreenshotTypeAPIValue(t *testing.T) {
-	appleTV := ScreenshotTypeAppleTV.APIValue()
-	assert.Equal(t, appleTV, asc.ScreenshotDisplayTypeAppAppleTV)
-	desktop := ScreenshotTypeDesktop.APIValue()
-	assert.Equal(t, desktop, asc.ScreenshotDisplayTypeAppDesktop)
-	iPad105 := ScreenshotTypeiPad105.APIValue()
-	assert.Equal(t, iPad105, asc.ScreenshotDisplayTypeAppiPad105)
-	iPad97 := ScreenshotTypeiPad97.APIValue()
-	assert.Equal(t, iPad97, asc.ScreenshotDisplayTypeAppiPad97)
-	iPadPro129 := ScreenshotTypeiPadPro129.APIValue()
-	assert.Equal(t, iPadPro129, asc.ScreenshotDisplayTypeAppiPadPro129)
-	iPadPro3Gen11 := ScreenshotTypeiPadPro3Gen11.APIValue()
-	assert.Equal(t, iPadPro3Gen11, asc.ScreenshotDisplayTypeAppiPadPro3Gen11)
-	iPadPro3Gen129 := ScreenshotTypeiPadPro3Gen129.APIValue()
-	assert.Equal(t, iPadPro3Gen129, asc.ScreenshotDisplayTypeAppiPadPro3Gen129)
-	iPhone35 := ScreenshotTypeiPhone35.APIValue()
-	assert.Equal(t, iPhone35, asc.ScreenshotDisplayTypeAppiPhone35)
-	iPhone40 := ScreenshotTypeiPhone40.APIValue()
-	assert.Equal(t, iPhone40, asc.ScreenshotDisplayTypeAppiPhone40)
-	iPhone47 := ScreenshotTypeiPhone47.APIValue()
-	assert.Equal(t, iPhone47, asc.ScreenshotDisplayTypeAppiPhone47)
-	iPhone55 := ScreenshotTypeiPhone55.APIValue()
-	assert.Equal(t, iPhone55, asc.ScreenshotDisplayTypeAppiPhone55)
-	iPhone58 := ScreenshotTypeiPhone58.APIValue()
-	assert.Equal(t, iPhone58, asc.ScreenshotDisplayTypeAppiPhone58)
-	iPhone65 := ScreenshotTypeiPhone65.APIValue()
-	assert.Equal(t, iPhone65, asc.ScreenshotDisplayTypeAppiPhone65)
-	watchSeries3 := ScreenshotTypeWatchSeries3.APIValue()
-	assert.Equal(t, watchSeries3, asc.ScreenshotDisplayTypeAppWatchSeries3)
-	watchSeries4 := ScreenshotTypeWatchSeries4.APIValue()
-	assert.Equal(t, watchSeries4, asc.ScreenshotDisplayTypeAppWatchSeries4)
-	iMessageiPad105 := ScreenshotTypeiMessageiPad105.APIValue()
-	assert.Equal(t, iMessageiPad105, asc.ScreenshotDisplayTypeiMessageAppIPad105)
-	iMessageiPad97 := ScreenshotTypeiMessageiPad97.APIValue()
-	assert.Equal(t, iMessageiPad97, asc.ScreenshotDisplayTypeiMessageAppIPad97)
-	iMessageiPadPro129 := ScreenshotTypeiMessageiPadPro129.APIValue()
-	assert.Equal(t, iMessageiPadPro129, asc.ScreenshotDisplayTypeiMessageAppIPadPro129)
-	iMessageiPadPro3Gen11 := ScreenshotTypeiMessageiPadPro3Gen11.APIValue()
-	assert.Equal(t, iMessageiPadPro3Gen11, asc.ScreenshotDisplayTypeiMessageAppIPadPro3Gen11)
-	iMessageiPadPro3Gen129 := ScreenshotTypeiMessageiPadPro3Gen129.APIValue()
-	assert.Equal(t, iMessageiPadPro3Gen129, asc.ScreenshotDisplayTypeiMessageAppIPadPro3Gen129)
-	iMessageiPhone40 := ScreenshotTypeiMessageiPhone40.APIValue()
-	assert.Equal(t, iMessageiPhone40, asc.ScreenshotDisplayTypeiMessageAppIPhone40)
-	iMessageiPhone47 := ScreenshotTypeiMessageiPhone47.APIValue()
-	assert.Equal(t, iMessageiPhone47, asc.ScreenshotDisplayTypeiMessageAppIPhone47)
-	iMessageiPhone55 := ScreenshotTypeiMessageiPhone55.APIValue()
-	assert.Equal(t, iMessageiPhone55, asc.ScreenshotDisplayTypeiMessageAppIPhone55)
-	iMessageiPhone58 := ScreenshotTypeiMessageiPhone58.APIValue()
-	assert.Equal(t, iMessageiPhone58, asc.ScreenshotDisplayTypeiMessageAppIPhone58)
-	iMessageiPhone65 := ScreenshotTypeiMessageiPhone65.APIValue()
-	assert.Equal(t, iMessageiPhone65, asc.ScreenshotDisplayTypeiMessageAppIPhone65)
-	bad := screenshotType("Google Pixel").APIValue()
-	assert.Empty(t, bad)
+	var screenshot screenshotType
+	screenshot = ScreenshotTypeAppleTV
+	assert.Equal(t, *screenshot.APIValue(), asc.ScreenshotDisplayTypeAppAppleTV)
+	screenshot = ScreenshotTypeDesktop
+	assert.Equal(t, *screenshot.APIValue(), asc.ScreenshotDisplayTypeAppDesktop)
+	screenshot = ScreenshotTypeiPad105
+	assert.Equal(t, *screenshot.APIValue(), asc.ScreenshotDisplayTypeAppiPad105)
+	screenshot = ScreenshotTypeiPad97
+	assert.Equal(t, *screenshot.APIValue(), asc.ScreenshotDisplayTypeAppiPad97)
+	screenshot = ScreenshotTypeiPadPro129
+	assert.Equal(t, *screenshot.APIValue(), asc.ScreenshotDisplayTypeAppiPadPro129)
+	screenshot = ScreenshotTypeiPadPro3Gen11
+	assert.Equal(t, *screenshot.APIValue(), asc.ScreenshotDisplayTypeAppiPadPro3Gen11)
+	screenshot = ScreenshotTypeiPadPro3Gen129
+	assert.Equal(t, *screenshot.APIValue(), asc.ScreenshotDisplayTypeAppiPadPro3Gen129)
+	screenshot = ScreenshotTypeiPhone35
+	assert.Equal(t, *screenshot.APIValue(), asc.ScreenshotDisplayTypeAppiPhone35)
+	screenshot = ScreenshotTypeiPhone40
+	assert.Equal(t, *screenshot.APIValue(), asc.ScreenshotDisplayTypeAppiPhone40)
+	screenshot = ScreenshotTypeiPhone47
+	assert.Equal(t, *screenshot.APIValue(), asc.ScreenshotDisplayTypeAppiPhone47)
+	screenshot = ScreenshotTypeiPhone55
+	assert.Equal(t, *screenshot.APIValue(), asc.ScreenshotDisplayTypeAppiPhone55)
+	screenshot = ScreenshotTypeiPhone58
+	assert.Equal(t, *screenshot.APIValue(), asc.ScreenshotDisplayTypeAppiPhone58)
+	screenshot = ScreenshotTypeiPhone65
+	assert.Equal(t, *screenshot.APIValue(), asc.ScreenshotDisplayTypeAppiPhone65)
+	screenshot = ScreenshotTypeWatchSeries3
+	assert.Equal(t, *screenshot.APIValue(), asc.ScreenshotDisplayTypeAppWatchSeries3)
+	screenshot = ScreenshotTypeWatchSeries4
+	assert.Equal(t, *screenshot.APIValue(), asc.ScreenshotDisplayTypeAppWatchSeries4)
+	screenshot = ScreenshotTypeiMessageiPad105
+	assert.Equal(t, *screenshot.APIValue(), asc.ScreenshotDisplayTypeiMessageAppIPad105)
+	screenshot = ScreenshotTypeiMessageiPad97
+	assert.Equal(t, *screenshot.APIValue(), asc.ScreenshotDisplayTypeiMessageAppIPad97)
+	screenshot = ScreenshotTypeiMessageiPadPro129
+	assert.Equal(t, *screenshot.APIValue(), asc.ScreenshotDisplayTypeiMessageAppIPadPro129)
+	screenshot = ScreenshotTypeiMessageiPadPro3Gen11
+	assert.Equal(t, *screenshot.APIValue(), asc.ScreenshotDisplayTypeiMessageAppIPadPro3Gen11)
+	screenshot = ScreenshotTypeiMessageiPadPro3Gen129
+	assert.Equal(t, *screenshot.APIValue(), asc.ScreenshotDisplayTypeiMessageAppIPadPro3Gen129)
+	screenshot = ScreenshotTypeiMessageiPhone40
+	assert.Equal(t, *screenshot.APIValue(), asc.ScreenshotDisplayTypeiMessageAppIPhone40)
+	screenshot = ScreenshotTypeiMessageiPhone47
+	assert.Equal(t, *screenshot.APIValue(), asc.ScreenshotDisplayTypeiMessageAppIPhone47)
+	screenshot = ScreenshotTypeiMessageiPhone55
+	assert.Equal(t, *screenshot.APIValue(), asc.ScreenshotDisplayTypeiMessageAppIPhone55)
+	screenshot = ScreenshotTypeiMessageiPhone58
+	assert.Equal(t, *screenshot.APIValue(), asc.ScreenshotDisplayTypeiMessageAppIPhone58)
+	screenshot = ScreenshotTypeiMessageiPhone65
+	assert.Equal(t, *screenshot.APIValue(), asc.ScreenshotDisplayTypeiMessageAppIPhone65)
+	bad := screenshotType("Google Pixel")
+	assert.Empty(t, bad.APIValue())
+	var empty *screenshotType
+	assert.Empty(t, empty.APIValue())
 }
 
 func TestPreviewSetsGetPreviews(t *testing.T) {

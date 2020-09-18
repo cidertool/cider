@@ -1,6 +1,8 @@
 package client
 
 import (
+	"fmt"
+
 	"github.com/apex/log"
 	"github.com/cidertool/asc-go/asc"
 	"github.com/cidertool/cider/internal/parallel"
@@ -8,44 +10,64 @@ import (
 	"github.com/cidertool/cider/pkg/context"
 )
 
-func (c *ascClient) UpdateApp(ctx *context.Context, appID string, appInfoID string, config config.App) error {
-	updateParams := asc.AppUpdateRequestAttributes{
-		ContentRightsDeclaration: contentRightsDeclaration(config.UsesThirdPartyContent),
-	}
+// errPlatformNotFound happens when the platform string in the configuration file does not match a supported App Store platform.
+func errPlatformNotFound(plat config.Platform) error {
+	return fmt.Errorf(`platform %s could not be matched up with a supported App Store platform. supported values are "iOS", "macOS", or "tvOS"`, plat)
+}
 
-	var availableTerritoryIDs []string
-	var prices []asc.NewAppPriceRelationship
+func (c *ascClient) UpdateApp(ctx *context.Context, appID string, appInfoID string, versionID string, config config.App) error {
+	var g = parallel.New(ctx.MaxProcesses)
 
-	if !ctx.SkipUpdatePricing && config.Availability != nil {
-		var err error
-		availableTerritoryIDs, err = c.AvailableTerritoryIDsInConfig(ctx, config.Availability.Territories)
+	g.Go(func() error {
+		attributes := asc.AppUpdateRequestAttributes{
+			ContentRightsDeclaration: contentRightsDeclaration(config.UsesThirdPartyContent),
+		}
+
+		var availableTerritoryIDs []string
+		var prices []asc.NewAppPriceRelationship
+
+		if !ctx.SkipUpdatePricing && config.Availability != nil {
+			var err error
+			availableTerritoryIDs, err = c.AvailableTerritoryIDsInConfig(ctx, config.Availability.Territories)
+			if err != nil {
+				return err
+			}
+			prices = priceSchedules(config.Availability.Pricing)
+			attributes.AvailableInNewTerritories = config.Availability.AvailableInNewTerritories
+		}
+		if config.PrimaryLocale != "" {
+			attributes.PrimaryLocale = &config.PrimaryLocale
+		}
+
+		_, _, err := c.client.Apps.UpdateApp(ctx, appID, &attributes, availableTerritoryIDs, prices)
+		return err
+	})
+
+	g.Go(func() error {
+		if config.Categories == nil {
+			return nil
+		}
+
+		if _, _, err := c.client.Apps.UpdateAppInfo(ctx, appInfoID, categoriesUpdate(*config.Categories)); err != nil {
+			return err
+		}
+		return nil
+	})
+
+	g.Go(func() error {
+		if config.AgeRatingDeclaration == nil {
+			return nil
+		}
+
+		ageRatingResp, _, err := c.client.Apps.GetAgeRatingDeclarationForAppStoreVersion(ctx, versionID, nil)
 		if err != nil {
 			return err
 		}
-		prices = priceSchedules(config.Availability.Pricing)
-		updateParams.AvailableInNewTerritories = config.Availability.AvailableInNewTerritories
-	}
-	if config.PrimaryLocale != "" {
-		updateParams.PrimaryLocale = &config.PrimaryLocale
-	}
-
-	if _, _, err := c.client.Apps.UpdateApp(ctx, appID, &updateParams, availableTerritoryIDs, prices); err != nil {
+		_, _, err = c.client.Apps.UpdateAgeRatingDeclaration(ctx, ageRatingResp.Data.ID, ageRatingDeclaration(*config.AgeRatingDeclaration))
 		return err
-	}
+	})
 
-	// TODO: Man, category IDs are kind of wild, aren't they? Will need to fix this at some point.
-
-	// if _, _, err := c.client.Apps.UpdateAppInfo(ctx, appInfoID, &asc.AppInfoUpdateRequestRelationships{
-	// 	PrimaryCategoryID:         nil,
-	// 	PrimarySubcategoryOneID:   nil,
-	// 	PrimarySubcategoryTwoID:   nil,
-	// 	SecondaryCategoryID:       nil,
-	// 	SecondarySubcategoryOneID: nil,
-	// 	SecondarySubcategoryTwoID: nil,
-	// }); err != nil {
-	// 	return err
-	// }
-	return nil
+	return g.Wait()
 }
 
 func (c *ascClient) AvailableTerritoryIDsInConfig(ctx *context.Context, config []string) (availableTerritoryIDs []string, err error) {
@@ -94,6 +116,55 @@ func priceSchedules(schedules []config.PriceSchedule) (priceSchedules []asc.NewA
 		}
 	}
 	return priceSchedules
+}
+
+func categoriesUpdate(config config.Categories) *asc.AppInfoUpdateRequestRelationships {
+	attributes := asc.AppInfoUpdateRequestRelationships{}
+
+	if config.Primary != "" {
+		attributes.PrimaryCategoryID = &config.Primary
+
+		if config.PrimarySubcategories[0] != "" {
+			attributes.PrimarySubcategoryOneID = &config.PrimarySubcategories[0]
+		}
+		if config.PrimarySubcategories[1] != "" {
+			attributes.PrimarySubcategoryTwoID = &config.PrimarySubcategories[1]
+		}
+	}
+
+	if config.Secondary != "" {
+		attributes.SecondaryCategoryID = &config.Secondary
+
+		if config.SecondarySubcategories[0] != "" {
+			attributes.SecondarySubcategoryOneID = &config.SecondarySubcategories[0]
+		}
+		if config.SecondarySubcategories[1] != "" {
+			attributes.SecondarySubcategoryTwoID = &config.SecondarySubcategories[1]
+		}
+	}
+
+	return &attributes
+}
+
+func ageRatingDeclaration(config config.AgeRatingDeclaration) *asc.AgeRatingDeclarationUpdateRequestAttributes {
+	attributes := asc.AgeRatingDeclarationUpdateRequestAttributes{}
+
+	attributes.AlcoholTobaccoOrDrugUseOrReferences = config.AlcoholTobaccoOrDrugUseOrReferences.APIValue()
+	attributes.GamblingAndContests = config.GamblingAndContests
+	attributes.GamblingSimulated = config.GamblingSimulated.APIValue()
+	attributes.HorrorOrFearThemes = config.HorrorOrFearThemes.APIValue()
+	attributes.KidsAgeBand = config.KidsAgeBand.APIValue()
+	attributes.MatureOrSuggestiveThemes = config.MatureOrSuggestiveThemes.APIValue()
+	attributes.MedicalOrTreatmentInformation = config.MedicalOrTreatmentInformation.APIValue()
+	attributes.ProfanityOrCrudeHumor = config.ProfanityOrCrudeHumor.APIValue()
+	attributes.SexualContentGraphicAndNudity = config.SexualContentGraphicAndNudity.APIValue()
+	attributes.SexualContentOrNudity = config.SexualContentOrNudity.APIValue()
+	attributes.UnrestrictedWebAccess = config.UnrestrictedWebAccess
+	attributes.ViolenceCartoonOrFantasy = config.ViolenceCartoonOrFantasy.APIValue()
+	attributes.ViolenceRealistic = config.ViolenceRealistic.APIValue()
+	attributes.ViolenceRealisticProlongedGraphicOrSadistic = config.ViolenceRealisticProlongedGraphicOrSadistic.APIValue()
+
+	return &attributes
 }
 
 func (c *ascClient) UpdateAppLocalizations(ctx *context.Context, appID string, config config.AppLocalizations) error {
@@ -160,15 +231,11 @@ func (c *ascClient) UpdateAppLocalizations(ctx *context.Context, appID string, c
 }
 
 func (c *ascClient) CreateVersionIfNeeded(ctx *context.Context, appID string, buildID string, config config.Version) (*asc.AppStoreVersion, error) {
-	platform, err := config.Platform.APIValue()
-	if err != nil {
-		return nil, err
+	platform := config.Platform.APIValue()
+	if platform == nil {
+		return nil, errPlatformNotFound(config.Platform)
 	}
-	var releaseTypeP *string
-	releaseType, _ := config.ReleaseType.APIValue()
-	if releaseType != "" {
-		releaseTypeP = &releaseType
-	}
+	releaseType := config.ReleaseType.APIValue()
 	var earliestReleaseDate *asc.DateTime
 	if config.EarliestReleaseDate != nil {
 		earliestReleaseDate = &asc.DateTime{Time: *config.EarliestReleaseDate}
@@ -176,14 +243,14 @@ func (c *ascClient) CreateVersionIfNeeded(ctx *context.Context, appID string, bu
 	var versionResp *asc.AppStoreVersionResponse
 	versionsResp, _, err := c.client.Apps.ListAppStoreVersionsForApp(ctx, appID, &asc.ListAppStoreVersionsQuery{
 		FilterVersionString: []string{ctx.Version},
-		FilterPlatform:      []string{string(platform)},
+		FilterPlatform:      []string{string(*platform)},
 	})
 	if err != nil || len(versionsResp.Data) == 0 {
 		versionResp, _, err = c.client.Apps.CreateAppStoreVersion(ctx, asc.AppStoreVersionCreateRequestAttributes{
 			Copyright:           &config.Copyright,
 			EarliestReleaseDate: earliestReleaseDate,
-			Platform:            platform,
-			ReleaseType:         releaseTypeP,
+			Platform:            *platform,
+			ReleaseType:         releaseType,
 			UsesIDFA:            asc.Bool(config.IDFADeclaration != nil),
 			VersionString:       ctx.Version,
 		}, appID, &buildID)
@@ -192,7 +259,7 @@ func (c *ascClient) CreateVersionIfNeeded(ctx *context.Context, appID string, bu
 		versionResp, _, err = c.client.Apps.UpdateAppStoreVersion(ctx, latestVersion.ID, &asc.AppStoreVersionUpdateRequestAttributes{
 			Copyright:           &config.Copyright,
 			EarliestReleaseDate: earliestReleaseDate,
-			ReleaseType:         releaseTypeP,
+			ReleaseType:         releaseType,
 			UsesIDFA:            asc.Bool(config.IDFADeclaration != nil),
 			VersionString:       &ctx.Version,
 		}, &buildID)

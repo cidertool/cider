@@ -59,6 +59,20 @@ func TestCopy(t *testing.T) {
 	assert.NotSame(t, p, pPrime)
 }
 
+func TestCopy_Err(t *testing.T) {
+	p := Project{
+		Apps: map[string]App{
+			"App1": {},
+			"App2": {},
+			"App3": {},
+		},
+	}
+	pPrime, err := p.Copy()
+	assert.NoError(t, err)
+	assert.Equal(t, p, pPrime)
+	assert.NotSame(t, p, pPrime)
+}
+
 func TestAppsMatching(t *testing.T) {
 	p := Project{
 		Apps: map[string]App{

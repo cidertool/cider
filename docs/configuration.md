@@ -76,6 +76,58 @@ apps:
       # Array of ISO 3166-1 Alpha-3 country codes corresponding to territories to make your app available in.
       territories:
         - USA
+    # The App Store categories your app belongs to. A primary category is required, and a secondary category
+    # is encouraged.
+    #
+    # Some categories have optional subcategories you can use to improve the specificity of your categorization.
+    # Up to two subcategories can provided each for the primary and secondary categories.
+    #
+    # See the [App Categories](#app-categories) section below for more information on app categories
+    categories:
+      # ID for the primary category. (required)
+      primary: SOCIAL_NETWORKING
+      # IDs of any subcategories to apply to the primary category. Only up to two will be accepted. 
+      primarySubcategories: []
+      # ID for the secondary category.
+      secondary: GAMES
+      # IDs of any subcategories to apply to the secondary category. Only up to two will be accepted. 
+      secondarySubcategories:
+        - GAMES_SIMULATION
+        - GAMES_RACING
+    # Declaration of age rating qualifiers or content warnings. These are used in your App Store listing,
+    # as well as in categorizing your app in lists when users browse.
+    #
+    # https://help.apple.com/app-store-connect/#/dev599d50efb
+    ageRatings:
+      # Whether your app enables legally and guideline-compliant gambling.
+      gamblingAndContests: false
+      # Whether your app enables generalized usage of the internet, such as an internet browser.
+      unrestrictedWebAccess: false
+      # Age band to use in categorizing your app for lists aimed at kids.
+      # Valid values: "5 and under", "6-8", "9-11"
+      kidsAgeBand: 9-11
+      # Whether your app makes references to alcohol, tobacco, or drug use and/or paraphernalia.
+      alcoholTobaccoOrDrugUseOrReferences: none
+      # Whether your app offers medical advice or treatment information.
+      medicalOrTreatmentInformation: none
+      # Whether your app contains or enables profanity and/or crude humor.
+      profanityOrCrudeHumor: none
+      # Whether your app contains or enables sexual content or nudity.
+      sexualContentOrNudity: none
+      # Whether your app enables simulated gambling with either real or simulated currency.
+      gamblingSimulated: none
+      # Whether your app contains horror or fear-inducing themes.
+      horrorOrFearThemes: infrequentOrMild
+      # Whether your app contains mature or suggestive themes.
+      matureOrSuggestiveThemes: none
+      # Whether your app contains or enables sexual content or nudity that is graphic in nature.
+      sexualContentGraphicAndNudity: none
+      # Whether your app contains cartoon or fantasy violence.
+      violenceCartoonOrFantasy: frequentOrIntense
+      # Whether your app contains realistic violence.
+      violenceRealistic: none
+      # Whether your app contains prolonged, realistic violence that is graphic or sadistic in nature.
+      violenceRealisticProlongedGraphicOrSadistic: none
     # Map of locale IDs to localization configurations for app information. (required)
     localizations:
       en-US:
@@ -113,12 +165,12 @@ apps:
             iphone58:
               - # Path to an asset, relative to the current directory. (required)
                 path: assets/store/iphone58/preview.mp4
-                # MIME type of the asset. Overriding this is usually unnecessary. 
+                # MIME type of the asset. Overriding this is usually unnecessary.
                 mimeType: video/mp4
                 # Time code to a frame to show as a preview of the video, if not the beginning.
                 previewFrameTimeCode: '0'
           # Map of screenshot display types to arrays of app screenshot resources
-          screenshotSets: 
+          screenshotSets:
             iphone58:
               - # Path to an asset, relative to the current directory. (required)
                 path: assets/store/iphone58/home.png
@@ -134,14 +186,14 @@ apps:
       # Indicates whether phased release is enabled
       enablePhasedRelease: true
       # Information about an app's IDFA declaration. Omit or set to null to declare to
-      # Apple that your app does not use an IDFA. 
+      # Apple that your app does not use an IDFA.
       idfaDeclaration:
         # Indicates that the app attributes user action with previous ads
         attributesActionWithPreviousAd: false
         # Indicates that the app attributes user installation with previous ads
         attributesAppInstallationToPreviousAd: false
         # Indicates that the app developer will honor Apple's guidelines around tracking when
-        # the user has chosen to limit ad tracking. 
+        # the user has chosen to limit ad tracking.
         honorsLimitedAdTracking: false
         # Indicates that the app serves ads
         servesAds: false
@@ -173,9 +225,9 @@ apps:
         # Notes that the reviewer should be aware of
         notes: ''
         # Attachment resources the reviewer should be aware of or use in evaluation.
-        attachments: 
+        attachments:
           - path: assets/review/test_image.png
-    # Information to configure new Testflight beta releases (required)        
+    # Information to configure new Testflight beta releases (required)
     testflight:
       # Indicates whether to auto-notify existing beta testers of a new Testflight update. (required)
       enableAutoNotify: true
@@ -200,7 +252,7 @@ apps:
       # Array of beta group names. If you want to refer to beta groups defined
       # in this configuration file, use the value provided for the group field
       # on the corresponding beta group.
-      betaGroups: 
+      betaGroups:
         - QA Team
       # Array of beta testers to explicitly add to the beta build
       betaTesters:
@@ -237,3 +289,65 @@ apps:
         attachments:
           - path: assets/review/test_image.png
 ```
+
+### App Categories
+
+App categories provided and supported by the App Store Connect API are fluid and difficult to create a consistent format for. The App Store adds categories regularly, and it represents a challenge for both metadata maintainers and maintainers of Cider to support. Therefore, the choice has been made to accept any string as a category ID, and let the API respond with whether or not it's valid. 
+
+Here are some known category IDs, with subcategories broken out where applicable, that you can use in your configuration:
+
+- `BOOKS`
+- `BUSINESS`
+- `DEVELOPER_TOOLS`
+- `EDUCATION`
+- `ENTERTAINMENT`
+- `FINANCE`
+- `FOOD_AND_DRINK`
+- `GAMES`
+  - `GAMES_SPORTS`
+  - `GAMES_WORD`
+  - `GAMES_MUSIC`
+  - `GAMES_ADVENTURE`
+  - `GAMES_ACTION`
+  - `GAMES_ROLE_PLAYING`
+  - `GAMES_CASUAL`
+  - `GAMES_BOARD`
+  - `GAMES_TRIVIA`
+  - `GAMES_CARD`
+  - `GAMES_PUZZLE`
+  - `GAMES_CASINO`
+  - `GAMES_STRATEGY`
+  - `GAMES_SIMULATION`
+  - `GAMES_RACING`
+  - `GAMES_FAMILY`
+- `HEALTH_AND_FITNESS`
+- `LIFESTYLE`
+- `MAGAZINES_AND_NEWSPAPERS`
+- `MEDICAL`
+- `PRODUCTIVITY`
+- `REFERENCE`
+- `SHOPPING`
+- `SOCIAL_NETWORKING`
+- `SPORTS`
+- `STICKERS`
+  - `STICKERS_PLACES_AND_OBJECTS`
+  - `STICKERS_EMOJI_AND_EXPRESSIONS`
+  - `STICKERS_CELEBRATIONS`
+  - `STICKERS_CELEBRITIES`
+  - `STICKERS_MOVIES_AND_TV`
+  - `STICKERS_SPORTS_AND_ACTIVITIES`
+  - `STICKERS_EATING_AND_DRINKING`
+  - `STICKERS_CHARACTERS`
+  - `STICKERS_ANIMALS`
+  - `STICKERS_FASHION`
+  - `STICKERS_ART`
+  - `STICKERS_GAMING`
+  - `STICKERS_KIDS_AND_FAMILY`
+  - `STICKERS_PEOPLE`
+  - `STICKERS_MUSIC`
+- `MUSIC`
+- `TRAVEL`
+- `UTILITIES`
+- `WEATHER`
+
+For more information on categories, see [Choosing a category](https://developer.apple.com/app-store/categories/) on the Apple Developer Portal.

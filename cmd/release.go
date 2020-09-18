@@ -22,6 +22,7 @@ type releaseOpts struct {
 	config              string
 	appsToRelease       []string
 	publishMode         context.PublishMode
+	maxProcesses        int
 	releaseAllApps      bool
 	skipGit             bool
 	skipUpdatePricing   bool
@@ -68,6 +69,7 @@ func newReleaseCmd() *releaseCmd {
 	cmd.Flags().StringVarP(&root.opts.config, "config", "f", "", "Load configuration from file")
 	cmd.Flags().StringArrayVarP(&root.opts.appsToRelease, "app", "a", make([]string, 0), "App to release, using key name in configuration")
 	cmd.Flags().Var(&root.opts.publishMode, "mode", `Publish mode (default: "testflight")`)
+	cmd.Flags().IntVarP(&root.opts.maxProcesses, "max-processes", "p", 1, "Run in parallel with the given maximum concurrency")
 	cmd.Flags().BoolVarP(&root.opts.releaseAllApps, "all-apps", "A", false, "Release all apps")
 	cmd.Flags().BoolVar(&root.opts.skipGit, "skip-git", false, "Skips deriving version information from Git. Must only be used in conjunction with --set-version")
 	cmd.Flags().BoolVar(&root.opts.skipUpdatePricing, "skip-update-pricing", false, "Skips updating pricing")
@@ -119,6 +121,7 @@ func setupReleaseContext(ctx *context.Context, options releaseOpts, forceAllSkip
 	} else {
 		ctx.PublishMode = options.publishMode
 	}
+	ctx.MaxProcesses = options.maxProcesses
 	ctx.SkipGit = options.skipGit || forceAllSkips
 	ctx.SkipUpdatePricing = options.skipUpdatePricing || forceAllSkips
 	ctx.SkipUpdateMetadata = options.skipUpdateMetadata || forceAllSkips

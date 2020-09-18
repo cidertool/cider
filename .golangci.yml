@@ -9,6 +9,7 @@ linters:
   disable:
     - wsl
     - lll
+    - dupl
     - funlen
     - godox
     - gomnd

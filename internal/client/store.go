@@ -552,14 +552,23 @@ func (c *ascClient) UploadScreenshots(ctx *context.Context, g parallel.Group, sc
 
 func (c *ascClient) UpdateReviewDetails(ctx *context.Context, versionID string, config config.ReviewDetails) error {
 	detailsResp, _, err := c.client.Submission.GetReviewDetailsForAppStoreVersion(ctx, versionID, nil)
-
-	if err != nil {
-		return c.CreateReviewDetail(ctx, versionID, config)
+	var reviewDetails *asc.AppStoreReviewDetail
+	if err == nil {
+		reviewDetails, err = c.UpdateReviewDetail(ctx, detailsResp.Data.ID, config)
+	} else {
+		reviewDetails, err = c.CreateReviewDetail(ctx, versionID, config)
 	}
-	return c.UpdateReviewDetail(ctx, detailsResp.Data.ID, config)
+	if err != nil {
+		return err
+	}
+
+	if err := c.UploadReviewAttachments(ctx, reviewDetails.ID, config.Attachments); err != nil {
+		return err
+	}
+	return nil
 }
 
-func (c *ascClient) CreateReviewDetail(ctx *context.Context, versionID string, config config.ReviewDetails) error {
+func (c *ascClient) CreateReviewDetail(ctx *context.Context, versionID string, config config.ReviewDetails) (*asc.AppStoreReviewDetail, error) {
 	attributes := asc.AppStoreReviewDetailCreateRequestAttributes{}
 	if config.Contact != nil {
 		attributes.ContactEmail = &config.Contact.Email
@@ -573,11 +582,14 @@ func (c *ascClient) CreateReviewDetail(ctx *context.Context, versionID string, c
 		attributes.DemoAccountRequired = &config.DemoAccount.Required
 	}
 	attributes.Notes = &config.Notes
-	_, _, err := c.client.Submission.CreateReviewDetail(ctx, &attributes, versionID)
-	return err
+	resp, _, err := c.client.Submission.CreateReviewDetail(ctx, &attributes, versionID)
+	if err != nil {
+		return nil, err
+	}
+	return &resp.Data, nil
 }
 
-func (c *ascClient) UpdateReviewDetail(ctx *context.Context, reviewDetailID string, config config.ReviewDetails) error {
+func (c *ascClient) UpdateReviewDetail(ctx *context.Context, reviewDetailID string, config config.ReviewDetails) (*asc.AppStoreReviewDetail, error) {
 	attributes := asc.AppStoreReviewDetailUpdateRequestAttributes{}
 	if config.Contact != nil {
 		attributes.ContactEmail = &config.Contact.Email
@@ -591,8 +603,83 @@ func (c *ascClient) UpdateReviewDetail(ctx *context.Context, reviewDetailID stri
 		attributes.DemoAccountRequired = &config.DemoAccount.Required
 	}
 	attributes.Notes = &config.Notes
-	_, _, err := c.client.Submission.UpdateReviewDetail(ctx, reviewDetailID, &attributes)
-	return err
+	resp, _, err := c.client.Submission.UpdateReviewDetail(ctx, reviewDetailID, &attributes)
+	if err != nil {
+		return nil, err
+	}
+	return &resp.Data, nil
+}
+
+func (c *ascClient) UploadReviewAttachments(ctx *context.Context, reviewDetailID string, config []config.File) error {
+	var g = parallel.New(ctx.MaxProcesses)
+
+	attachmentsResp, _, err := c.client.Submission.ListAttachmentsForReviewDetail(ctx, reviewDetailID, nil)
+	if err != nil {
+		return err
+	}
+
+	var attachmentsByName = make(map[string]*asc.AppStoreReviewAttachment)
+	for i := range attachmentsResp.Data {
+		attachment := attachmentsResp.Data[i]
+		if attachment.Attributes == nil || attachment.Attributes.FileName == nil {
+			continue
+		}
+		attachmentsByName[*attachment.Attributes.FileName] = &attachment
+	}
+
+	prepare := func(name string, checksum string) (shouldContinue bool, err error) {
+		attachment := attachmentsByName[name]
+		if attachment == nil {
+			return true, nil
+		}
+
+		if attachment.Attributes.SourceFileChecksum != nil &&
+			*attachment.Attributes.SourceFileChecksum == checksum {
+			log.WithFields(log.Fields{
+				"id":       attachment.ID,
+				"checksum": checksum,
+			}).Debug("skip existing attachment")
+			return false, nil
+		}
+
+		log.WithFields(log.Fields{
+			"name": name,
+			"id":   attachment.ID,
+		}).Debug("delete attachment")
+		if _, err := c.client.Submission.DeleteAttachment(ctx, attachment.ID); err != nil {
+			return false, err
+		}
+
+		return true, nil
+	}
+
+	create := func(name string, size int64) (id string, ops []asc.UploadOperation, err error) {
+		log.WithFields(log.Fields{
+			"name": name,
+		}).Debug("create attachment")
+		resp, _, err := c.client.Submission.CreateAttachment(ctx, name, size, reviewDetailID)
+		if err != nil {
+			return "", nil, err
+		}
+		return resp.Data.ID, resp.Data.Attributes.UploadOperations, nil
+	}
+
+	commit := func(id string, checksum string) error {
+		log.WithFields(log.Fields{
+			"id": id,
+		}).Debug("commit attachment")
+		_, _, err := c.client.Submission.CommitAttachment(ctx, id, asc.Bool(true), &checksum)
+		return err
+	}
+
+	for i := range config {
+		attachmentConfig := config[i]
+		g.Go(func() error {
+			return c.uploadFile(ctx, attachmentConfig.Path, prepare, create, commit)
+		})
+	}
+
+	return g.Wait()
 }
 
 func (c *ascClient) EnablePhasedRelease(ctx *context.Context, versionID string) error {

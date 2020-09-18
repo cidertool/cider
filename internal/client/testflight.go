@@ -207,6 +207,9 @@ func (c *ascClient) UpdateBetaReviewDetails(ctx *context.Context, appID string, 
 		attributes.DemoAccountRequired = &config.DemoAccount.Required
 	}
 	attributes.Notes = &config.Notes
+	if len(config.Attachments) > 0 {
+		log.Warn("attachments are not supported for beta review details and will be ignored")
+	}
 	_, _, err = c.client.TestFlight.UpdateBetaAppReviewDetail(ctx, detailsResp.Data.ID, &attributes)
 	return err
 }

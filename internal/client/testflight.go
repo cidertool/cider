@@ -3,54 +3,63 @@ package client
 import (
 	"github.com/apex/log"
 	"github.com/cidertool/asc-go/asc"
+	"github.com/cidertool/cider/internal/parallel"
 	"github.com/cidertool/cider/pkg/config"
 	"github.com/cidertool/cider/pkg/context"
 )
 
 func (c *ascClient) UpdateBetaAppLocalizations(ctx *context.Context, appID string, config config.TestflightLocalizations) error {
+	var g = parallel.New(ctx.MaxProcesses)
 	locListResp, _, err := c.client.TestFlight.ListBetaAppLocalizationsForApp(ctx, appID, nil)
 	if err != nil {
 		return err
 	}
 
 	found := make(map[string]bool)
-	for _, loc := range locListResp.Data {
+	for i := range locListResp.Data {
+		loc := locListResp.Data[i]
 		locale := *loc.Attributes.Locale
+		log.WithField("locale", locale).Debug("found beta app locale")
 		locConfig, ok := config[locale]
 		if !ok {
+			log.WithField("locale", locale).Debug("not in configuration. skipping...")
 			continue
 		}
 		found[locale] = true
 
-		if _, _, err = c.client.TestFlight.UpdateBetaAppLocalization(ctx, loc.ID, &asc.BetaAppLocalizationUpdateRequestAttributes{
-			Description:       &locConfig.Description,
-			FeedbackEmail:     &locConfig.FeedbackEmail,
-			MarketingURL:      &locConfig.MarketingURL,
-			PrivacyPolicyURL:  &locConfig.PrivacyPolicyURL,
-			TVOSPrivacyPolicy: &locConfig.TVOSPrivacyPolicy,
-		}); err != nil {
+		g.Go(func() error {
+			_, _, err = c.client.TestFlight.UpdateBetaAppLocalization(ctx, loc.ID, &asc.BetaAppLocalizationUpdateRequestAttributes{
+				Description:       &locConfig.Description,
+				FeedbackEmail:     &locConfig.FeedbackEmail,
+				MarketingURL:      &locConfig.MarketingURL,
+				PrivacyPolicyURL:  &locConfig.PrivacyPolicyURL,
+				TVOSPrivacyPolicy: &locConfig.TVOSPrivacyPolicy,
+			})
 			return err
-		}
+		})
 	}
 
-	for locale, locConfig := range config {
+	for locale := range config {
+		locale := locale
 		if found[locale] {
 			continue
 		}
+		locConfig := config[locale]
 
-		if _, _, err = c.client.TestFlight.CreateBetaAppLocalization(ctx.Context, asc.BetaAppLocalizationCreateRequestAttributes{
-			Description:       &locConfig.Description,
-			FeedbackEmail:     &locConfig.FeedbackEmail,
-			Locale:            locale,
-			MarketingURL:      &locConfig.MarketingURL,
-			PrivacyPolicyURL:  &locConfig.PrivacyPolicyURL,
-			TVOSPrivacyPolicy: &locConfig.TVOSPrivacyPolicy,
-		}, appID); err != nil {
+		g.Go(func() error {
+			_, _, err = c.client.TestFlight.CreateBetaAppLocalization(ctx.Context, asc.BetaAppLocalizationCreateRequestAttributes{
+				Description:       &locConfig.Description,
+				FeedbackEmail:     &locConfig.FeedbackEmail,
+				Locale:            locale,
+				MarketingURL:      &locConfig.MarketingURL,
+				PrivacyPolicyURL:  &locConfig.PrivacyPolicyURL,
+				TVOSPrivacyPolicy: &locConfig.TVOSPrivacyPolicy,
+			}, appID)
 			return err
-		}
+		})
 	}
 
-	return nil
+	return g.Wait()
 }
 
 func (c *ascClient) UpdateBetaBuildDetails(ctx *context.Context, buildID string, config config.TestflightForApp) error {
@@ -59,34 +68,44 @@ func (c *ascClient) UpdateBetaBuildDetails(ctx *context.Context, buildID string,
 }
 
 func (c *ascClient) UpdateBetaBuildLocalizations(ctx *context.Context, buildID string, config config.TestflightLocalizations) error {
+	var g = parallel.New(ctx.MaxProcesses)
 	locListResp, _, err := c.client.TestFlight.ListBetaBuildLocalizationsForBuild(ctx, buildID, nil)
 	if err != nil {
 		return err
 	}
 
 	found := make(map[string]bool)
-	for _, loc := range locListResp.Data {
+	for i := range locListResp.Data {
+		loc := locListResp.Data[i]
 		locale := *loc.Attributes.Locale
-		if locConfig, ok := config[locale]; ok {
-			found[locale] = true
-
-			if _, _, err := c.client.TestFlight.UpdateBetaBuildLocalization(ctx, loc.ID, &locConfig.WhatsNew); err != nil {
-				return err
-			}
+		log.WithField("locale", locale).Debug("found beta build locale")
+		locConfig, ok := config[locale]
+		if !ok {
+			log.WithField("locale", locale).Debug("not in configuration. skipping...")
+			continue
 		}
+		found[locale] = true
+
+		g.Go(func() error {
+			_, _, err := c.client.TestFlight.UpdateBetaBuildLocalization(ctx, loc.ID, &locConfig.WhatsNew)
+			return err
+		})
 	}
 
-	for locale, locConfig := range config {
+	for locale := range config {
+		locale := locale
 		if found[locale] {
 			continue
 		}
+		locConfig := config[locale]
 
-		if _, _, err = c.client.TestFlight.CreateBetaBuildLocalization(ctx.Context, locale, &locConfig.WhatsNew, buildID); err != nil {
+		g.Go(func() error {
+			_, _, err := c.client.TestFlight.CreateBetaBuildLocalization(ctx.Context, locale, &locConfig.WhatsNew, buildID)
 			return err
-		}
+		})
 	}
 
-	return nil
+	return g.Wait()
 }
 
 func (c *ascClient) UpdateBetaLicenseAgreement(ctx *context.Context, appID string, config config.TestflightForApp) error {

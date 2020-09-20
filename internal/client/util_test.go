@@ -59,6 +59,7 @@ func (c *testContext) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(log.Fields{
 			"currentResponseIndex": c.CurrentResponseIndex,
 			"responsesCount":       len(c.Responses),
+			"route":                r.URL.Path,
 		}).Fatal("index out of bounds")
 	}
 

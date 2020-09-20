@@ -20,9 +20,6 @@ func (Pipe) String() string {
 
 // Publish to App Store Review.
 func (p Pipe) Publish(ctx *context.Context) error {
-	if ctx.PublishMode != context.PublishModeAppStore {
-		return pipe.Skip("app store")
-	}
 	client := client.New(ctx)
 	for _, name := range ctx.AppsToRelease {
 		app := ctx.Config[name]

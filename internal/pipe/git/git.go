@@ -18,7 +18,9 @@ import (
 const NoTag = "v0.0.0"
 
 // Pipe is a global hook pipe.
-type Pipe struct{}
+type Pipe struct {
+	client *git.Git
+}
 
 // String is the name of this pipe.
 func (Pipe) String() string {
@@ -37,7 +39,10 @@ func (p Pipe) Run(ctx *context.Context) error {
 		return pipe.ErrSkipGitEnabled
 	}
 
-	client := git.New(ctx)
+	client := p.client
+	if client == nil {
+		client = git.New(ctx)
+	}
 
 	if ok := client.Exists("git"); !ok {
 		return git.ErrNoGit

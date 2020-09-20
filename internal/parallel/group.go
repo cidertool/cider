@@ -16,7 +16,7 @@ type Group interface {
 
 // New returns a new Group of a given size.
 func New(size int) Group {
-	if size == 1 {
+	if size <= 1 {
 		return &serialGroup{}
 	}
 	return &parallelGroup{

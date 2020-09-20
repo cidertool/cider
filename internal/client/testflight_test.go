@@ -395,6 +395,9 @@ func TestAssignBetaGroups_Happy(t *testing.T) {
 		response{
 			RawResponse: `{}`,
 		},
+		response{
+			RawResponse: `{}`,
+		},
 	)
 	defer ctx.Close()
 
@@ -482,7 +485,9 @@ func TestAssignBetaGroups_ErrAssign(t *testing.T) {
 	)
 	defer ctx.Close()
 
-	err := client.AssignBetaGroups(ctx.Context, testID, testID, []config.BetaGroup{{}})
+	err := client.AssignBetaGroups(ctx.Context, testID, testID, []config.BetaGroup{
+		{Name: testID},
+	})
 	assert.Error(t, err)
 }
 
@@ -528,7 +533,7 @@ func TestAssignBetaTesters_Happy(t *testing.T) {
 	)
 	defer ctx.Close()
 
-	err := client.AssignBetaTesters(ctx.Context, testID, testID, "", []config.BetaTester{
+	err := client.AssignBetaTesters(ctx.Context, testID, testID, []config.BetaTester{
 		{
 			Email:     "test@email.com",
 			FirstName: "John",
@@ -552,7 +557,7 @@ func TestAssignBetaTesters_WarnNoTestersInput(t *testing.T) {
 	ctx, client := newTestContext()
 	defer ctx.Close()
 
-	err := client.AssignBetaTesters(ctx.Context, testID, testID, "", []config.BetaTester{})
+	err := client.AssignBetaTesters(ctx.Context, testID, testID, []config.BetaTester{})
 	assert.NoError(t, err)
 }
 
@@ -565,7 +570,7 @@ func TestAssignBetaTesters_ErrList(t *testing.T) {
 	)
 	defer ctx.Close()
 
-	err := client.AssignBetaTesters(ctx.Context, testID, testID, "", []config.BetaTester{{}})
+	err := client.AssignBetaTesters(ctx.Context, testID, testID, []config.BetaTester{{}})
 	assert.Error(t, err)
 }
 
@@ -577,7 +582,7 @@ func TestAssignBetaTesters_WarnNoTestersMatching(t *testing.T) {
 	)
 	defer ctx.Close()
 
-	err := client.AssignBetaTesters(ctx.Context, testID, testID, "", []config.BetaTester{{}})
+	err := client.AssignBetaTesters(ctx.Context, testID, testID, []config.BetaTester{{}})
 	assert.NoError(t, err)
 }
 
@@ -603,7 +608,7 @@ func TestAssignBetaTesters_ErrAssign(t *testing.T) {
 	)
 	defer ctx.Close()
 
-	err := client.AssignBetaTesters(ctx.Context, testID, testID, "", []config.BetaTester{{}})
+	err := client.AssignBetaTesters(ctx.Context, testID, testID, []config.BetaTester{{}})
 	assert.Error(t, err)
 }
 

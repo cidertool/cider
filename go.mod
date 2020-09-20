@@ -6,7 +6,7 @@ require (
 	github.com/Masterminds/semver/v3 v3.1.0
 	github.com/alessio/shellescape v1.2.2
 	github.com/apex/log v1.9.0
-	github.com/cidertool/asc-go v0.3.6
+	github.com/cidertool/asc-go v0.3.7
 	github.com/fatih/color v1.9.0
 	github.com/hashicorp/go-multierror v1.1.0
 	github.com/manifoldco/promptui v0.7.0

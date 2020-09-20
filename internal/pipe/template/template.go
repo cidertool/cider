@@ -26,12 +26,12 @@ func (p Pipe) Run(ctx *context.Context) error {
 
 	var errors *multierror.Error
 
-	for appName := range project.Apps {
-		app := project.Apps[appName]
+	for appName := range project {
+		app := project[appName]
 		if err := updateApp(&app, template); err != nil {
 			errors = multierror.Append(errors, err)
 		}
-		project.Apps[appName] = app
+		project[appName] = app
 	}
 
 	ctx.Config = project
@@ -74,7 +74,7 @@ func updateAppLocalization(loc *config.AppLocalization, tmpl *template.Template)
 	return errors
 }
 
-func updateAppTestflight(tf *config.TestflightForApp, tmpl *template.Template) error {
+func updateAppTestflight(tf *config.Testflight, tmpl *template.Template) error {
 	var errors error
 	if err := applyTemplateVar(&tf.LicenseAgreement, tf.LicenseAgreement, tmpl); err != nil {
 		errors = multierror.Append(errors, err)

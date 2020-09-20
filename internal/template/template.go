@@ -12,11 +12,10 @@ import (
 )
 
 const (
-	projectNameKey = "projectName"
-	versionKey     = "version"
-	envKey         = "env"
-	dateKey        = "date"
-	timestampKey   = "timestamp"
+	versionKey   = "version"
+	envKey       = "env"
+	dateKey      = "date"
+	timestampKey = "timestamp"
 )
 
 // Template is used to apply text templates to strings to dynamically configure API values. See the documentation of
@@ -32,11 +31,10 @@ type Fields map[string]interface{}
 func New(ctx *context.Context) *Template {
 	return &Template{
 		Fields{
-			projectNameKey: ctx.RawConfig.Name,
-			versionKey:     ctx.Version,
-			envKey:         ctx.Env,
-			dateKey:        ctx.Date.UTC().Format(time.RFC3339),
-			timestampKey:   ctx.Date.UTC().Unix(),
+			versionKey:   ctx.Version,
+			envKey:       ctx.Env,
+			dateKey:      ctx.Date.UTC().Format(time.RFC3339),
+			timestampKey: ctx.Date.UTC().Unix(),
 		},
 	}
 }

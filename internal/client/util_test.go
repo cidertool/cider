@@ -38,9 +38,7 @@ type mockTransport struct {
 
 func newTestContext(resp ...response) (*testContext, Client) {
 	ctx := testContext{}
-	ctx.Context = context.New(config.Project{
-		Name: "TEST",
-	})
+	ctx.Context = context.New(config.Project{})
 	server := httptest.NewServer(&ctx)
 	ctx.Context.Credentials = &mockCredentials{
 		url:    server.URL,

@@ -137,15 +137,7 @@ func newProjectFromAPI() (*config.Project, error) {
 }
 
 func newProjectFromPrompts() (*config.Project, error) {
-	values := projectInitValues{
-		Apps: map[string]projectInitAppValues{},
-	}
-	projectNamePrompt := promptui.Prompt{Label: "Project Name"}
-	projectName, err := projectNamePrompt.Run()
-	if err != nil {
-		return nil, err
-	}
-	values.Name = projectName
+	values := projectInitValues{}
 
 	var continueAppsSetup = true
 	for continueAppsSetup {
@@ -153,7 +145,7 @@ func newProjectFromPrompts() (*config.Project, error) {
 		if err != nil {
 			return nil, err
 		}
-		values.Apps[name] = *app
+		values[name] = *app
 
 		continuePrompt := promptui.Prompt{
 			Label:     "Add more apps?",
@@ -233,29 +225,23 @@ func promptAppValues() (name string, app *projectInitAppValues, err error) {
 
 func newProjectFromDefaults() *config.Project {
 	proj := newProjectFromValues(projectInitValues{
-		Name: "My Project",
-		Apps: map[string]projectInitAppValues{
-			"My App": {
-				BundleID:                     "com.app.bundleid",
-				PrimaryLocale:                "en-US",
-				AvailableInNewTerritories:    false,
-				PricingTier:                  "0",
-				Territories:                  []string{"USA"},
-				NameInPrimaryLocale:          "My App",
-				EnableAutoNotify:             true,
-				ReviewDetailsAccountRequired: false,
-				Platform:                     "iOS",
-				PhasedReleaseEnabled:         true,
-			},
+		"My App": {
+			BundleID:                     "com.app.bundleid",
+			PrimaryLocale:                "en-US",
+			AvailableInNewTerritories:    false,
+			PricingTier:                  "0",
+			Territories:                  []string{"USA"},
+			NameInPrimaryLocale:          "My App",
+			EnableAutoNotify:             true,
+			ReviewDetailsAccountRequired: false,
+			Platform:                     "iOS",
+			PhasedReleaseEnabled:         true,
 		},
 	})
 	return &proj
 }
 
-type projectInitValues struct {
-	Name string
-	Apps map[string]projectInitAppValues
-}
+type projectInitValues map[string]projectInitAppValues
 
 type projectInitAppValues struct {
 	BundleID                     string
@@ -271,14 +257,11 @@ type projectInitAppValues struct {
 }
 
 func newProjectFromValues(values projectInitValues) config.Project {
-	var project = config.Project{
-		Name: values.Name,
-		Apps: map[string]config.App{},
-	}
+	var project = config.Project{}
 
-	for name, app := range values.Apps {
+	for name, app := range values {
 		availableInNewTerritories := app.AvailableInNewTerritories
-		project.Apps[name] = config.App{
+		project[name] = config.App{
 			BundleID:      app.BundleID,
 			PrimaryLocale: app.PrimaryLocale,
 			Availability: &config.Availability{
@@ -295,7 +278,7 @@ func newProjectFromValues(values projectInitValues) config.Project {
 					Name: app.NameInPrimaryLocale,
 				},
 			},
-			Testflight: config.TestflightForApp{
+			Testflight: config.Testflight{
 				EnableAutoNotify: app.EnableAutoNotify,
 				Localizations: config.TestflightLocalizations{
 					app.PrimaryLocale: config.TestflightLocalization{},

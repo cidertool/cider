@@ -16,20 +16,15 @@ func TestTemplate(t *testing.T) {
 		}).
 		WithShellEnv("HORSE=EVIL", "CAT=SPOOKY").
 		WithFields(Fields{
-			projectNameKey: "My Project",
-			"customKey":    0,
+			"customKey": 0,
 		}).
-		Apply(`{{ .projectName }}: My {{ .env.CAT }} cat fought {{ .customKey }} {{ .env.HORSE }} horses.`)
+		Apply(`My {{ .env.CAT }} cat fought {{ .customKey }} {{ .env.HORSE }} horses.`)
 	assert.NoError(t, err)
-	assert.Equal(t, "My Project: My SPOOKY cat fought 0 EVIL horses.", tmpl)
+	assert.Equal(t, "My SPOOKY cat fought 0 EVIL horses.", tmpl)
 }
 
 func TestInvalidTemplate(t *testing.T) {
-	_, err := New(context.New(config.Project{})).
-		WithFields(Fields{
-			projectNameKey: "My Project",
-		}).
-		Apply(`{{ .projectName`)
+	_, err := New(context.New(config.Project{})).Apply(`{{ .timestamp`)
 	assert.Error(t, err)
 }
 

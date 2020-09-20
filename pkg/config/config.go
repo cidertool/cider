@@ -169,18 +169,7 @@ type Repo struct {
 }
 
 // Project is the top level configuration type.
-type Project struct {
-	// Name of the project, used for logging.
-	Name       string         `yaml:"name"`
-	Testflight Testflight     `yaml:"testflight"`
-	Apps       map[string]App `yaml:"apps"`
-}
-
-// Testflight represents information about a Testflight configuration for an entire App Store Connect team.
-type Testflight struct {
-	BetaGroups  []BetaGroup  `yaml:"betaGroups"`
-	BetaTesters []BetaTester `yaml:"betaTesters"`
-}
+type Project map[string]App
 
 // App outlines general information about your app, primarily for querying purposes.
 type App struct {
@@ -194,7 +183,7 @@ type App struct {
 	AgeRatingDeclaration  *AgeRatingDeclaration `yaml:"ageRatings,omitempty"`
 	Localizations         AppLocalizations      `yaml:"localizations"`
 	Versions              Version               `yaml:"versions"`
-	Testflight            TestflightForApp      `yaml:"testflight"`
+	Testflight            Testflight            `yaml:"testflight"`
 }
 
 // Categories describes the categories used for classificiation in the App Store.
@@ -349,13 +338,13 @@ type DemoAccount struct {
 	Password string `yaml:"password,omitempty"`
 }
 
-// TestflightForApp represents configuration for beta distribution of apps.
-type TestflightForApp struct {
+// Testflight represents configuration for beta distribution of apps.
+type Testflight struct {
 	EnableAutoNotify bool `yaml:"enableAutoNotify"`
 	// Beta license agreement text. Templated.
 	LicenseAgreement string                  `yaml:"licenseAgreement"`
 	Localizations    TestflightLocalizations `yaml:"localizations"`
-	BetaGroups       []string                `yaml:"betaGroups,omitempty"`
+	BetaGroups       []BetaGroup             `yaml:"betaGroups,omitempty"`
 	BetaTesters      []BetaTester            `yaml:"betaTesters,omitempty"`
 	ReviewDetails    *ReviewDetails          `yaml:"reviewDetails,omitempty"`
 }
@@ -446,10 +435,14 @@ func (p *Project) Copy() (copy Project, err error) {
 
 // AppsMatching returns an array of keys in the Project matching the app names, or all names if the flag is set.
 func (p *Project) AppsMatching(keys []string, shouldIncludeAll bool) []string {
-	if shouldIncludeAll || len(p.Apps) == 1 {
-		appNamesMatching := make([]string, len(p.Apps))
+	if p == nil {
+		return []string{}
+	}
+	apps := *p
+	if shouldIncludeAll || len(apps) == 1 {
+		appNamesMatching := make([]string, len(apps))
 		i := 0
-		for key := range p.Apps {
+		for key := range apps {
 			appNamesMatching[i] = key
 			i++
 		}
@@ -457,7 +450,7 @@ func (p *Project) AppsMatching(keys []string, shouldIncludeAll bool) []string {
 	}
 	appNamesMatching := make([]string, 0, len(keys))
 	for _, key := range keys {
-		if _, ok := p.Apps[key]; ok {
+		if _, ok := apps[key]; ok {
 			appNamesMatching = append(appNamesMatching, key)
 		}
 	}

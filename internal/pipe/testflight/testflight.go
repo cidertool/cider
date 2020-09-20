@@ -27,7 +27,7 @@ func (p Pipe) Publish(ctx *context.Context) error {
 	}
 	client := client.New(ctx)
 	for _, name := range ctx.AppsToRelease {
-		app := ctx.Config.Apps[name]
+		app := ctx.Config[name]
 		log.WithField("name", name).Info("preparing")
 		err := doRelease(ctx, app, client)
 		if err != nil {

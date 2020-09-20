@@ -32,13 +32,13 @@ type Client interface {
 	// It will not delete or update any locales that are associated with the app but are not configured in cider.
 	UpdateBetaAppLocalizations(ctx *context.Context, appID string, config config.TestflightLocalizations) error
 	// UpdateBetaBuildDetails updates an App's beta build details, or creates new ones if they do not yet exist.
-	UpdateBetaBuildDetails(ctx *context.Context, buildID string, config config.TestflightForApp) error
+	UpdateBetaBuildDetails(ctx *context.Context, buildID string, config config.Testflight) error
 	// UpdateBetaBuildLocalizations updates an App's beta build localizations, and creates any new ones that do not exist.
 	// It will not delete or update any locales that are associated with the app but are not configured in cider.
 	UpdateBetaBuildLocalizations(ctx *context.Context, buildID string, config config.TestflightLocalizations) error
 	// UpdateBetaLicenseAgreement updates an App's beta license agreement, or creates a new one if one does not yet exist.
-	UpdateBetaLicenseAgreement(ctx *context.Context, appID string, config config.TestflightForApp) error
-	AssignBetaGroups(ctx *context.Context, appID string, buildID string, groups []string) error
+	UpdateBetaLicenseAgreement(ctx *context.Context, appID string, config config.Testflight) error
+	AssignBetaGroups(ctx *context.Context, appID string, buildID string, groups []config.BetaGroup) error
 	AssignBetaTesters(ctx *context.Context, appID string, buildID string, testers []config.BetaTester) error
 	// UpdateBetaReviewDetails updates an App's beta review details, or creates new ones if they do not yet exist.
 	UpdateBetaReviewDetails(ctx *context.Context, appID string, config config.ReviewDetails) error

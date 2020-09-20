@@ -153,7 +153,7 @@ func TestUpdateBetaBuildDetails_Happy(t *testing.T) {
 	)
 	defer ctx.Close()
 
-	err := client.UpdateBetaBuildDetails(ctx.Context, testID, config.TestflightForApp{})
+	err := client.UpdateBetaBuildDetails(ctx.Context, testID, config.Testflight{})
 	assert.NoError(t, err)
 }
 
@@ -166,7 +166,7 @@ func TestUpdateBetaBuildDetails_Err(t *testing.T) {
 	)
 	defer ctx.Close()
 
-	err := client.UpdateBetaBuildDetails(ctx.Context, testID, config.TestflightForApp{
+	err := client.UpdateBetaBuildDetails(ctx.Context, testID, config.Testflight{
 		EnableAutoNotify: true,
 	})
 	assert.Error(t, err)
@@ -315,7 +315,7 @@ func TestUpdateBetaLicenseAgreement_Happy(t *testing.T) {
 	)
 	defer ctx.Close()
 
-	err := client.UpdateBetaLicenseAgreement(ctx.Context, testID, config.TestflightForApp{})
+	err := client.UpdateBetaLicenseAgreement(ctx.Context, testID, config.Testflight{})
 	assert.NoError(t, err)
 }
 
@@ -328,7 +328,7 @@ func TestUpdateBetaLicenseAgreement_ErrGet(t *testing.T) {
 	)
 	defer ctx.Close()
 
-	err := client.UpdateBetaLicenseAgreement(ctx.Context, testID, config.TestflightForApp{})
+	err := client.UpdateBetaLicenseAgreement(ctx.Context, testID, config.Testflight{})
 	assert.Error(t, err)
 }
 
@@ -344,7 +344,7 @@ func TestUpdateBetaLicenseAgreement_ErrUpdate(t *testing.T) {
 	)
 	defer ctx.Close()
 
-	err := client.UpdateBetaLicenseAgreement(ctx.Context, testID, config.TestflightForApp{})
+	err := client.UpdateBetaLicenseAgreement(ctx.Context, testID, config.Testflight{})
 	assert.Error(t, err)
 }
 
@@ -369,9 +369,9 @@ func TestAssignBetaGroups_Happy(t *testing.T) {
 	)
 	defer ctx.Close()
 
-	err := client.AssignBetaGroups(ctx.Context, testID, testID, []string{
-		testID,
-		testID,
+	err := client.AssignBetaGroups(ctx.Context, testID, testID, []config.BetaGroup{
+		{Name: testID},
+		{Name: testID},
 	})
 	assert.NoError(t, err)
 }
@@ -380,7 +380,7 @@ func TestAssignBetaGroups_WarnNoTestersInput(t *testing.T) {
 	ctx, client := newTestContext()
 	defer ctx.Close()
 
-	err := client.AssignBetaGroups(ctx.Context, testID, testID, []string{})
+	err := client.AssignBetaGroups(ctx.Context, testID, testID, []config.BetaGroup{})
 	assert.NoError(t, err)
 }
 
@@ -393,7 +393,7 @@ func TestAssignBetaGroups_ErrList(t *testing.T) {
 	)
 	defer ctx.Close()
 
-	err := client.AssignBetaGroups(ctx.Context, testID, testID, []string{""})
+	err := client.AssignBetaGroups(ctx.Context, testID, testID, []config.BetaGroup{{}})
 	assert.Error(t, err)
 }
 
@@ -405,7 +405,7 @@ func TestAssignBetaGroups_WarnNoTestersMatching(t *testing.T) {
 	)
 	defer ctx.Close()
 
-	err := client.AssignBetaGroups(ctx.Context, testID, testID, []string{""})
+	err := client.AssignBetaGroups(ctx.Context, testID, testID, []config.BetaGroup{{}})
 	assert.NoError(t, err)
 }
 
@@ -425,7 +425,7 @@ func TestAssignBetaGroups_ErrAssign(t *testing.T) {
 	)
 	defer ctx.Close()
 
-	err := client.AssignBetaGroups(ctx.Context, testID, testID, []string{""})
+	err := client.AssignBetaGroups(ctx.Context, testID, testID, []config.BetaGroup{{}})
 	assert.Error(t, err)
 }
 

@@ -62,7 +62,7 @@ func (c *ascClient) UpdateBetaAppLocalizations(ctx *context.Context, appID strin
 	return g.Wait()
 }
 
-func (c *ascClient) UpdateBetaBuildDetails(ctx *context.Context, buildID string, config config.TestflightForApp) error {
+func (c *ascClient) UpdateBetaBuildDetails(ctx *context.Context, buildID string, config config.Testflight) error {
 	_, _, err := c.client.TestFlight.UpdateBuildBetaDetail(ctx, buildID, &config.EnableAutoNotify)
 	return err
 }
@@ -108,7 +108,7 @@ func (c *ascClient) UpdateBetaBuildLocalizations(ctx *context.Context, buildID s
 	return g.Wait()
 }
 
-func (c *ascClient) UpdateBetaLicenseAgreement(ctx *context.Context, appID string, config config.TestflightForApp) error {
+func (c *ascClient) UpdateBetaLicenseAgreement(ctx *context.Context, appID string, config config.Testflight) error {
 	resp, _, err := c.client.TestFlight.GetBetaLicenseAgreementForApp(ctx, appID, nil)
 	if err != nil {
 		return err
@@ -118,28 +118,67 @@ func (c *ascClient) UpdateBetaLicenseAgreement(ctx *context.Context, appID strin
 	return err
 }
 
-func (c *ascClient) AssignBetaGroups(ctx *context.Context, appID string, buildID string, groups []string) error {
+func (c *ascClient) AssignBetaGroups(ctx *context.Context, appID string, buildID string, groups []config.BetaGroup) error {
 	if len(groups) == 0 {
 		log.Debug("no groups provided as input to add")
 		return nil
 	}
+
+	var groupNames = make([]string, len(groups))
+	var groupNamesToConfig = make(map[string]*config.BetaGroup, len(groups))
+	for i := range groups {
+		groupNames[i] = groups[i].Name
+		groupNamesToConfig[groups[i].Name] = &groups[i]
+	}
+
 	groupsResp, _, err := c.client.TestFlight.ListBetaGroups(ctx, &asc.ListBetaGroupsQuery{
-		FilterName: groups,
+		FilterName: groupNames,
 		FilterApp:  []string{appID},
 	})
 	if err != nil {
 		return err
 	}
+
 	if len(groupsResp.Data) == 0 {
 		log.WithField("groups", groups).Warn("no matching groups found")
+		return nil
 	}
+
+	if err := c.UpdateBetaGroups(ctx, groupsResp.Data, groupNamesToConfig); err != nil {
+		return err
+	}
+
 	for _, group := range groupsResp.Data {
-		_, err := c.client.TestFlight.AddBuildsToBetaGroup(ctx, group.ID, []string{buildID})
-		if err != nil {
+		if _, err := c.client.TestFlight.AddBuildsToBetaGroup(ctx, group.ID, []string{buildID}); err != nil {
 			return err
 		}
 	}
+
 	log.Infof("assigned %d beta group(s)", len(groupsResp.Data))
+
+	return nil
+}
+
+func (c *ascClient) UpdateBetaGroups(ctx *context.Context, apiGroups []asc.BetaGroup, config map[string]*config.BetaGroup) error {
+	for _, group := range apiGroups {
+		if group.Attributes == nil || group.Attributes.Name == nil {
+			continue
+		}
+		configGroup := config[*group.Attributes.Name]
+		if configGroup == nil {
+			continue
+		}
+		if _, _, err := c.client.TestFlight.UpdateBetaGroup(ctx, group.ID, &asc.BetaGroupUpdateRequestAttributes{
+			FeedbackEnabled:        &configGroup.FeedbackEnabled,
+			Name:                   &configGroup.Name,
+			PublicLinkEnabled:      &configGroup.EnablePublicLink,
+			PublicLinkLimit:        &configGroup.PublicLinkLimit,
+			PublicLinkLimitEnabled: &configGroup.EnablePublicLinkLimit,
+		}); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 

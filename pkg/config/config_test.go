@@ -11,7 +11,7 @@ import (
 func TestValidConfiguration(t *testing.T) {
 	f, err := Load("testdata/valid.yml")
 	assert.NoError(t, err)
-	assert.Equal(t, "My Project", f.Name)
+	assert.Len(t, f, 1)
 }
 
 func TestMissingConfiguration(t *testing.T) {
@@ -47,11 +47,9 @@ func (errReader) Read(p []byte) (n int, err error) {
 
 func TestCopy(t *testing.T) {
 	p := Project{
-		Apps: map[string]App{
-			"App1": {},
-			"App2": {},
-			"App3": {},
-		},
+		"App1": {},
+		"App2": {},
+		"App3": {},
 	}
 	pPrime, err := p.Copy()
 	assert.NoError(t, err)
@@ -61,11 +59,9 @@ func TestCopy(t *testing.T) {
 
 func TestCopy_Err(t *testing.T) {
 	p := Project{
-		Apps: map[string]App{
-			"App1": {},
-			"App2": {},
-			"App3": {},
-		},
+		"App1": {},
+		"App2": {},
+		"App3": {},
 	}
 	pPrime, err := p.Copy()
 	assert.NoError(t, err)
@@ -75,11 +71,9 @@ func TestCopy_Err(t *testing.T) {
 
 func TestAppsMatching(t *testing.T) {
 	p := Project{
-		Apps: map[string]App{
-			"App1": {},
-			"App2": {},
-			"App3": {},
-		},
+		"App1": {},
+		"App2": {},
+		"App3": {},
 	}
 	var matches []string
 	matches = p.AppsMatching([]string{"App1", "App2", "App3"}, false)

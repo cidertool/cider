@@ -130,20 +130,25 @@ func setupReleaseContext(ctx *context.Context, options releaseOpts, forceAllSkip
 	ctx.Build = options.buildOverride
 
 	if len(options.betaGroupsOverride) > 0 || len(options.betaTestersOverride) > 0 {
+		var betaGroups = make([]config.BetaGroup, len(options.betaGroupsOverride))
 		var betaTesters = make([]config.BetaTester, len(options.betaTestersOverride))
+
+		for i, groupName := range options.betaGroupsOverride {
+			betaGroups[i] = config.BetaGroup{Name: groupName}
+		}
 
 		for i, email := range options.betaTestersOverride {
 			betaTesters[i] = config.BetaTester{Email: email}
 		}
 
-		for appName, app := range ctx.Config.Apps {
+		for appName, app := range ctx.Config {
 			if len(options.betaGroupsOverride) > 0 {
-				app.Testflight.BetaGroups = options.betaGroupsOverride
+				app.Testflight.BetaGroups = betaGroups
 			}
 			if len(betaTesters) > 0 {
 				app.Testflight.BetaTesters = betaTesters
 			}
-			ctx.Config.Apps[appName] = app
+			ctx.Config[appName] = app
 		}
 	}
 

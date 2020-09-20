@@ -26,25 +26,29 @@ type Publisher interface {
 	Publish(ctx *context.Context) error
 }
 
-// nolint: gochecknoglobals
-var publishers = []Publisher{
-	testflight.Pipe{},
-	store.Pipe{},
-}
-
 // Run the pipe.
 func (Pipe) Run(ctx *context.Context) error {
 	if len(ctx.AppsToRelease) == 0 {
 		return pipe.Skip("no apps selected to publish")
 	}
-	for _, publisher := range publishers {
-		if err := middleware.Logging(
-			publisher.String(),
-			middleware.ErrHandler(publisher.Publish),
-			middleware.ExtraPadding,
-		)(ctx); err != nil {
-			return fmt.Errorf("%s: failed to publish: %w", publisher.String(), err)
-		}
+
+	var publisher Publisher
+	switch ctx.PublishMode {
+	case context.PublishModeTestflight:
+		publisher = testflight.Pipe{}
+	case context.PublishModeAppStore:
+		publisher = store.Pipe{}
+	default:
+		return fmt.Errorf("failed to publish: unsupported publish mode %s", ctx.PublishMode)
 	}
+
+	if err := middleware.Logging(
+		publisher.String(),
+		middleware.ErrHandler(publisher.Publish),
+		middleware.ExtraPadding,
+	)(ctx); err != nil {
+		return fmt.Errorf("%s: failed to publish: %w", publisher.String(), err)
+	}
+
 	return nil
 }

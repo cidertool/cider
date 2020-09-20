@@ -64,13 +64,23 @@ func TestSanitizeProcess(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func TestExtractRemoteFromConfig(t *testing.T) {
+func TestShowRef(t *testing.T) {
+	// Selected the initial commit of this repo, because I needed a sha1 hash.
+	expected := "eac16d260ebf8af83873c9704169cf40a5501f84"
+	client := newMockGit(
+		command{Stdout: expected},
+	)
+	got, err := client.Show("%H")
+	assert.NoError(t, err)
+	assert.Equal(t, expected, got)
+}
+
+func TestExtractRemoteFromConfig_Happy(t *testing.T) {
 	expected := config.Repo{
 		Name:  "cider",
 		Owner: "cidertool",
 	}
 
-	// happy path
 	client := newMockGit(
 		command{Stdout: "true"},
 		command{Stdout: "git@github.com:cidertool/cider.git"},
@@ -78,19 +88,23 @@ func TestExtractRemoteFromConfig(t *testing.T) {
 	repo, err := client.ExtractRepoFromConfig()
 	assert.NoError(t, err)
 	assert.Equal(t, expected, repo)
+}
 
-	client = newMockGit(
+func TestExtractRemoteFromConfig_ErrIsNotRepo(t *testing.T) {
+	client := newMockGit(
 		command{Stdout: "false"},
 	)
-	repo, err = client.ExtractRepoFromConfig()
+	repo, err := client.ExtractRepoFromConfig()
 	assert.Error(t, err)
 	assert.Empty(t, repo)
+}
 
-	client = newMockGit(
+func TestExtractRemoteFromConfig_ErrNoRemoteNamedOrigin(t *testing.T) {
+	client := newMockGit(
 		command{Stdout: "true"},
 		command{ReturnCode: 1, Stderr: "no repo"},
 	)
-	repo, err = client.ExtractRepoFromConfig()
+	repo, err := client.ExtractRepoFromConfig()
 	assert.Error(t, err)
 	assert.Empty(t, repo)
 }

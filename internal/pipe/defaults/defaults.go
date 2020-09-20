@@ -8,15 +8,20 @@ import (
 )
 
 // Pipe that sets the defaults.
-type Pipe struct{}
+type Pipe struct {
+	defaulters []defaults.Defaulter
+}
 
 func (Pipe) String() string {
 	return "setting defaults"
 }
 
 // Run the pipe.
-func (Pipe) Run(ctx *context.Context) error {
-	for _, defaulter := range defaults.Defaulters {
+func (p Pipe) Run(ctx *context.Context) error {
+	if len(p.defaulters) == 0 {
+		p.defaulters = defaults.Defaulters
+	}
+	for _, defaulter := range p.defaulters {
 		if err := middleware.Logging(
 			defaulter.String(),
 			middleware.ErrHandler(defaulter.Default),

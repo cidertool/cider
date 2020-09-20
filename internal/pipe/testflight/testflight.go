@@ -22,9 +22,6 @@ func (Pipe) String() string {
 
 // Publish to Testflight.
 func (p Pipe) Publish(ctx *context.Context) error {
-	if ctx.PublishMode != context.PublishModeTestflight {
-		return pipe.Skip("testflight")
-	}
 	client := client.New(ctx)
 	for _, name := range ctx.AppsToRelease {
 		app := ctx.Config[name]

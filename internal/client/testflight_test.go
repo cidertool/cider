@@ -351,14 +351,40 @@ func TestUpdateBetaLicenseAgreement_ErrUpdate(t *testing.T) {
 // Test AssignBetaGroups
 
 func TestAssignBetaGroups_Happy(t *testing.T) {
+	testEmail := asc.Email("email2@test.com")
 	ctx, client := newTestContext(
 		response{
 			Response: asc.BetaGroupsResponse{
 				Data: []asc.BetaGroup{
-					{ID: testID},
-					{ID: testID},
+					{
+						ID: testID,
+						Attributes: &asc.BetaGroupAttributes{
+							Name: asc.String(testID + "1"),
+						},
+					},
+					{
+						ID: testID,
+					},
 				},
 			},
+		},
+		response{
+			RawResponse: `{}`,
+		},
+		response{
+			Response: asc.BetaTestersResponse{
+				Data: []asc.BetaTester{
+					{
+						ID: testID,
+						Attributes: &asc.BetaTesterAttributes{
+							Email: &testEmail,
+						},
+					},
+				},
+			},
+		},
+		response{
+			RawResponse: `{}`,
 		},
 		response{
 			RawResponse: `{}`,
@@ -373,13 +399,23 @@ func TestAssignBetaGroups_Happy(t *testing.T) {
 	defer ctx.Close()
 
 	err := client.AssignBetaGroups(ctx.Context, testID, testID, []config.BetaGroup{
-		{Name: testID},
-		{Name: testID},
+		{
+			Name: testID + "1",
+			Testers: []config.BetaTester{
+				{
+					Email: "email@test.com",
+				},
+				{
+					Email: "email2@test.com",
+				},
+			},
+		},
+		{Name: testID + "2"},
 	})
 	assert.NoError(t, err)
 }
 
-func TestAssignBetaGroups_WarnNoTestersInput(t *testing.T) {
+func TestAssignBetaGroups_WarnNoGroupsInput(t *testing.T) {
 	ctx, client := newTestContext()
 	defer ctx.Close()
 
@@ -400,16 +436,31 @@ func TestAssignBetaGroups_ErrList(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func TestAssignBetaGroups_WarnNoTestersMatching(t *testing.T) {
+func TestAssignBetaGroups_ErrUpdate(t *testing.T) {
 	ctx, client := newTestContext(
 		response{
-			RawResponse: `{"data":[]}`,
+			Response: asc.BetaGroupsResponse{
+				Data: []asc.BetaGroup{
+					{
+						ID: testID,
+						Attributes: &asc.BetaGroupAttributes{
+							Name: asc.String(testID + "1"),
+						},
+					},
+				},
+			},
+		},
+		response{
+			StatusCode:  http.StatusNotFound,
+			RawResponse: `{}`,
 		},
 	)
 	defer ctx.Close()
 
-	err := client.AssignBetaGroups(ctx.Context, testID, testID, []config.BetaGroup{{}})
-	assert.NoError(t, err)
+	err := client.AssignBetaGroups(ctx.Context, testID, testID, []config.BetaGroup{
+		{Name: testID + "1"},
+	})
+	assert.Error(t, err)
 }
 
 func TestAssignBetaGroups_ErrAssign(t *testing.T) {
@@ -432,6 +483,24 @@ func TestAssignBetaGroups_ErrAssign(t *testing.T) {
 	defer ctx.Close()
 
 	err := client.AssignBetaGroups(ctx.Context, testID, testID, []config.BetaGroup{{}})
+	assert.Error(t, err)
+}
+
+func TestAssignBetaGroups_ErrCreate(t *testing.T) {
+	ctx, client := newTestContext(
+		response{
+			RawResponse: `{"data":[]}`,
+		},
+		response{
+			StatusCode:  http.StatusNotFound,
+			RawResponse: `{}`,
+		},
+	)
+	defer ctx.Close()
+
+	err := client.AssignBetaGroups(ctx.Context, testID, testID, []config.BetaGroup{
+		{Name: testID},
+	})
 	assert.Error(t, err)
 }
 
@@ -554,6 +623,9 @@ func TestUpdateBetaReviewDetails_Happy(t *testing.T) {
 	err := client.UpdateBetaReviewDetails(ctx.Context, testID, config.ReviewDetails{
 		Contact:     &config.ContactPerson{},
 		DemoAccount: &config.DemoAccount{},
+		Attachments: []config.File{
+			{Path: "friend"},
+		},
 	})
 	assert.NoError(t, err)
 }

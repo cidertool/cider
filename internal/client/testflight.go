@@ -211,7 +211,6 @@ func (c *ascClient) AssignBetaTesters(ctx *context.Context, appID string, buildI
 	var g = parallel.New(ctx.MaxProcesses)
 
 	if len(testers) == 0 {
-		log.Debug("no testers provided as input to add")
 		return nil
 	}
 
@@ -261,9 +260,6 @@ func (c *ascClient) AssignBetaTesters(ctx *context.Context, appID string, buildI
 }
 
 func (c *ascClient) listBetaTesters(ctx *context.Context, appID string, config []config.BetaTester) ([]asc.BetaTester, error) {
-	if len(config) == 0 {
-		return nil, nil
-	}
 	emailFilters := make([]string, 0)
 	firstNameFilters := make([]string, 0)
 	lastNameFilters := make([]string, 0)

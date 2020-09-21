@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"errors"
 	"io"
 	"os"
 	"path/filepath"
@@ -20,9 +19,6 @@ const configDocString = `# This is a template .cider.yaml file with some sane de
 
 `
 
-// ErrNotImplemented happens when the author has not implemented a feature yet, but it's still accessible by the user.
-var ErrNotImplemented = errors.New("this feature has yet to be implemented")
-
 type initCmd struct {
 	cmd  *cobra.Command
 	opts initOpts
@@ -30,15 +26,17 @@ type initCmd struct {
 
 type initOpts struct {
 	config     string
-	export     bool
 	skipPrompt bool
 }
 
 func newInitCmd() *initCmd {
 	var root = &initCmd{}
 	var cmd = &cobra.Command{
-		Use:           "init",
-		Short:         "Generates an .cider.yml file",
+		Use:   "init",
+		Short: "Generates an .cider.yml file",
+		Long: `Use to initialize a new Cider project. This will create a new configuration file
+		in the current directory that should be checked into source control.`,
+		Example:       "cider init",
 		SilenceUsage:  true,
 		SilenceErrors: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -47,8 +45,7 @@ func newInitCmd() *initCmd {
 	}
 
 	cmd.Flags().StringVarP(&root.opts.config, "config", "f", ".cider.yml", "Path of configuration file to create")
-	cmd.Flags().BoolVar(&root.opts.export, "export", false, "Populate the project file automatically using your App Store Connect team")
-	cmd.Flags().BoolVarP(&root.opts.skipPrompt, "skip-prompt", "y", false, "Skips onboarding prompts. This can result in an overwritten configuration file")
+	cmd.Flags().BoolVarP(&root.opts.skipPrompt, "skip-prompt", "y", false, `Skips onboarding prompts. This can result in an overwritten configuration file`)
 
 	root.cmd = cmd
 	return root
@@ -72,7 +69,7 @@ func initProject(opts initOpts) (err error) {
 
 	log.Info(color.New(color.Bold).Sprintf("Populating project file at %s", opts.config))
 
-	project, err := newProject(opts.export, opts.skipPrompt)
+	project, err := newProject(opts.skipPrompt)
 	if err != nil {
 		return err
 	}
@@ -116,24 +113,17 @@ func createFileIfNeeded(path string, skipPrompt bool) (*os.File, error) {
 	return os.OpenFile(filepath.Clean(path), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 }
 
-func newProject(export, skipPrompt bool) (*config.Project, error) {
+func newProject(skipPrompt bool) (*config.Project, error) {
 	var project *config.Project
 	var err error
 
-	switch {
-	case export:
-		project, err = newProjectFromAPI()
-	case !skipPrompt:
-		project, err = newProjectFromPrompts()
-	default:
+	if skipPrompt {
 		project = newProjectFromDefaults()
+	} else {
+		project, err = newProjectFromPrompts()
 	}
 
 	return project, err
-}
-
-func newProjectFromAPI() (*config.Project, error) {
-	return nil, ErrNotImplemented
 }
 
 func newProjectFromPrompts() (*config.Project, error) {
@@ -322,10 +312,3 @@ func writeProject(project *config.Project, f io.StringWriter) error {
 
 	return nil
 }
-
-// 	return nil
-// }
-
-// func promptApp() (string, config.App, error) {
-
-// }

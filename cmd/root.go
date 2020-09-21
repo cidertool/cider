@@ -1,3 +1,4 @@
+// Package cmd declares the command line interface for Cider
 package cmd
 
 import (
@@ -35,11 +36,12 @@ func newRootCmd(version string, exit func(int)) *rootCmd {
 	}
 
 	var cmd = &cobra.Command{
-		Use:           "cider",
-		Short:         "Submit your builds to the Apple App Store in seconds",
-		Version:       version,
-		SilenceUsage:  true,
-		SilenceErrors: true,
+		Use:               "cider",
+		Short:             "Submit your builds to the Apple App Store in seconds",
+		Version:           version,
+		SilenceUsage:      true,
+		SilenceErrors:     true,
+		DisableAutoGenTag: true,
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if root.debug {
 				log.SetLevel(log.DebugLevel)
@@ -54,6 +56,9 @@ func newRootCmd(version string, exit func(int)) *rootCmd {
 		newReleaseCmd().cmd,
 		newCompletionsCmd().cmd,
 	)
+	if version == "dev" {
+		cmd.AddCommand(newDocsCmd().cmd)
+	}
 
 	root.cmd = cmd
 	return root

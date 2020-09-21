@@ -1,6 +1,7 @@
 before:
   hooks:
     - go mod download
+
 builds:
   - env:
       - CGO_ENABLED=0
@@ -18,10 +19,13 @@ builds:
       - -trimpath
     ldflags:
       - -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{ .CommitDate }} -X main.builtBy=cidertool
+
 checksum:
   name_template: 'checksums.txt'
+
 snapshot:
   name_template: '{{ .Tag }}-next'
+
 changelog:
   sort: asc
   filters:
@@ -31,6 +35,7 @@ changelog:
       - Merge pull request
       - Merge branch
       - go mod tidy
+
 dockers:
   - dockerfile: docker/Dockerfile
     image_templates:
@@ -52,6 +57,7 @@ dockers:
       - --label=repository=http://github.com/cidertool/cider
       - --label=homepage=http://cidertool.github.io/cider
       - --label=maintainer=Aaron Sky <cider@skyaaron.com>
+
 archives:
   - name_template: '{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
     replacements:
@@ -59,25 +65,52 @@ archives:
     format_overrides:
       - goos: windows
         format: zip
+
 brews:
-  - tap:
+  - name: cider
+    description: Submit your builds to the Apple App Store in seconds
+    homepage: https://cidertool.github.io/cider
+    tap:
       owner: cidertool
       name: homebrew-tap
+    folder: Formula
     commit_author:
       name: cider-bot
       email: cider@skyaaron.com
-    folder: Formula
-    homepage: https://cidertool.github.io/cider
-    description: Submit your builds to the Apple App Store in seconds
     test: |
-      system "#{bin}/cider -v"
+      system "#{bin}/cider", "-v"
+#  - name: cider-core
+#    description: Submit your builds to the Apple App Store in seconds
+#    homepage: https://cidertool.github.io/cider
+#    tap:
+#      owner: cidertool
+#      name: homebrew-tap
+#    folder: Formula
+#    commit_author:
+#      name: cider-bot
+#      email: cider@skyaaron.com
+#    dependencies:
+#      - name: go
+#        type: build
+#    install: |
+#      system "go", "build", "-ldflags",
+#              "-s -w -X main.version=#{version} -X main.commit=#{stable.specs[:revision]} -X main.builtBy=homebrew",
+#              *std_go_args
+#      man1.install "docs/man/cider.1"
+#      man1.install "docs/man/cider_init.1"
+#      man1.install "docs/man/cider_release.1"
+#      man1.install "docs/man/cider_check.1"
+#      man1.install "docs/man/cider_completions.1"
+#    test: |
+#      system "#{bin}/cider", "-v"
+
 scoop:
+  description: Submit your builds to the Apple App Store in seconds
+  homepage: https://cidertool.github.io/cider
+  license: MIT
   bucket:
     owner: cidertool
     name: scoop-bucket
   commit_author:
     name: cider-bot
     email: cider@skyaaron.com
-  homepage: https://cidertool.github.io/cider
-  description: Submit your builds to the Apple App Store in seconds
-  license: MIT

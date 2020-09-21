@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"path"
 	"path/filepath"
 	"strings"
 
@@ -26,17 +25,6 @@ type pageNavField struct {
 	exclude bool
 }
 
-var pageNavFields = map[string]pageNavField{
-	"cider.md":             {order: 0},
-	"cider_init.md":        {order: 1},
-	"cider_release.md":     {order: 2},
-	"cider_check.md":       {order: 3},
-	"cider_completions.md": {order: 4},
-	"cider_docs.md":        {exclude: true},
-	"cider_docs_man.md":    {exclude: true},
-	"cider_docs_md.md":     {exclude: true},
-}
-
 func newDocsMdCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "md",
@@ -47,9 +35,20 @@ func newDocsMdCmd() *cobra.Command {
 }
 
 func runDocsMdCmd(cmd *cobra.Command, args []string) error {
+	var pageNavFields = map[string]pageNavField{
+		"cider.md":             {order: 0},
+		"cider_init.md":        {order: 1},
+		"cider_release.md":     {order: 2},
+		"cider_check.md":       {order: 3},
+		"cider_completions.md": {order: 4},
+		"cider_docs.md":        {exclude: true},
+		"cider_docs_man.md":    {exclude: true},
+		"cider_docs_md.md":     {exclude: true},
+	}
+
 	var dir string
 	if len(args) == 0 {
-		dir = "docs"
+		dir = defaultDocsPath
 	} else {
 		dir = args[0]
 	}
@@ -61,11 +60,11 @@ func runDocsMdCmd(cmd *cobra.Command, args []string) error {
 	}
 
 	linkHandler := func(name string) string {
-		base := strings.TrimSuffix(name, path.Ext(name))
+		base := strings.TrimSuffix(name, filepath.Ext(name))
 		return "/commands/" + strings.ToLower(base) + "/"
 	}
 
-	log.WithField("path", dir).Info("generating Cider documentation")
+	log.WithField("path", dir).Info("generating Markdown documentation")
 	err := doc.GenMarkdownTreeCustom(cmd.Root(), dir, prepender, linkHandler)
 	if err != nil {
 		log.Error("generation failed")
@@ -76,11 +75,11 @@ func runDocsMdCmd(cmd *cobra.Command, args []string) error {
 }
 
 func pageTitle(s string) string {
-	s = strings.TrimSuffix(s, path.Ext(s))
+	s = strings.TrimSuffix(s, filepath.Ext(s))
 	if s != "cider" {
 		s = strings.ReplaceAll(s, "cider", "")
 	}
-	s = strings.Replace(s, "_", " ", -1)
+	s = strings.ReplaceAll(s, "_", " ")
 	s = strings.TrimSpace(s)
 	return s
 }

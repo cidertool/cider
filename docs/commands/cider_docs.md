@@ -33,6 +33,7 @@ cider docs [flags]
 ### SEE ALSO
 
 * [cider](/commands/cider/)	 - Submit your builds to the Apple App Store in seconds
+* [cider docs config](/commands/cider_docs_config/)	 - Generate configuration file documentation for Cider.
 * [cider docs man](/commands/cider_docs_man/)	 - Generate man documentation for Cider.
 * [cider docs md](/commands/cider_docs_md/)	 - Generate Markdown documentation for Cider.
 

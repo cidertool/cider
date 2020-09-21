@@ -4,6 +4,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const defaultDocsPath = "docs"
+
 type docsCmd struct {
 	cmd *cobra.Command
 }
@@ -25,6 +27,7 @@ func newDocsCmd() *docsCmd {
 		},
 	}
 	cmd.AddCommand(
+		newDocsConfigCmd(),
 		newDocsManCmd(),
 		newDocsMdCmd(),
 	)

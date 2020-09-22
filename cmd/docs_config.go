@@ -62,24 +62,60 @@ func genConfigMarkdown(path string) error {
 		}
 	}()
 
-	pkg, err := openPackage()
+	r, err := newRenderer()
 	if err != nil {
 		return err
 	}
 
-	return renderPackage(pkg, f)
+	return r.Render(f)
+}
+
+type stringWriterTo interface {
+	io.StringWriter
+	io.WriterTo
+}
+
+type docRenderer struct {
+	Package *doc.Package
+	Types   map[string]*doc.Type
+	Values  map[string]*doc.Value
+	Visited map[string]bool
+	Queue   []*doc.Type
+	buffer  stringWriterTo
+}
+
+func newRenderer() (*docRenderer, error) {
+	r := new(docRenderer)
+
+	pkg, err := openPackage()
+	if err != nil {
+		return nil, err
+	}
+	r.Package = pkg
+
+	r.Types = make(map[string]*doc.Type)
+	for _, typ := range pkg.Types {
+		r.Types[typ.Name] = typ
+	}
+
+	r.Values = make(map[string]*doc.Value)
+	r.Visited = make(map[string]bool)
+	r.Queue = make([]*doc.Type, 0)
+	r.buffer = new(bytes.Buffer)
+
+	return r, nil
 }
 
 func openPackage() (*doc.Package, error) {
 	fset := token.NewFileSet()
-	files, err := parsePkgConfigFiles(fset)
+	files, err := parseFilesInConfigPackage(fset)
 	if err != nil {
 		return nil, err
 	}
 	return doc.NewFromFiles(fset, files, "github.com/cidertool/cider/pkg/config")
 }
 
-func parsePkgConfigFiles(fset *token.FileSet) (files []*ast.File, err error) {
+func parseFilesInConfigPackage(fset *token.FileSet) (files []*ast.File, err error) {
 	files = make([]*ast.File, 0)
 	inDir, err := ioutil.ReadDir("pkg/config")
 	if err != nil {
@@ -98,87 +134,200 @@ func parsePkgConfigFiles(fset *token.FileSet) (files []*ast.File, err error) {
 	return files, err
 }
 
-func renderPackage(pkg *doc.Package, w io.Writer) error {
-	var projectType *doc.Type
-	for _, typ := range pkg.Types {
-		if typ.Name == "Project" {
-			projectType = typ
-		}
+func (r *docRenderer) WriteString(s string) {
+	_, err := r.buffer.WriteString(s)
+	if err != nil {
+		log.Error(err.Error())
 	}
-	if projectType == nil || len(projectType.Decl.Specs) == 0 {
+}
+
+func (r *docRenderer) Render(w io.Writer) error {
+	projectType, ok := r.Types["Project"]
+	if !ok ||
+		projectType == nil ||
+		len(projectType.Decl.Specs) == 0 {
 		return errors.New("config.Project not found")
 	}
+	r.WriteString("# " + strings.Title(r.Package.Name) + "\n\n")
+	r.WriteString(r.Package.Doc + "\n")
 
-	buf := new(bytes.Buffer)
+	r.Queue = append(r.Queue, projectType)
 
-	buf.WriteString("# " + strings.Title(pkg.Name) + "\n\n")
-
-	buf.WriteString(pkg.Doc + "\n")
-
-	for _, spec := range projectType.Decl.Specs {
-		docForSpec(spec, buf)
+	for {
+		typ := r.dequeueType()
+		if typ == nil {
+			break
+		}
+		r.renderDecl(typ.Decl, formatDoc(typ.Doc))
 	}
 
-	// buf.WriteString("## Consts\n\n")
-
-	// for _, group := range pkg.Consts {
-	// 	if group.Doc != "" {
-	// 		buf.WriteString(group.Doc + "\n")
-	// 	}
-	// 	for _, con := range group.Names {
-	// 		buf.WriteString("- " + con + "\n")
-	// 	}
-	// 	buf.WriteString("\n")
-	// }
-	// buf.WriteString("\n")
-
-	// buf.WriteString("## Types\n\n")
-
-	// for _, typ := range pkg.Types {
-	// 	buf.WriteString("### " + typ.Name + "\n\n")
-	// 	if typ.Doc != "" {
-	// 		buf.WriteString(typ.Doc)
-	// 	}
-	// 	for _, vari := range typ.Vars {
-	// 		buf.WriteString(vari.Decl.Tok.String())
-	// 	}
-	// 	buf.WriteString("\n")
-	// }
-	buf.WriteString("\n")
-
-	_, err := buf.WriteTo(w)
+	_, err := r.buffer.WriteTo(w)
 	return err
 }
 
-func docForSpec(spec ast.Spec, b io.StringWriter) {
-	switch s := spec.(type) {
-	case *ast.TypeSpec:
-		b.WriteString(s.Name.Name)
-		docForType(s.Type, b)
-	case *ast.ValueSpec:
-		b.WriteString("value " + s.Names[0].Name + "\n")
-	case *ast.ImportSpec:
-		b.WriteString("import " + s.Name.Name + "\n")
+func (r *docRenderer) renderDecl(decl *ast.GenDecl, doc string) {
+	for _, spec := range decl.Specs {
+		r.renderSpec(spec, doc)
 	}
 }
 
-func docForType(expr ast.Expr, b io.StringWriter) {
+func (r *docRenderer) renderSpec(s ast.Spec, doc string) {
+	switch spec := s.(type) {
+	case *ast.TypeSpec:
+		r.renderType(spec.Name.Name, doc, spec.Type)
+	case *ast.ValueSpec:
+		fmt.Println(spec)
+	}
+}
+
+func (r *docRenderer) renderType(name string, doc string, expr ast.Expr) {
 	switch t := expr.(type) {
 	case *ast.ArrayType:
-		b.WriteString(" is an array of" + fmt.Sprint(t.Elt))
-		b.WriteString("\n")
+		r.enqueueTypeFromExprs(t.Elt)
 	case *ast.StructType:
-		b.WriteString(" is a struct\n")
+		r.WriteString("### " + name + "\n\n")
+		if doc != "" {
+			r.WriteString(doc + "\n\n")
+		}
 		for _, field := range t.Fields.List {
-			docForType(field.Type, b)
+			typeName := formatTypeName(field.Type)
+			tag, required := getTagValue(field.Tag)
+			var requiredStr = " "
+			if required && !strings.HasPrefix(typeName, "[") {
+				requiredStr = "x"
+			}
+			if len(field.Names) != 0 {
+				line := fmt.Sprintf(
+					"- [%s] **%s: %s** - %s",
+					requiredStr,
+					tag,
+					r.renderTypeLink(typeName, false),
+					formatDoc(field.Doc.Text()),
+				)
+				r.WriteString(line)
+				if !strings.HasSuffix(line, "\n") {
+					r.WriteString("\n")
+				}
+			}
+			r.enqueueTypeFromExprs(field.Type)
 		}
 	case *ast.MapType:
-		b.WriteString(" is a map of ")
-		docForType(t.Key, b)
-		b.WriteString(" to ")
-		docForType(t.Value, b)
-		b.WriteString("\n")
+		r.enqueueTypeFromExprs(t.Key, t.Value)
+	case *ast.StarExpr:
+		r.enqueueTypeFromExprs(t.X)
+	case *ast.SelectorExpr:
+		r.enqueueTypeFromExprs(t.Sel)
+	case *ast.Ident:
+		r.enqueueTypeFromExprs(t)
 	default:
-		fmt.Println(t)
+		log.Warnf("%s", t)
 	}
+	r.WriteString("\n")
+}
+
+func (r *docRenderer) hasType(name string) bool {
+	_, ok := r.Types[name]
+	return ok
+}
+
+func (r *docRenderer) hasValue(name string) bool {
+	_, ok := r.Values[name]
+	return ok
+}
+
+func (r *docRenderer) enqueueTypeFromExprs(exprs ...ast.Expr) {
+	for _, expr := range exprs {
+		name := getTypeName(expr)
+		if name == "" {
+			continue
+		}
+		typ, ok := r.Types[name]
+		if !ok {
+			continue
+		} else if r.Visited[name] {
+			continue
+		}
+		r.Visited[name] = true
+		r.Queue = append(r.Queue, typ)
+	}
+}
+
+func (r *docRenderer) dequeueType() *doc.Type {
+	if len(r.Queue) == 0 {
+		return nil
+	}
+	typ := r.Queue[0]
+	r.Queue[0] = nil
+	r.Queue = r.Queue[1:]
+	return typ
+}
+
+func getTagValue(tag *ast.BasicLit) (val string, required bool) {
+	val = strings.TrimSpace(tag.Value)
+	quote := strings.Index(val, `"`)
+	comma := strings.Index(val[quote:], ",")
+	if comma == -1 {
+		required = true
+		comma = strings.LastIndex(val, `"`)
+	} else {
+		comma += quote
+	}
+	val = val[quote+1 : comma]
+	return val, required
+}
+
+func (r *docRenderer) renderTypeLink(name string, plural bool) string {
+	if r.hasType(name) {
+		var pluralStr string
+		if plural {
+			pluralStr = "s"
+		}
+		return fmt.Sprintf("[%s%s](#%s)", name, pluralStr, strings.ToLower(name))
+	}
+	return name
+}
+
+func getTypeName(expr ast.Expr) string {
+	switch t := expr.(type) {
+	case *ast.ArrayType:
+		return getTypeName(t.Elt)
+	case *ast.StarExpr:
+		return getTypeName(t.X)
+	case *ast.SelectorExpr:
+		return getTypeName(t.Sel)
+	case *ast.Ident:
+		return t.Name
+	}
+	return ""
+}
+
+func formatTypeName(expr ast.Expr) string {
+	switch t := expr.(type) {
+	case *ast.ArrayType:
+		return fmt.Sprintf("[%s]", formatTypeName(t.Elt))
+	case *ast.MapType:
+		return fmt.Sprintf("[%s: %s]", formatTypeName(t.Key), formatTypeName(t.Value))
+	case *ast.StarExpr:
+		return formatTypeName(t.X)
+	case *ast.SelectorExpr:
+		return formatTypeName(t.Sel)
+	case *ast.Ident:
+		return t.String()
+	default:
+		log.Warnf("%s", t)
+		return "INVALID_EXPR"
+	}
+}
+
+func formatDoc(s string) string {
+	doc := strings.Builder{}
+	lines := strings.Split(s, "\n")
+	for i, line := range lines {
+		if line == "" && i < len(lines)-1 {
+			doc.WriteString("\n\n")
+		} else {
+			doc.WriteString(strings.TrimSpace(line) + " ")
+		}
+	}
+	return doc.String()
 }

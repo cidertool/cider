@@ -1,4 +1,3 @@
-// Package config contains types and helpers to describe the configuration of an Cider project
 package config
 
 import (
@@ -26,37 +25,37 @@ const (
 	PlatformTvOS Platform = "tvOS"
 )
 
-type contentIntensity string
+type ContentIntensity string
 
 const (
 	// ContentIntensityNone refers to the NONE content warning.
-	ContentIntensityNone contentIntensity = "none"
+	ContentIntensityNone ContentIntensity = "none"
 	// ContentIntensityInfrequentOrMild refers to the INFREQUENT_OR_MILD content warning.
-	ContentIntensityInfrequentOrMild contentIntensity = "infrequentOrMild"
+	ContentIntensityInfrequentOrMild ContentIntensity = "infrequentOrMild"
 	// ContentIntensityFrequentOrIntense refers to the FREQUENT_OR_INTENSE content warning.
-	ContentIntensityFrequentOrIntense contentIntensity = "frequentOrIntense"
+	ContentIntensityFrequentOrIntense ContentIntensity = "frequentOrIntense"
 )
 
-type kidsAgeBand string
+type KidsAgeBand string
 
 const (
 	// KidsAgeBandFiveAndUnder refers to the FIVE_AND_UNDER kids age band.
-	KidsAgeBandFiveAndUnder kidsAgeBand = "5 and under"
+	KidsAgeBandFiveAndUnder KidsAgeBand = "5 and under"
 	// KidsAgeBandSixToEight refers to the SIX_TO_EIGHT kids age band.
-	KidsAgeBandSixToEight kidsAgeBand = "6-8"
+	KidsAgeBandSixToEight KidsAgeBand = "6-8"
 	// KidsAgeBandNineToEleven refers to the NINE_TO_ELEVEN kids age band.
-	KidsAgeBandNineToEleven kidsAgeBand = "9-11"
+	KidsAgeBandNineToEleven KidsAgeBand = "9-11"
 )
 
-type releaseType string
+type ReleaseType string
 
 const (
 	// ReleaseTypeManual refers to a manual release type.
-	ReleaseTypeManual releaseType = "manual"
+	ReleaseTypeManual ReleaseType = "manual"
 	// ReleaseTypeAfterApproval refers to an automatic release type to be completed after approval.
-	ReleaseTypeAfterApproval releaseType = "afterApproval"
+	ReleaseTypeAfterApproval ReleaseType = "afterApproval"
 	// ReleaseTypeScheduled refers to an automatic release type to be completed after a scheduled date.
-	ReleaseTypeScheduled releaseType = "scheduled"
+	ReleaseTypeScheduled ReleaseType = "scheduled"
 )
 
 // File refers to a file on disk by name.
@@ -72,94 +71,94 @@ type Preview struct {
 	PreviewFrameTimeCode string `yaml:"previewFrameTimeCode,omitempty"`
 }
 
-type previewType string
+type PreviewType string
 
 const (
 	// PreviewTypeAppleTV is a preview type for Apple TV.
-	PreviewTypeAppleTV previewType = "appleTV"
+	PreviewTypeAppleTV PreviewType = "appleTV"
 	// PreviewTypeDesktop is a preview type for Desktop.
-	PreviewTypeDesktop previewType = "desktop"
+	PreviewTypeDesktop PreviewType = "desktop"
 	// PreviewTypeiPad105 is a preview type for iPad 10.5.
-	PreviewTypeiPad105 previewType = "ipad105"
+	PreviewTypeiPad105 PreviewType = "ipad105"
 	// PreviewTypeiPad97 is a preview type for iPad 9.7.
-	PreviewTypeiPad97 previewType = "ipad97"
+	PreviewTypeiPad97 PreviewType = "ipad97"
 	// PreviewTypeiPadPro129 is a preview type for iPad Pro 12.9.
-	PreviewTypeiPadPro129 previewType = "ipadPro129"
+	PreviewTypeiPadPro129 PreviewType = "ipadPro129"
 	// PreviewTypeiPadPro3Gen11 is a preview type for third-generation iPad Pro 11.
-	PreviewTypeiPadPro3Gen11 previewType = "ipadPro3Gen11"
+	PreviewTypeiPadPro3Gen11 PreviewType = "ipadPro3Gen11"
 	// PreviewTypeiPadPro3Gen129 is a preview type for third-generation iPad Pro 12.9.
-	PreviewTypeiPadPro3Gen129 previewType = "ipadPro3Gen129"
+	PreviewTypeiPadPro3Gen129 PreviewType = "ipadPro3Gen129"
 	// PreviewTypeiPhone35 is a preview type for iPhone 3.5.
-	PreviewTypeiPhone35 previewType = "iphone35"
+	PreviewTypeiPhone35 PreviewType = "iphone35"
 	// PreviewTypeiPhone40 is a preview type for iPhone 4.0.
-	PreviewTypeiPhone40 previewType = "iphone40"
+	PreviewTypeiPhone40 PreviewType = "iphone40"
 	// PreviewTypeiPhone47 is a preview type for iPhone 4.7.
-	PreviewTypeiPhone47 previewType = "iphone47"
+	PreviewTypeiPhone47 PreviewType = "iphone47"
 	// PreviewTypeiPhone55 is a preview type for iPhone 5.5.
-	PreviewTypeiPhone55 previewType = "iphone55"
+	PreviewTypeiPhone55 PreviewType = "iphone55"
 	// PreviewTypeiPhone58 is a preview type for iPhone 5.8.
-	PreviewTypeiPhone58 previewType = "iphone58"
+	PreviewTypeiPhone58 PreviewType = "iphone58"
 	// PreviewTypeiPhone65 is a preview type for iPhone 6.5.
-	PreviewTypeiPhone65 previewType = "iphone65"
+	PreviewTypeiPhone65 PreviewType = "iphone65"
 	// PreviewTypeWatchSeries3 is a preview type for Watch Series 3.
-	PreviewTypeWatchSeries3 previewType = "watchSeries3"
+	PreviewTypeWatchSeries3 PreviewType = "watchSeries3"
 	// PreviewTypeWatchSeries4 is a preview type for Watch Series 4.
-	PreviewTypeWatchSeries4 previewType = "watchSeries4"
+	PreviewTypeWatchSeries4 PreviewType = "watchSeries4"
 )
 
-type screenshotType string
+type ScreenshotType string
 
 const (
 	// ScreenshotTypeAppleTV is a screenshot type for Apple TV.
-	ScreenshotTypeAppleTV screenshotType = "appleTV"
+	ScreenshotTypeAppleTV ScreenshotType = "appleTV"
 	// ScreenshotTypeDesktop is a screenshot type for Desktop.
-	ScreenshotTypeDesktop screenshotType = "desktop"
+	ScreenshotTypeDesktop ScreenshotType = "desktop"
 	// ScreenshotTypeiPad105 is a screenshot type for iPad 10.5.
-	ScreenshotTypeiPad105 screenshotType = "ipad105"
+	ScreenshotTypeiPad105 ScreenshotType = "ipad105"
 	// ScreenshotTypeiPad97 is a screenshot type for iPad 9.7.
-	ScreenshotTypeiPad97 screenshotType = "ipad97"
+	ScreenshotTypeiPad97 ScreenshotType = "ipad97"
 	// ScreenshotTypeiPadPro129 is a screenshot type for iPad Pro 12.9.
-	ScreenshotTypeiPadPro129 screenshotType = "ipadPro129"
+	ScreenshotTypeiPadPro129 ScreenshotType = "ipadPro129"
 	// ScreenshotTypeiPadPro3Gen11 is a screenshot type for third-generation iPad Pro 11.
-	ScreenshotTypeiPadPro3Gen11 screenshotType = "ipadPro3Gen11"
+	ScreenshotTypeiPadPro3Gen11 ScreenshotType = "ipadPro3Gen11"
 	// ScreenshotTypeiPadPro3Gen129 is a screenshot type for third-generation iPad Pro 12.9.
-	ScreenshotTypeiPadPro3Gen129 screenshotType = "ipadPro3Gen129"
+	ScreenshotTypeiPadPro3Gen129 ScreenshotType = "ipadPro3Gen129"
 	// ScreenshotTypeiPhone35 is a screenshot type for iPhone 3.5.
-	ScreenshotTypeiPhone35 screenshotType = "iphone35"
+	ScreenshotTypeiPhone35 ScreenshotType = "iphone35"
 	// ScreenshotTypeiPhone40 is a screenshot type for iPhone 4.0.
-	ScreenshotTypeiPhone40 screenshotType = "iphone40"
+	ScreenshotTypeiPhone40 ScreenshotType = "iphone40"
 	// ScreenshotTypeiPhone47 is a screenshot type for iPhone 4.7.
-	ScreenshotTypeiPhone47 screenshotType = "iphone47"
+	ScreenshotTypeiPhone47 ScreenshotType = "iphone47"
 	// ScreenshotTypeiPhone55 is a screenshot type for iPhone 5.5.
-	ScreenshotTypeiPhone55 screenshotType = "iphone55"
+	ScreenshotTypeiPhone55 ScreenshotType = "iphone55"
 	// ScreenshotTypeiPhone58 is a screenshot type for iPhone 5.8.
-	ScreenshotTypeiPhone58 screenshotType = "iphone58"
+	ScreenshotTypeiPhone58 ScreenshotType = "iphone58"
 	// ScreenshotTypeiPhone65 is a screenshot type for iPhone 6.5.
-	ScreenshotTypeiPhone65 screenshotType = "iphone65"
+	ScreenshotTypeiPhone65 ScreenshotType = "iphone65"
 	// ScreenshotTypeWatchSeries3 is a screenshot type for Watch Series 3.
-	ScreenshotTypeWatchSeries3 screenshotType = "watchSeries3"
+	ScreenshotTypeWatchSeries3 ScreenshotType = "watchSeries3"
 	// ScreenshotTypeWatchSeries4 is a screenshot type for Watch Series 4.
-	ScreenshotTypeWatchSeries4 screenshotType = "watchSeries4"
+	ScreenshotTypeWatchSeries4 ScreenshotType = "watchSeries4"
 	// ScreenshotTypeiMessageiPad105 is a screenshot type for iMessage apps on iPad 10.5.
-	ScreenshotTypeiMessageiPad105 screenshotType = "ipad105imessage"
+	ScreenshotTypeiMessageiPad105 ScreenshotType = "ipad105imessage"
 	// ScreenshotTypeiMessageiPad97 is a screenshot type for iMessage apps on iPad 9.7.
-	ScreenshotTypeiMessageiPad97 screenshotType = "ipad97imessage"
+	ScreenshotTypeiMessageiPad97 ScreenshotType = "ipad97imessage"
 	// ScreenshotTypeiMessageiPadPro129 is a screenshot type for iMessage apps on iPad Pro 12.9.
-	ScreenshotTypeiMessageiPadPro129 screenshotType = "ipadPro129imessage"
+	ScreenshotTypeiMessageiPadPro129 ScreenshotType = "ipadPro129imessage"
 	// ScreenshotTypeiMessageiPadPro3Gen11 is a screenshot type for iMessage apps on third-generation iPad Pro 11.
-	ScreenshotTypeiMessageiPadPro3Gen11 screenshotType = "ipadPro3Gen11imessage"
+	ScreenshotTypeiMessageiPadPro3Gen11 ScreenshotType = "ipadPro3Gen11imessage"
 	// ScreenshotTypeiMessageiPadPro3Gen129 is a screenshot type for iMessage apps on third-generation iPad Pro 12.9.
-	ScreenshotTypeiMessageiPadPro3Gen129 screenshotType = "ipadPro3Gen129imessage"
+	ScreenshotTypeiMessageiPadPro3Gen129 ScreenshotType = "ipadPro3Gen129imessage"
 	// ScreenshotTypeiMessageiPhone40 is a screenshot type for iMessage apps on iPhone 4.0.
-	ScreenshotTypeiMessageiPhone40 screenshotType = "iphone40imessage"
+	ScreenshotTypeiMessageiPhone40 ScreenshotType = "iphone40imessage"
 	// ScreenshotTypeiMessageiPhone47 is a screenshot type for iMessage apps on iPhone 4.7.
-	ScreenshotTypeiMessageiPhone47 screenshotType = "iphone47imessage"
+	ScreenshotTypeiMessageiPhone47 ScreenshotType = "iphone47imessage"
 	// ScreenshotTypeiMessageiPhone55 is a screenshot type for iMessage apps on iPhone 5.5.
-	ScreenshotTypeiMessageiPhone55 screenshotType = "iphone55imessage"
+	ScreenshotTypeiMessageiPhone55 ScreenshotType = "iphone55imessage"
 	// ScreenshotTypeiMessageiPhone58 is a screenshot type for iMessage apps on iPhone 5.8.
-	ScreenshotTypeiMessageiPhone58 screenshotType = "iphone58imessage"
+	ScreenshotTypeiMessageiPhone58 ScreenshotType = "iphone58imessage"
 	// ScreenshotTypeiMessageiPhone65 is a screenshot type for iMessage apps on iPhone 6.5.
-	ScreenshotTypeiMessageiPhone65 screenshotType = "iphone65imessage"
+	ScreenshotTypeiMessageiPhone65 ScreenshotType = "iphone65imessage"
 )
 
 // Repo represents any kind of repo (github, gitlab, etc).
@@ -173,17 +172,24 @@ type Project map[string]App
 
 // App outlines general information about your app, primarily for querying purposes.
 type App struct {
-	// Bundle ID of the app. Required.
+	// Bundle ID of the app.
 	BundleID string `yaml:"id"`
 	// Primary locale of the app.
-	PrimaryLocale         string                `yaml:"primaryLocale,omitempty"`
-	UsesThirdPartyContent *bool                 `yaml:"usesThirdPartyContent,omitempty"`
-	Availability          *Availability         `yaml:"availability,omitempty"`
-	Categories            *Categories           `yaml:"categories,omitempty"`
-	AgeRatingDeclaration  *AgeRatingDeclaration `yaml:"ageRatings,omitempty"`
-	Localizations         AppLocalizations      `yaml:"localizations"`
-	Versions              Version               `yaml:"versions"`
-	Testflight            Testflight            `yaml:"testflight"`
+	PrimaryLocale string `yaml:"primaryLocale,omitempty"`
+	// Whether or not the app uses third party content. Omit to avoid declarting content rights.
+	UsesThirdPartyContent *bool `yaml:"usesThirdPartyContent,omitempty"`
+	// Availability of the app, including pricing and supported territories.
+	Availability *Availability `yaml:"availability,omitempty"`
+	// Categories to list under in the App Store.
+	Categories *Categories `yaml:"categories,omitempty"`
+	// Content warnings that are used to declare the age rating.
+	AgeRatingDeclaration *AgeRatingDeclaration `yaml:"ageRatings,omitempty"`
+	// App info localizations.
+	Localizations AppLocalizations `yaml:"localizations"`
+	// App version metadata.
+	Versions Version `yaml:"versions"`
+	// TestFlight metadata.
+	Testflight Testflight `yaml:"testflight"`
 }
 
 // Categories describes the categories used for classificiation in the App Store.
@@ -198,18 +204,18 @@ type Categories struct {
 type AgeRatingDeclaration struct {
 	GamblingAndContests                         *bool             `yaml:"gamblingAndContests,omitempty"`
 	UnrestrictedWebAccess                       *bool             `yaml:"unrestrictedWebAccess,omitempty"`
-	KidsAgeBand                                 *kidsAgeBand      `yaml:"kidsAgeBand,omitempty"`
-	AlcoholTobaccoOrDrugUseOrReferences         *contentIntensity `yaml:"alcoholTobaccoOrDrugUseOrReferences,omitempty"`
-	MedicalOrTreatmentInformation               *contentIntensity `yaml:"medicalOrTreatmentInformation,omitempty"`
-	ProfanityOrCrudeHumor                       *contentIntensity `yaml:"profanityOrCrudeHumor,omitempty"`
-	SexualContentOrNudity                       *contentIntensity `yaml:"sexualContentOrNudity,omitempty"`
-	GamblingSimulated                           *contentIntensity `yaml:"gamblingSimulated,omitempty"`
-	HorrorOrFearThemes                          *contentIntensity `yaml:"horrorOrFearThemes,omitempty"`
-	MatureOrSuggestiveThemes                    *contentIntensity `yaml:"matureOrSuggestiveThemes,omitempty"`
-	SexualContentGraphicAndNudity               *contentIntensity `yaml:"sexualContentGraphicAndNudity,omitempty"`
-	ViolenceCartoonOrFantasy                    *contentIntensity `yaml:"violenceCartoonOrFantasy,omitempty"`
-	ViolenceRealistic                           *contentIntensity `yaml:"violenceRealistic,omitempty"`
-	ViolenceRealisticProlongedGraphicOrSadistic *contentIntensity `yaml:"violenceRealisticProlongedGraphicOrSadistic,omitempty"`
+	KidsAgeBand                                 *KidsAgeBand      `yaml:"kidsAgeBand,omitempty"`
+	AlcoholTobaccoOrDrugUseOrReferences         *ContentIntensity `yaml:"alcoholTobaccoOrDrugUseOrReferences,omitempty"`
+	MedicalOrTreatmentInformation               *ContentIntensity `yaml:"medicalOrTreatmentInformation,omitempty"`
+	ProfanityOrCrudeHumor                       *ContentIntensity `yaml:"profanityOrCrudeHumor,omitempty"`
+	SexualContentOrNudity                       *ContentIntensity `yaml:"sexualContentOrNudity,omitempty"`
+	GamblingSimulated                           *ContentIntensity `yaml:"gamblingSimulated,omitempty"`
+	HorrorOrFearThemes                          *ContentIntensity `yaml:"horrorOrFearThemes,omitempty"`
+	MatureOrSuggestiveThemes                    *ContentIntensity `yaml:"matureOrSuggestiveThemes,omitempty"`
+	SexualContentGraphicAndNudity               *ContentIntensity `yaml:"sexualContentGraphicAndNudity,omitempty"`
+	ViolenceCartoonOrFantasy                    *ContentIntensity `yaml:"violenceCartoonOrFantasy,omitempty"`
+	ViolenceRealistic                           *ContentIntensity `yaml:"violenceRealistic,omitempty"`
+	ViolenceRealisticProlongedGraphicOrSadistic *ContentIntensity `yaml:"violenceRealisticProlongedGraphicOrSadistic,omitempty"`
 }
 
 // Availability wraps aspects of app availability, such as territories and pricing.
@@ -264,7 +270,7 @@ type Version struct {
 	// Copyright information to display on the listing. Templated.
 	Copyright            string           `yaml:"copyright,omitempty"`
 	EarliestReleaseDate  *time.Time       `yaml:"earliestReleaseDate,omitempty"`
-	ReleaseType          releaseType      `yaml:"releaseType,omitempty"`
+	ReleaseType          ReleaseType      `yaml:"releaseType,omitempty"`
 	PhasedReleaseEnabled bool             `yaml:"enablePhasedRelease,omitempty"`
 	IDFADeclaration      *IDFADeclaration `yaml:"idfaDeclaration,omitempty"`
 	RoutingCoverage      *File            `yaml:"routingCoverage,omitempty"`
@@ -293,10 +299,10 @@ type VersionLocalization struct {
 }
 
 // PreviewSets is a map of preview types to []Preview slices.
-type PreviewSets map[previewType][]Preview
+type PreviewSets map[PreviewType][]Preview
 
 // ScreenshotSets is a map of screenshot types to []File slices.
-type ScreenshotSets map[screenshotType][]File
+type ScreenshotSets map[ScreenshotType][]File
 
 // IDFADeclaration outlines regulatory information for Apple to use to handle your apps' use
 // of tracking identifiers. Implicitly enables `usesIdfa` when creating an app store version.
@@ -476,7 +482,7 @@ func (p *Platform) APIValue() *asc.Platform {
 	return &value
 }
 
-func (c *contentIntensity) APIValue() *string {
+func (c *ContentIntensity) APIValue() *string {
 	if c == nil {
 		return nil
 	}
@@ -494,7 +500,7 @@ func (c *contentIntensity) APIValue() *string {
 	return &value
 }
 
-func (b *kidsAgeBand) APIValue() *asc.KidsAgeBand {
+func (b *KidsAgeBand) APIValue() *asc.KidsAgeBand {
 	if b == nil {
 		return nil
 	}
@@ -512,7 +518,7 @@ func (b *kidsAgeBand) APIValue() *asc.KidsAgeBand {
 	return &value
 }
 
-func (t *releaseType) APIValue() *string {
+func (t *ReleaseType) APIValue() *string {
 	if t == nil {
 		return nil
 	}
@@ -530,7 +536,7 @@ func (t *releaseType) APIValue() *string {
 	return &value
 }
 
-func (t *previewType) APIValue() *asc.PreviewType {
+func (t *PreviewType) APIValue() *asc.PreviewType {
 	if t == nil {
 		return nil
 	}
@@ -572,7 +578,7 @@ func (t *previewType) APIValue() *asc.PreviewType {
 	return &value
 }
 
-func (t *screenshotType) APIValue() *asc.ScreenshotDisplayType {
+func (t *ScreenshotType) APIValue() *asc.ScreenshotDisplayType {
 	if t == nil {
 		return nil
 	}

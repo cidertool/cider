@@ -58,12 +58,12 @@ If you're using Buildkite, you can use the [Cider Buildkite Plugin](https://gith
 
 ```yaml
 steps:
-  - label: ":apple: Release with Cider"
+  - label: ':apple: Release with Cider'
     plugins:
       - cidertool/cider#v0.1.0:
           args: release --mode appstore
     env:
-      ASC_KEY_ID: "..."
-      ASC_ISSUER_ID: "..."
-      ASC_PRIVATE_KEY: "..."
+      ASC_KEY_ID: '...'
+      ASC_ISSUER_ID: '...'
+      ASC_PRIVATE_KEY: '...'
 ```

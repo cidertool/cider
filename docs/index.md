@@ -2,7 +2,7 @@
 layout: home
 title: Home
 nav_order: 1
-description: "Cider is a command-line application that makes it easy to submit your Apple App Store apps for review."
+description: 'Cider is a command-line application that makes it easy to submit your Apple App Store apps for review.'
 permalink: /
 ---
 

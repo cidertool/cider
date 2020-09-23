@@ -63,9 +63,8 @@ var docsConfigExampleProject = config.Project{
 			Territories: []string{"USA"},
 		},
 		Categories: &config.Categories{
-			Primary:              "SOCIAL_NETWORKING",
-			PrimarySubcategories: [2]string{},
-			Secondary:            "GAMES",
+			Primary:   "SOCIAL_NETWORKING",
+			Secondary: "GAMES",
 			SecondarySubcategories: [2]string{
 				"GAMES_SIMULATION",
 				"GAMES_RACING",

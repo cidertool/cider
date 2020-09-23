@@ -1,10 +1,9 @@
 package cmd
 
 import (
+	"github.com/cidertool/cider/cmd/docs"
 	"github.com/spf13/cobra"
 )
-
-const defaultDocsPath = "docs"
 
 type docsCmd struct {
 	cmd *cobra.Command
@@ -27,9 +26,9 @@ func newDocsCmd() *docsCmd {
 		},
 	}
 	cmd.AddCommand(
-		newDocsConfigCmd(),
-		newDocsManCmd(),
-		newDocsMdCmd(),
+		docs.CmdConfig(),
+		docs.CmdMan(),
+		docs.CmdMarkdown(),
 	)
 
 	root.cmd = cmd

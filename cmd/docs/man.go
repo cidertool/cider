@@ -1,4 +1,4 @@
-package cmd
+package docs
 
 import (
 	"path/filepath"
@@ -7,15 +7,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/cobra/doc"
 )
-
-func newDocsManCmd() *cobra.Command {
-	return &cobra.Command{
-		Use:   "man",
-		Short: "Generate man documentation for Cider.",
-		Args:  cobra.MaximumNArgs(1),
-		RunE:  runDocsManCmd,
-	}
-}
 
 func runDocsManCmd(cmd *cobra.Command, args []string) error {
 	var path string

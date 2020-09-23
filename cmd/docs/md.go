@@ -1,4 +1,4 @@
-package cmd
+package docs
 
 import (
 	"fmt"
@@ -23,15 +23,6 @@ nav_exclude: %t
 type pageNavField struct {
 	order   int
 	exclude bool
-}
-
-func newDocsMdCmd() *cobra.Command {
-	return &cobra.Command{
-		Use:   "md",
-		Short: "Generate Markdown documentation for Cider.",
-		Args:  cobra.MaximumNArgs(1),
-		RunE:  runDocsMdCmd,
-	}
 }
 
 func runDocsMdCmd(cmd *cobra.Command, args []string) error {

@@ -22,49 +22,49 @@ func TestPlatformAPIValue(t *testing.T) {
 }
 
 func TestReleaseTypeAPIValue(t *testing.T) {
-	var release ReleaseType
+	var release releaseType
 	release = ReleaseTypeManual
 	assert.Equal(t, *release.APIValue(), "MANUAL")
 	release = ReleaseTypeAfterApproval
 	assert.Equal(t, *release.APIValue(), "AFTER_APPROVAL")
 	release = ReleaseTypeScheduled
 	assert.Equal(t, *release.APIValue(), "SCHEDULED")
-	bad := ReleaseType("never")
+	bad := releaseType("never")
 	assert.Empty(t, bad.APIValue())
-	var empty *ReleaseType
+	var empty *releaseType
 	assert.Empty(t, empty.APIValue())
 }
 
 func TestContentIntensityAPIValue(t *testing.T) {
-	var intensity ContentIntensity
+	var intensity contentIntensity
 	intensity = ContentIntensityNone
 	assert.Equal(t, *intensity.APIValue(), "NONE")
 	intensity = ContentIntensityInfrequentOrMild
 	assert.Equal(t, *intensity.APIValue(), "INFREQUENT_OR_MILD")
 	intensity = ContentIntensityFrequentOrIntense
 	assert.Equal(t, *intensity.APIValue(), "FREQUENT_OR_INTENSE")
-	bad := ContentIntensity("nothing but violence")
+	bad := contentIntensity("nothing but violence")
 	assert.Empty(t, bad.APIValue())
-	var empty *ContentIntensity
+	var empty *contentIntensity
 	assert.Empty(t, empty.APIValue())
 }
 
 func TestKidsAgeBandAPIValue(t *testing.T) {
-	var band KidsAgeBand
+	var band kidsAgeBand
 	band = KidsAgeBandFiveAndUnder
 	assert.Equal(t, *band.APIValue(), asc.KidsAgeBandFiveAndUnder)
 	band = KidsAgeBandSixToEight
 	assert.Equal(t, *band.APIValue(), asc.KidsAgeBandSixToEight)
 	band = KidsAgeBandNineToEleven
 	assert.Equal(t, *band.APIValue(), asc.KidsAgeBandNineToEleven)
-	bad := KidsAgeBand("18+")
+	bad := kidsAgeBand("18+")
 	assert.Empty(t, bad.APIValue())
-	var empty *KidsAgeBand
+	var empty *kidsAgeBand
 	assert.Empty(t, empty.APIValue())
 }
 
 func TestPreviewTypeAPIValue(t *testing.T) {
-	var preview PreviewType
+	var preview previewType
 	preview = PreviewTypeAppleTV
 	assert.Equal(t, *preview.APIValue(), asc.PreviewTypeAppleTV)
 	preview = PreviewTypeDesktop
@@ -95,14 +95,14 @@ func TestPreviewTypeAPIValue(t *testing.T) {
 	assert.Equal(t, *preview.APIValue(), asc.PreviewTypeWatchSeries3)
 	preview = PreviewTypeWatchSeries4
 	assert.Equal(t, *preview.APIValue(), asc.PreviewTypeWatchSeries4)
-	bad := PreviewType("Google Pixel")
+	bad := previewType("Google Pixel")
 	assert.Empty(t, bad.APIValue())
-	var empty *PreviewType
+	var empty *previewType
 	assert.Empty(t, empty.APIValue())
 }
 
 func TestScreenshotTypeAPIValue(t *testing.T) {
-	var screenshot ScreenshotType
+	var screenshot screenshotType
 	screenshot = ScreenshotTypeAppleTV
 	assert.Equal(t, *screenshot.APIValue(), asc.ScreenshotDisplayTypeAppAppleTV)
 	screenshot = ScreenshotTypeDesktop
@@ -153,9 +153,9 @@ func TestScreenshotTypeAPIValue(t *testing.T) {
 	assert.Equal(t, *screenshot.APIValue(), asc.ScreenshotDisplayTypeiMessageAppIPhone58)
 	screenshot = ScreenshotTypeiMessageiPhone65
 	assert.Equal(t, *screenshot.APIValue(), asc.ScreenshotDisplayTypeiMessageAppIPhone65)
-	bad := ScreenshotType("Google Pixel")
+	bad := screenshotType("Google Pixel")
 	assert.Empty(t, bad.APIValue())
-	var empty *ScreenshotType
+	var empty *screenshotType
 	assert.Empty(t, empty.APIValue())
 }
 

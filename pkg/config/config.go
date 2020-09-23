@@ -25,37 +25,37 @@ const (
 	PlatformTvOS Platform = "tvOS"
 )
 
-type ContentIntensity string
+type contentIntensity string
 
 const (
 	// ContentIntensityNone refers to the NONE content warning.
-	ContentIntensityNone ContentIntensity = "none"
+	ContentIntensityNone contentIntensity = "none"
 	// ContentIntensityInfrequentOrMild refers to the INFREQUENT_OR_MILD content warning.
-	ContentIntensityInfrequentOrMild ContentIntensity = "infrequentOrMild"
+	ContentIntensityInfrequentOrMild contentIntensity = "infrequentOrMild"
 	// ContentIntensityFrequentOrIntense refers to the FREQUENT_OR_INTENSE content warning.
-	ContentIntensityFrequentOrIntense ContentIntensity = "frequentOrIntense"
+	ContentIntensityFrequentOrIntense contentIntensity = "frequentOrIntense"
 )
 
-type KidsAgeBand string
+type kidsAgeBand string
 
 const (
 	// KidsAgeBandFiveAndUnder refers to the FIVE_AND_UNDER kids age band.
-	KidsAgeBandFiveAndUnder KidsAgeBand = "5 and under"
+	KidsAgeBandFiveAndUnder kidsAgeBand = "5 and under"
 	// KidsAgeBandSixToEight refers to the SIX_TO_EIGHT kids age band.
-	KidsAgeBandSixToEight KidsAgeBand = "6-8"
+	KidsAgeBandSixToEight kidsAgeBand = "6-8"
 	// KidsAgeBandNineToEleven refers to the NINE_TO_ELEVEN kids age band.
-	KidsAgeBandNineToEleven KidsAgeBand = "9-11"
+	KidsAgeBandNineToEleven kidsAgeBand = "9-11"
 )
 
-type ReleaseType string
+type releaseType string
 
 const (
 	// ReleaseTypeManual refers to a manual release type.
-	ReleaseTypeManual ReleaseType = "manual"
+	ReleaseTypeManual releaseType = "manual"
 	// ReleaseTypeAfterApproval refers to an automatic release type to be completed after approval.
-	ReleaseTypeAfterApproval ReleaseType = "afterApproval"
+	ReleaseTypeAfterApproval releaseType = "afterApproval"
 	// ReleaseTypeScheduled refers to an automatic release type to be completed after a scheduled date.
-	ReleaseTypeScheduled ReleaseType = "scheduled"
+	ReleaseTypeScheduled releaseType = "scheduled"
 )
 
 // File refers to a file on disk by name.
@@ -66,99 +66,102 @@ type File struct {
 
 // Preview is an expansion of File that defines a new app preview asset.
 type Preview struct {
-	File                 `yaml:",inline"`
-	MIMEType             string `yaml:"mimeType,omitempty"`
+	// Path to an asset, relative to the current directory.
+	File `yaml:",inline"`
+	// MIME type of the asset. Overriding this is usually unnecessary.
+	MIMEType string `yaml:"mimeType,omitempty"`
+	// Time code to a frame to show as a preview of the video, if not the beginning.
 	PreviewFrameTimeCode string `yaml:"previewFrameTimeCode,omitempty"`
 }
 
-type PreviewType string
+type previewType string
 
 const (
 	// PreviewTypeAppleTV is a preview type for Apple TV.
-	PreviewTypeAppleTV PreviewType = "appleTV"
+	PreviewTypeAppleTV previewType = "appleTV"
 	// PreviewTypeDesktop is a preview type for Desktop.
-	PreviewTypeDesktop PreviewType = "desktop"
+	PreviewTypeDesktop previewType = "desktop"
 	// PreviewTypeiPad105 is a preview type for iPad 10.5.
-	PreviewTypeiPad105 PreviewType = "ipad105"
+	PreviewTypeiPad105 previewType = "ipad105"
 	// PreviewTypeiPad97 is a preview type for iPad 9.7.
-	PreviewTypeiPad97 PreviewType = "ipad97"
+	PreviewTypeiPad97 previewType = "ipad97"
 	// PreviewTypeiPadPro129 is a preview type for iPad Pro 12.9.
-	PreviewTypeiPadPro129 PreviewType = "ipadPro129"
+	PreviewTypeiPadPro129 previewType = "ipadPro129"
 	// PreviewTypeiPadPro3Gen11 is a preview type for third-generation iPad Pro 11.
-	PreviewTypeiPadPro3Gen11 PreviewType = "ipadPro3Gen11"
+	PreviewTypeiPadPro3Gen11 previewType = "ipadPro3Gen11"
 	// PreviewTypeiPadPro3Gen129 is a preview type for third-generation iPad Pro 12.9.
-	PreviewTypeiPadPro3Gen129 PreviewType = "ipadPro3Gen129"
+	PreviewTypeiPadPro3Gen129 previewType = "ipadPro3Gen129"
 	// PreviewTypeiPhone35 is a preview type for iPhone 3.5.
-	PreviewTypeiPhone35 PreviewType = "iphone35"
+	PreviewTypeiPhone35 previewType = "iphone35"
 	// PreviewTypeiPhone40 is a preview type for iPhone 4.0.
-	PreviewTypeiPhone40 PreviewType = "iphone40"
+	PreviewTypeiPhone40 previewType = "iphone40"
 	// PreviewTypeiPhone47 is a preview type for iPhone 4.7.
-	PreviewTypeiPhone47 PreviewType = "iphone47"
+	PreviewTypeiPhone47 previewType = "iphone47"
 	// PreviewTypeiPhone55 is a preview type for iPhone 5.5.
-	PreviewTypeiPhone55 PreviewType = "iphone55"
+	PreviewTypeiPhone55 previewType = "iphone55"
 	// PreviewTypeiPhone58 is a preview type for iPhone 5.8.
-	PreviewTypeiPhone58 PreviewType = "iphone58"
+	PreviewTypeiPhone58 previewType = "iphone58"
 	// PreviewTypeiPhone65 is a preview type for iPhone 6.5.
-	PreviewTypeiPhone65 PreviewType = "iphone65"
+	PreviewTypeiPhone65 previewType = "iphone65"
 	// PreviewTypeWatchSeries3 is a preview type for Watch Series 3.
-	PreviewTypeWatchSeries3 PreviewType = "watchSeries3"
+	PreviewTypeWatchSeries3 previewType = "watchSeries3"
 	// PreviewTypeWatchSeries4 is a preview type for Watch Series 4.
-	PreviewTypeWatchSeries4 PreviewType = "watchSeries4"
+	PreviewTypeWatchSeries4 previewType = "watchSeries4"
 )
 
-type ScreenshotType string
+type screenshotType string
 
 const (
 	// ScreenshotTypeAppleTV is a screenshot type for Apple TV.
-	ScreenshotTypeAppleTV ScreenshotType = "appleTV"
+	ScreenshotTypeAppleTV screenshotType = "appleTV"
 	// ScreenshotTypeDesktop is a screenshot type for Desktop.
-	ScreenshotTypeDesktop ScreenshotType = "desktop"
+	ScreenshotTypeDesktop screenshotType = "desktop"
 	// ScreenshotTypeiPad105 is a screenshot type for iPad 10.5.
-	ScreenshotTypeiPad105 ScreenshotType = "ipad105"
+	ScreenshotTypeiPad105 screenshotType = "ipad105"
 	// ScreenshotTypeiPad97 is a screenshot type for iPad 9.7.
-	ScreenshotTypeiPad97 ScreenshotType = "ipad97"
+	ScreenshotTypeiPad97 screenshotType = "ipad97"
 	// ScreenshotTypeiPadPro129 is a screenshot type for iPad Pro 12.9.
-	ScreenshotTypeiPadPro129 ScreenshotType = "ipadPro129"
+	ScreenshotTypeiPadPro129 screenshotType = "ipadPro129"
 	// ScreenshotTypeiPadPro3Gen11 is a screenshot type for third-generation iPad Pro 11.
-	ScreenshotTypeiPadPro3Gen11 ScreenshotType = "ipadPro3Gen11"
+	ScreenshotTypeiPadPro3Gen11 screenshotType = "ipadPro3Gen11"
 	// ScreenshotTypeiPadPro3Gen129 is a screenshot type for third-generation iPad Pro 12.9.
-	ScreenshotTypeiPadPro3Gen129 ScreenshotType = "ipadPro3Gen129"
+	ScreenshotTypeiPadPro3Gen129 screenshotType = "ipadPro3Gen129"
 	// ScreenshotTypeiPhone35 is a screenshot type for iPhone 3.5.
-	ScreenshotTypeiPhone35 ScreenshotType = "iphone35"
+	ScreenshotTypeiPhone35 screenshotType = "iphone35"
 	// ScreenshotTypeiPhone40 is a screenshot type for iPhone 4.0.
-	ScreenshotTypeiPhone40 ScreenshotType = "iphone40"
+	ScreenshotTypeiPhone40 screenshotType = "iphone40"
 	// ScreenshotTypeiPhone47 is a screenshot type for iPhone 4.7.
-	ScreenshotTypeiPhone47 ScreenshotType = "iphone47"
+	ScreenshotTypeiPhone47 screenshotType = "iphone47"
 	// ScreenshotTypeiPhone55 is a screenshot type for iPhone 5.5.
-	ScreenshotTypeiPhone55 ScreenshotType = "iphone55"
+	ScreenshotTypeiPhone55 screenshotType = "iphone55"
 	// ScreenshotTypeiPhone58 is a screenshot type for iPhone 5.8.
-	ScreenshotTypeiPhone58 ScreenshotType = "iphone58"
+	ScreenshotTypeiPhone58 screenshotType = "iphone58"
 	// ScreenshotTypeiPhone65 is a screenshot type for iPhone 6.5.
-	ScreenshotTypeiPhone65 ScreenshotType = "iphone65"
+	ScreenshotTypeiPhone65 screenshotType = "iphone65"
 	// ScreenshotTypeWatchSeries3 is a screenshot type for Watch Series 3.
-	ScreenshotTypeWatchSeries3 ScreenshotType = "watchSeries3"
+	ScreenshotTypeWatchSeries3 screenshotType = "watchSeries3"
 	// ScreenshotTypeWatchSeries4 is a screenshot type for Watch Series 4.
-	ScreenshotTypeWatchSeries4 ScreenshotType = "watchSeries4"
+	ScreenshotTypeWatchSeries4 screenshotType = "watchSeries4"
 	// ScreenshotTypeiMessageiPad105 is a screenshot type for iMessage apps on iPad 10.5.
-	ScreenshotTypeiMessageiPad105 ScreenshotType = "ipad105imessage"
+	ScreenshotTypeiMessageiPad105 screenshotType = "ipad105imessage"
 	// ScreenshotTypeiMessageiPad97 is a screenshot type for iMessage apps on iPad 9.7.
-	ScreenshotTypeiMessageiPad97 ScreenshotType = "ipad97imessage"
+	ScreenshotTypeiMessageiPad97 screenshotType = "ipad97imessage"
 	// ScreenshotTypeiMessageiPadPro129 is a screenshot type for iMessage apps on iPad Pro 12.9.
-	ScreenshotTypeiMessageiPadPro129 ScreenshotType = "ipadPro129imessage"
+	ScreenshotTypeiMessageiPadPro129 screenshotType = "ipadPro129imessage"
 	// ScreenshotTypeiMessageiPadPro3Gen11 is a screenshot type for iMessage apps on third-generation iPad Pro 11.
-	ScreenshotTypeiMessageiPadPro3Gen11 ScreenshotType = "ipadPro3Gen11imessage"
+	ScreenshotTypeiMessageiPadPro3Gen11 screenshotType = "ipadPro3Gen11imessage"
 	// ScreenshotTypeiMessageiPadPro3Gen129 is a screenshot type for iMessage apps on third-generation iPad Pro 12.9.
-	ScreenshotTypeiMessageiPadPro3Gen129 ScreenshotType = "ipadPro3Gen129imessage"
+	ScreenshotTypeiMessageiPadPro3Gen129 screenshotType = "ipadPro3Gen129imessage"
 	// ScreenshotTypeiMessageiPhone40 is a screenshot type for iMessage apps on iPhone 4.0.
-	ScreenshotTypeiMessageiPhone40 ScreenshotType = "iphone40imessage"
+	ScreenshotTypeiMessageiPhone40 screenshotType = "iphone40imessage"
 	// ScreenshotTypeiMessageiPhone47 is a screenshot type for iMessage apps on iPhone 4.7.
-	ScreenshotTypeiMessageiPhone47 ScreenshotType = "iphone47imessage"
+	ScreenshotTypeiMessageiPhone47 screenshotType = "iphone47imessage"
 	// ScreenshotTypeiMessageiPhone55 is a screenshot type for iMessage apps on iPhone 5.5.
-	ScreenshotTypeiMessageiPhone55 ScreenshotType = "iphone55imessage"
+	ScreenshotTypeiMessageiPhone55 screenshotType = "iphone55imessage"
 	// ScreenshotTypeiMessageiPhone58 is a screenshot type for iMessage apps on iPhone 5.8.
-	ScreenshotTypeiMessageiPhone58 ScreenshotType = "iphone58imessage"
+	ScreenshotTypeiMessageiPhone58 screenshotType = "iphone58imessage"
 	// ScreenshotTypeiMessageiPhone65 is a screenshot type for iMessage apps on iPhone 6.5.
-	ScreenshotTypeiMessageiPhone65 ScreenshotType = "iphone65imessage"
+	ScreenshotTypeiMessageiPhone65 screenshotType = "iphone65imessage"
 )
 
 // Repo represents any kind of repo (github, gitlab, etc).
@@ -186,48 +189,70 @@ type App struct {
 	AgeRatingDeclaration *AgeRatingDeclaration `yaml:"ageRatings,omitempty"`
 	// App info localizations.
 	Localizations AppLocalizations `yaml:"localizations"`
-	// App version metadata.
+	// Metadata to configure new App Store versions.
 	Versions Version `yaml:"versions"`
-	// TestFlight metadata.
+	// Metadata to configure new Testflight beta releases.
 	Testflight Testflight `yaml:"testflight"`
 }
 
-// Categories describes the categories used for classificiation in the App Store.
+// Categories describes the categories your app belongs to. A primary category is required, and a secondary category
+// is encouraged.
+//
+// Some categories have optional subcategories you can use to improve the specificity of your categorization.
+// Up to two subcategories can provided each for the primary and secondary categories.
+//
+// See the [App Categories](#app-categories) section below for more information on app categories.
 type Categories struct {
-	Primary                string    `yaml:"primary"`
-	PrimarySubcategories   [2]string `yaml:"primarySubcategories"`
-	Secondary              string    `yaml:"secondary,omitempty"`
+	// ID for the primary category.
+	Primary string `yaml:"primary"`
+	// IDs of any subcategories to apply to the primary category. Only up to two will be accepted.
+	PrimarySubcategories [2]string `yaml:"primarySubcategories"`
+	// ID for the secondary category.
+	Secondary string `yaml:"secondary,omitempty"`
+	// IDs of any subcategories to apply to the secondary category. Only up to two will be accepted.
 	SecondarySubcategories [2]string `yaml:"secondarySubcategories"`
 }
 
 // AgeRatingDeclaration describes the various content warnings you can provide or apply to your applications.
 type AgeRatingDeclaration struct {
-	GamblingAndContests                         *bool             `yaml:"gamblingAndContests,omitempty"`
-	UnrestrictedWebAccess                       *bool             `yaml:"unrestrictedWebAccess,omitempty"`
-	KidsAgeBand                                 *KidsAgeBand      `yaml:"kidsAgeBand,omitempty"`
-	AlcoholTobaccoOrDrugUseOrReferences         *ContentIntensity `yaml:"alcoholTobaccoOrDrugUseOrReferences,omitempty"`
-	MedicalOrTreatmentInformation               *ContentIntensity `yaml:"medicalOrTreatmentInformation,omitempty"`
-	ProfanityOrCrudeHumor                       *ContentIntensity `yaml:"profanityOrCrudeHumor,omitempty"`
-	SexualContentOrNudity                       *ContentIntensity `yaml:"sexualContentOrNudity,omitempty"`
-	GamblingSimulated                           *ContentIntensity `yaml:"gamblingSimulated,omitempty"`
-	HorrorOrFearThemes                          *ContentIntensity `yaml:"horrorOrFearThemes,omitempty"`
-	MatureOrSuggestiveThemes                    *ContentIntensity `yaml:"matureOrSuggestiveThemes,omitempty"`
-	SexualContentGraphicAndNudity               *ContentIntensity `yaml:"sexualContentGraphicAndNudity,omitempty"`
-	ViolenceCartoonOrFantasy                    *ContentIntensity `yaml:"violenceCartoonOrFantasy,omitempty"`
-	ViolenceRealistic                           *ContentIntensity `yaml:"violenceRealistic,omitempty"`
-	ViolenceRealisticProlongedGraphicOrSadistic *ContentIntensity `yaml:"violenceRealisticProlongedGraphicOrSadistic,omitempty"`
+	// Whether your app enables legally and guideline-compliant gambling.
+	GamblingAndContests *bool `yaml:"gamblingAndContests,omitempty"`
+	// Whether your app enables generalized usage of the internet, such as an internet browser.
+	UnrestrictedWebAccess *bool `yaml:"unrestrictedWebAccess,omitempty"`
+	// Age band to use in categorizing your app for lists aimed at kids.
+	KidsAgeBand *kidsAgeBand `yaml:"kidsAgeBand,omitempty"`
+	// Whether your app makes references to alcohol, tobacco, or drug use and/or paraphernalia.
+	AlcoholTobaccoOrDrugUseOrReferences *contentIntensity `yaml:"alcoholTobaccoOrDrugUseOrReferences,omitempty"`
+	// Whether your app offers medical advice or treatment information.
+	MedicalOrTreatmentInformation *contentIntensity `yaml:"medicalOrTreatmentInformation,omitempty"`
+	// Whether your app contains or enables profanity and/or crude humor.
+	ProfanityOrCrudeHumor *contentIntensity `yaml:"profanityOrCrudeHumor,omitempty"`
+	// Whether your app contains or enables sexual content or nudity.
+	SexualContentOrNudity *contentIntensity `yaml:"sexualContentOrNudity,omitempty"`
+	// Whether your app enables simulated gambling with either real or simulated currency.
+	GamblingSimulated *contentIntensity `yaml:"gamblingSimulated,omitempty"`
+	// Whether your app contains horror or fear-inducing themes.
+	HorrorOrFearThemes *contentIntensity `yaml:"horrorOrFearThemes,omitempty"`
+	// Whether your app contains mature or suggestive themes.
+	MatureOrSuggestiveThemes *contentIntensity `yaml:"matureOrSuggestiveThemes,omitempty"`
+	// Whether your app contains or enables sexual content or nudity that is graphic in nature.
+	SexualContentGraphicAndNudity *contentIntensity `yaml:"sexualContentGraphicAndNudity,omitempty"`
+	// Whether your app contains cartoon or fantasy violence.
+	ViolenceCartoonOrFantasy *contentIntensity `yaml:"violenceCartoonOrFantasy,omitempty"`
+	// Whether your app contains realistic violence.
+	ViolenceRealistic *contentIntensity `yaml:"violenceRealistic,omitempty"`
+	// Whether your app contains prolonged, realistic violence that is graphic or sadistic in nature.
+	ViolenceRealisticProlongedGraphicOrSadistic *contentIntensity `yaml:"violenceRealisticProlongedGraphicOrSadistic,omitempty"`
 }
 
 // Availability wraps aspects of app availability, such as territories and pricing.
 type Availability struct {
-	// AvailableInNewTerritories refers to whether or not the app should be made automaticaly available
+	// Indicates whether or not the app should be made automaticaly available
 	// in new App Store territories, as Apple makes new ones available.
 	AvailableInNewTerritories *bool `yaml:"availableInNewTerritories,omitempty"`
-	// Pricing is a list of PriceSchedules that describe the pricing details of your app.
+	// List of PriceSchedules that describe the pricing details of your app.
 	Pricing []PriceSchedule `yaml:"priceTiers,omitempty"`
-	// Territories corresponds to the IDs of territories as they're referred to in App Store Connect.
-	//
-	// https://help.apple.com/app-store-connect/#/dev997f9cf7c
+	// Array of ISO 3166-1 Alpha-3 country codes corresponding to territories to make your app available in.
 	Territories []string `yaml:"territories,omitempty"`
 }
 
@@ -265,16 +290,26 @@ type AppLocalization struct {
 // Version outlines the general details of your app store version as it will be represented
 // on the App Store.
 type Version struct {
-	Platform      Platform             `yaml:"platform"`
+	// Platform the app is to be released on.
+	Platform Platform `yaml:"platform"`
+	// Map of locale IDs to localization configurations for App Store version information.
 	Localizations VersionLocalizations `yaml:"localizations"`
 	// Copyright information to display on the listing. Templated.
-	Copyright            string           `yaml:"copyright,omitempty"`
-	EarliestReleaseDate  *time.Time       `yaml:"earliestReleaseDate,omitempty"`
-	ReleaseType          ReleaseType      `yaml:"releaseType,omitempty"`
-	PhasedReleaseEnabled bool             `yaml:"enablePhasedRelease,omitempty"`
-	IDFADeclaration      *IDFADeclaration `yaml:"idfaDeclaration,omitempty"`
-	RoutingCoverage      *File            `yaml:"routingCoverage,omitempty"`
-	ReviewDetails        *ReviewDetails   `yaml:"reviewDetails,omitempty"`
+	Copyright string `yaml:"copyright,omitempty"`
+	// Earliest release date, in Go's RFC3339 format. Set to null to release
+	// as soon as is permitted by the release type.
+	EarliestReleaseDate *time.Time `yaml:"earliestReleaseDate,omitempty"`
+	// Release type.
+	ReleaseType releaseType `yaml:"releaseType,omitempty"`
+	// Indicates whether phased release should be enabled for updates.
+	PhasedReleaseEnabled bool `yaml:"enablePhasedRelease,omitempty"`
+	// Information about an app's IDFA declaration. Omit or set to null to declare to
+	// Apple that your app does not use the IDFA.
+	IDFADeclaration *IDFADeclaration `yaml:"idfaDeclaration,omitempty"`
+	// Routing coverage resource.
+	RoutingCoverage *File `yaml:"routingCoverage,omitempty"`
+	// Details about an app to share with the App Store reviewer.
+	ReviewDetails *ReviewDetails `yaml:"reviewDetails,omitempty"`
 }
 
 // VersionLocalizations is a map of locales to VersionLocalization objects.
@@ -293,50 +328,62 @@ type VersionLocalization struct {
 	// Support URL to use in this locale. Templated.
 	SupportURL string `yaml:"supportURL,omitempty"`
 	// "Whats New" release note text to use in this locale. Templated.
-	WhatsNewText   string         `yaml:"whatsNew,omitempty"`
-	PreviewSets    PreviewSets    `yaml:"previewSets,omitempty"`
+	WhatsNewText string `yaml:"whatsNew,omitempty"`
+	// Map of app preview types to arrays of app screenshot resources.
+	PreviewSets PreviewSets `yaml:"previewSets,omitempty"`
+	// Map of screenshot display types to arrays of app screenshot resources.
 	ScreenshotSets ScreenshotSets `yaml:"screenshotSets,omitempty"`
 }
 
 // PreviewSets is a map of preview types to []Preview slices.
-type PreviewSets map[PreviewType][]Preview
+type PreviewSets map[previewType][]Preview
 
 // ScreenshotSets is a map of screenshot types to []File slices.
-type ScreenshotSets map[ScreenshotType][]File
+type ScreenshotSets map[screenshotType][]File
 
 // IDFADeclaration outlines regulatory information for Apple to use to handle your apps' use
 // of tracking identifiers. Implicitly enables `usesIdfa` when creating an app store version.
 type IDFADeclaration struct {
-	AttributesActionWithPreviousAd        bool `yaml:"attributesActionWithPreviousAd"`
+	// Indicates that the app attributes user action with previous ads.
+	AttributesActionWithPreviousAd bool `yaml:"attributesActionWithPreviousAd"`
+	// Indicates that the app attributes user installation with previous ads.
 	AttributesAppInstallationToPreviousAd bool `yaml:"attributesAppInstallationToPreviousAd"`
-	HonorsLimitedAdTracking               bool `yaml:"honorsLimitedAdTracking"`
-	ServesAds                             bool `yaml:"servesAds"`
+	// Indicates that the app developer will honor Apple's guidelines around tracking when
+	// the user has chosen to limit ad tracking.
+	HonorsLimitedAdTracking bool `yaml:"honorsLimitedAdTracking"`
+	// Indicates that the app serves ads
+	ServesAds bool `yaml:"servesAds"`
 }
 
 // ReviewDetails contains information for App Store reviewers to use in their assessment.
 type ReviewDetails struct {
-	Contact     *ContactPerson `yaml:"contact,omitempty"`
-	DemoAccount *DemoAccount   `yaml:"demoAccount,omitempty"`
-	// Notes for the reviewer. Templated.
-	Notes       string `yaml:"notes,omitempty"`
+	// Point of contact for the App Store reviewer.
+	Contact *ContactPerson `yaml:"contact,omitempty"`
+	// A demo account the reviewer can use to evaluate functionality
+	DemoAccount *DemoAccount `yaml:"demoAccount,omitempty"`
+	// Notes that the reviewer should be aware of. Templated.
+	Notes string `yaml:"notes,omitempty"`
+	// Attachment resources the reviewer should be aware of or use in evaluation.
 	Attachments []File `yaml:"attachments,omitempty"`
 }
 
 // ContactPerson is a point of contact for App Store reviewers to reach out to in case of an
 // issue.
 type ContactPerson struct {
-	// Contact email. Required. Templated.
+	// Contact email. Templated.
 	Email string `yaml:"email"`
-	// Contact first name. Required. Templated.
+	// Contact first (given) name. Templated.
 	FirstName string `yaml:"firstName"`
-	// Contact last name. Required. Templated.
+	// Contact last (family) name. Templated.
 	LastName string `yaml:"lastName"`
-	// Contact phone number. Required. Templated.
+	// Contact phone number. Templated.
 	Phone string `yaml:"phone"`
 }
 
 // DemoAccount contains account credentials for App Store reviewers to assess your apps.
 type DemoAccount struct {
+	// Whether or not a demo account is required. Other fields can be
+	// omitted if this is set to false.
 	Required bool `yaml:"isRequired"`
 	// Demo account name or login. Templated.
 	Name string `yaml:"name,omitempty"`
@@ -346,13 +393,20 @@ type DemoAccount struct {
 
 // Testflight represents configuration for beta distribution of apps.
 type Testflight struct {
+	// Indicates whether to auto-notify existing beta testers of a new Testflight update.
 	EnableAutoNotify bool `yaml:"enableAutoNotify"`
-	// Beta license agreement text. Templated.
-	LicenseAgreement string                  `yaml:"licenseAgreement"`
-	Localizations    TestflightLocalizations `yaml:"localizations"`
-	BetaGroups       []BetaGroup             `yaml:"betaGroups,omitempty"`
-	BetaTesters      []BetaTester            `yaml:"betaTesters,omitempty"`
-	ReviewDetails    *ReviewDetails          `yaml:"reviewDetails,omitempty"`
+	// Beta license agreement content. Templated.
+	LicenseAgreement string `yaml:"licenseAgreement"`
+	// Map of locale IDs to localization configurations for beta app and beta build information.
+	Localizations TestflightLocalizations `yaml:"localizations"`
+	// Array of beta group names. If you want to refer to beta groups defined in this configuration
+	// file, use the value provided for the group field on the corresponding beta group. Beta groups
+	// to add or update in App Store Connect.
+	BetaGroups []BetaGroup `yaml:"betaGroups,omitempty"`
+	// Individual beta testers to add or update in App Store Connect.
+	BetaTesters []BetaTester `yaml:"betaTesters,omitempty"`
+	// Details about an app to share with the App Store reviewer.
+	ReviewDetails *ReviewDetails `yaml:"reviewDetails,omitempty"`
 }
 
 // TestflightLocalizations is a map of locales to TestflightLocalization objects.
@@ -360,22 +414,28 @@ type TestflightLocalizations map[string]TestflightLocalization
 
 // BetaGroup describes a beta group in Testflight that should be kept in sync and used with this app.
 type BetaGroup struct {
-	// Beta group name.
-	Name                  string       `yaml:"group"`
-	EnablePublicLink      bool         `yaml:"publicLinkEnabled,omitempty"`
-	EnablePublicLinkLimit bool         `yaml:"publicLinkLimitEnabled,omitempty"`
-	FeedbackEnabled       bool         `yaml:"feedbackEnabled,omitempty"`
-	PublicLinkLimit       int          `yaml:"publicLinkLimit,omitempty"`
-	Testers               []BetaTester `yaml:"testers"`
+	// Name of the beta group.
+	Name string `yaml:"group"`
+	// Indicates whether to enable the public link.
+	EnablePublicLink bool `yaml:"publicLinkEnabled,omitempty"`
+	// Indicates whether a limit on the number of testers who can use the public link
+	// is enabled.
+	EnablePublicLinkLimit bool `yaml:"publicLinkLimitEnabled,omitempty"`
+	// Indicates whether tester feedback is enabled within TestFlight
+	FeedbackEnabled bool `yaml:"feedbackEnabled,omitempty"`
+	// Maximum number of testers that can join the beta group using the public link.
+	PublicLinkLimit int `yaml:"publicLinkLimit,omitempty"`
+	// Array of beta testers to explicitly assign to the beta group.
+	Testers []BetaTester `yaml:"testers"`
 }
 
 // BetaTester describes an individual beta tester that should have access to this app.
 type BetaTester struct {
 	// Beta tester email.
 	Email string `yaml:"email"`
-	// Beta tester first name.
+	// Beta tester first (given) name.
 	FirstName string `yaml:"firstName,omitempty"`
-	// Beta tester last name.
+	// Beta tester last (family) name.
 	LastName string `yaml:"lastName,omitempty"`
 }
 
@@ -482,7 +542,7 @@ func (p *Platform) APIValue() *asc.Platform {
 	return &value
 }
 
-func (c *ContentIntensity) APIValue() *string {
+func (c *contentIntensity) APIValue() *string {
 	if c == nil {
 		return nil
 	}
@@ -500,7 +560,7 @@ func (c *ContentIntensity) APIValue() *string {
 	return &value
 }
 
-func (b *KidsAgeBand) APIValue() *asc.KidsAgeBand {
+func (b *kidsAgeBand) APIValue() *asc.KidsAgeBand {
 	if b == nil {
 		return nil
 	}
@@ -518,7 +578,7 @@ func (b *KidsAgeBand) APIValue() *asc.KidsAgeBand {
 	return &value
 }
 
-func (t *ReleaseType) APIValue() *string {
+func (t *releaseType) APIValue() *string {
 	if t == nil {
 		return nil
 	}
@@ -536,7 +596,7 @@ func (t *ReleaseType) APIValue() *string {
 	return &value
 }
 
-func (t *PreviewType) APIValue() *asc.PreviewType {
+func (t *previewType) APIValue() *asc.PreviewType {
 	if t == nil {
 		return nil
 	}
@@ -578,7 +638,7 @@ func (t *PreviewType) APIValue() *asc.PreviewType {
 	return &value
 }
 
-func (t *ScreenshotType) APIValue() *asc.ScreenshotDisplayType {
+func (t *screenshotType) APIValue() *asc.ScreenshotDisplayType {
 	if t == nil {
 		return nil
 	}

@@ -23,3 +23,5 @@ last_edit_time_format: '%b %e %Y at %I:%M %p'
 exclude:
   - configuration-footer.md
   - man/*
+  - bin/*
+  - htmltest.yml

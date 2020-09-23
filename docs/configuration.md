@@ -93,7 +93,7 @@ AppLocalizations is a map of locales to AppLocalization objects.
 
 Version outlines the general details of your app store version as it will be represented on the App Store.  
 
-- [x] **platform: [Platform](#platform)** – Platform the app is to be released on.  
+- [x] **platform: string** – Platform the app is to be released on.   Valid options: `"iOS"`, `"macOS"`, `"tvOS"`.
 - [x] **localizations: [VersionLocalizations](#versionlocalizations)** – Map of locale IDs to localization configurations for App Store version information.  
 - [ ] **copyright: string** – Copyright information to display on the listing. Templated.  
 - [ ] **earliestReleaseDate: Time** – Earliest release date, in Go's RFC3339 format. Set to null to release as soon as is permitted by the release type.  

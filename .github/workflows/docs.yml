@@ -1,0 +1,30 @@
+name: docs
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs/**'
+  pull_request:
+    paths:
+      - 'docs/**'
+
+jobs:
+  tests:
+    name: test docs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build Site
+        run: |
+          docker run --rm \
+            --volume="$PWD/docs:/srv/jekyll" \
+            -it jekyll/jekyll:latest \
+            jekyll build
+
+      - name: Run htmltest
+        run: |
+          cd docs/
+          curl https://htmltest.wjdp.uk | bash
+          ./bin/htmltest -c htmltest.yml

@@ -5,7 +5,7 @@ nav_order: 3
 
 # Quick Start
 
-Once you've [installed](../install) Cider, you can get started setting it up for your project.
+Once you've [installed](./install.md) Cider, you can get started setting it up for your project.
 
 Run `cider init` to create a new `.cider.yml` file in the current directory:
 
@@ -25,7 +25,7 @@ The most simple invocation of Cider to submit an app is as follows:
 cider release --mode appstore
 ```
 
-Cider contains a host of options enabling you to customize its runtime. Follow the guide on the [`release` command](../commands/cider_release).
+Cider contains a host of options enabling you to customize its runtime. Follow the guide on the [`release` command](./commands/cider_release.md).
 
 ## CI
 

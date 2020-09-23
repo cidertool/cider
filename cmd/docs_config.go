@@ -208,19 +208,18 @@ func newRenderer() (*docRenderer, error) {
 	r.Package = pkg
 
 	r.Types = make(map[string]*doc.Type)
+	r.Values = make(map[string][]string)
 	for _, typ := range pkg.Types {
 		r.Types[typ.Name] = typ
-	}
-	r.Values = make(map[string][]string)
-	for _, cons := range pkg.Consts {
-		var name string
-		values := make([]string, len(cons.Decl.Specs))
-		for i, s := range cons.Decl.Specs {
-			if spec, ok := s.(*ast.ValueSpec); ok {
-				name = spec.Type.(*ast.Ident).Name
-				values[i] = spec.Values[0].(*ast.BasicLit).Value
+		if len(typ.Consts) > 0 {
+			for _, cons := range typ.Consts {
+				name, values := gatherConsts(cons)
+				r.Values[name] = values
 			}
 		}
+	}
+	for _, cons := range pkg.Consts {
+		name, values := gatherConsts(cons)
 		r.Values[name] = values
 	}
 
@@ -229,6 +228,17 @@ func newRenderer() (*docRenderer, error) {
 	r.buffer = new(bytes.Buffer)
 
 	return r, nil
+}
+
+func gatherConsts(cons *doc.Value) (name string, values []string) {
+	values = make([]string, len(cons.Decl.Specs))
+	for i, s := range cons.Decl.Specs {
+		if spec, ok := s.(*ast.ValueSpec); ok {
+			name = spec.Type.(*ast.Ident).Name
+			values[i] = spec.Values[0].(*ast.BasicLit).Value
+		}
+	}
+	return name, values
 }
 
 func openPackage() (*doc.Package, error) {

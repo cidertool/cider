@@ -19,6 +19,8 @@ jobs:
       - name: Build Site
         run: |
           docker run --rm \
+            --env JEKYLL_UID=$(id -u) \
+            --env JEKYLL_GID=$(id -g) \
             --volume="$PWD/docs:/srv/jekyll" \
             jekyll/jekyll:latest \
             jekyll build

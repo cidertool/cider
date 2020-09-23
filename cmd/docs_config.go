@@ -15,17 +15,107 @@ import (
 	"strings"
 
 	"github.com/apex/log"
+	"github.com/cidertool/asc-go/asc"
+	"github.com/cidertool/cider/pkg/config"
 	"github.com/spf13/cobra"
+	"gopkg.in/yaml.v2"
 )
 
-const docsConfigFrontmatterTemplate = `---
+const (
+	docsConfigFrontmatterTemplate = `---
 layout: page
 nav_order: %d
 ---
 
 # Configuration
+{: .no_toc }
 
 `
+	docsConfigTableOfContents = `
+<details open markdown="block">
+  <summary>
+    Table of Contents
+  </summary>
+  {: .text-delta }
+- TOC
+{:toc}
+</details>
+
+`
+	docsConfigTerminologyDisclaimer = `
+- [x] An X here means the field is required.
+- [ ] This field is optional and can be omitted.
+
+`
+)
+
+// nolint: gochecknoglobals
+var docsConfigExampleProject = config.Project{
+	"My App": {
+		BundleID:              "com.myproject.MyApp",
+		PrimaryLocale:         "en-US",
+		UsesThirdPartyContent: asc.Bool(false),
+		Availability: &config.Availability{
+			AvailableInNewTerritories: asc.Bool(false),
+			Pricing: []config.PriceSchedule{
+				{Tier: "0"},
+			},
+			Territories: []string{"USA"},
+		},
+		Categories: &config.Categories{
+			Primary:              "SOCIAL_NETWORKING",
+			PrimarySubcategories: [2]string{},
+			Secondary:            "GAMES",
+			SecondarySubcategories: [2]string{
+				"GAMES_SIMULATION",
+				"GAMES_RACING",
+			},
+		},
+		Localizations: config.AppLocalizations{
+			"en-US": {
+				Name:     "My App",
+				Subtitle: "Not Your App",
+			},
+		},
+		Versions: config.Version{
+			Platform:             config.PlatformiOS,
+			Copyright:            "2020 Me",
+			EarliestReleaseDate:  nil,
+			ReleaseType:          config.ReleaseTypeAfterApproval,
+			PhasedReleaseEnabled: true,
+			IDFADeclaration:      nil,
+			Localizations: config.VersionLocalizations{
+				"en-US": {
+					Description:  "My App for cool people",
+					Keywords:     "Apps, Cool, Mine",
+					WhatsNewText: `Thank you for using My App! I bring you updates every week so this continues to be my app.`,
+					PreviewSets: config.PreviewSets{
+						config.PreviewTypeiPhone65: []config.Preview{
+							{
+								File: config.File{
+									Path: "assets/store/iphone65/preview.mp4",
+								},
+							},
+						},
+					},
+					ScreenshotSets: config.ScreenshotSets{
+						config.ScreenshotTypeiPhone65: []config.File{
+							{Path: "assets/store/iphone65/app.jpg"},
+						},
+					},
+				},
+			},
+		},
+		Testflight: config.Testflight{
+			EnableAutoNotify: true,
+			Localizations: config.TestflightLocalizations{
+				"en-US": {
+					Description: "My App for cool people using the beta",
+				},
+			},
+		},
+	},
+}
 
 func newDocsConfigCmd() *cobra.Command {
 	return &cobra.Command{
@@ -43,7 +133,7 @@ func runDocsConfigCmd(cmd *cobra.Command, args []string) error {
 	} else {
 		path = args[0]
 	}
-	path = filepath.Join(path, "configuration2.md")
+	path = filepath.Join(path, "configuration.md")
 
 	log.WithField("path", path).Info("generating configuration documentation")
 	err := genConfigMarkdown(path)
@@ -188,7 +278,10 @@ func (r *docRenderer) Render(w io.Writer) error {
 		r.WriteString(r.Header())
 	}
 
-	r.WriteString(r.Package.Doc + "\n## Specification\n\n")
+	r.WriteString(r.Package.Doc)
+	r.WriteString(docsConfigTerminologyDisclaimer)
+	r.WriteString(docsConfigTableOfContents)
+	r.WriteString("## Specification\n\n")
 
 	r.Queue = append(r.Queue, projectType)
 
@@ -200,11 +293,17 @@ func (r *docRenderer) Render(w io.Writer) error {
 		r.renderDecl(typ.Decl, formatDoc(typ.Doc))
 	}
 
+	proj, err := yaml.Marshal(docsConfigExampleProject)
+	if err != nil {
+		return err
+	}
+	r.WriteString(fmt.Sprintf("## Example\n\n```yaml\n%s```\n\n", string(proj)))
+
 	if r.Footer != nil {
 		r.WriteString(r.Footer())
 	}
 
-	_, err := r.buffer.WriteTo(w)
+	_, err = r.buffer.WriteTo(w)
 	return err
 }
 

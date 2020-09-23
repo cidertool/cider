@@ -20,7 +20,7 @@ jobs:
         run: |
           docker run --rm \
             --volume="$PWD/docs:/srv/jekyll" \
-            -it jekyll/jekyll:latest \
+            jekyll/jekyll:latest \
             jekyll build
 
       - name: Run htmltest

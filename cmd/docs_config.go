@@ -281,12 +281,12 @@ func (r *docRenderer) renderStruct(typ *ast.StructType) {
 		}
 
 		line := fmt.Sprintf(
-			"- [%s] **%s: %s** — %s%s",
+			"- [%s] **%s: %s** – %s%s",
 			requiredStr,
 			tag,
 			r.renderTypeLink(typeName, false),
 			formatDoc(field.Doc.Text()),
-			formatOptions(options),
+			formatOptions(options, "", true),
 		)
 		r.WriteString(line)
 		if !strings.HasSuffix(line, "\n") {
@@ -297,6 +297,12 @@ func (r *docRenderer) renderStruct(typ *ast.StructType) {
 }
 
 func (r *docRenderer) renderMap(typ *ast.MapType) {
+	keyName := getTypeName(typ.Key)
+	var options []string
+	if values, ok := r.Values[keyName]; ok {
+		options = values
+	}
+	r.WriteString(formatOptions(options, keyName, false) + "\n")
 	r.enqueueTypeFromExprs(typ.Key, typ.Value)
 }
 
@@ -406,9 +412,18 @@ func formatDoc(s string) string {
 	return doc.String()
 }
 
-func formatOptions(o []string) string {
+func formatOptions(o []string, kind string, inline bool) string {
 	if len(o) == 0 {
 		return ""
 	}
-	return " Valid options: " + strings.Join(o, ", ") + "."
+	if kind == "" {
+		kind = "option"
+	}
+	var options string
+	if inline {
+		options = fmt.Sprintf(" `%s`.", strings.Join(o, "`, `"))
+	} else {
+		options = fmt.Sprintf("\n\n- `%s`", strings.Join(o, "`\n- `"))
+	}
+	return fmt.Sprintf(" Valid %ss:%s", kind, options)
 }

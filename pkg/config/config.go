@@ -164,20 +164,32 @@ const (
 	ScreenshotTypeiMessageiPhone65 screenshotType = "iphone65imessage"
 )
 
-// Repo represents any kind of repo (github, gitlab, etc).
-type Repo struct {
-	Owner string `yaml:",omitempty"`
-	Name  string `yaml:",omitempty"`
-}
+/*
+Project is the top level configuration type. It is a map of app names to
+[App](#app) configuration objects. The keys are simple identifiers that are
+used in logging, and that you can use with
+[`cider release`](./commands/cider_release.md) to filter the apps you intend
+to release.
 
-// Project is the top level configuration type.
+For example:
+
+```yaml
+My App:
+  id: com.myproject.MyApp
+  primaryLocale: en-US
+Other App:
+  id: com.myproject.MyApp
+  primaryLocale: en-US
+```
+.
+*/
 type Project map[string]App
 
-// App outlines general information about your app, primarily for querying purposes.
+// App is used to manage the high-level configuration options for an app in general.
 type App struct {
 	// Bundle ID of the app.
 	BundleID string `yaml:"id"`
-	// Primary locale of the app.
+	// Primary [locale](#locales) (or language) of the app.
 	PrimaryLocale string `yaml:"primaryLocale,omitempty"`
 	// Whether or not the app uses third party content. Omit to avoid declarting content rights.
 	UsesThirdPartyContent *bool `yaml:"usesThirdPartyContent,omitempty"`
@@ -195,13 +207,25 @@ type App struct {
 	Testflight Testflight `yaml:"testflight"`
 }
 
-// Categories describes the categories your app belongs to. A primary category is required, and a secondary category
-// is encouraged.
-//
-// Some categories have optional subcategories you can use to improve the specificity of your categorization.
-// Up to two subcategories can provided each for the primary and secondary categories.
-//
-// See the [App Categories](#app-categories) section below for more information on app categories.
+/*
+Categories describes the categories your app belongs to. A primary category is required, and a secondary category
+is encouraged.
+
+Some categories have optional subcategories you can use to improve the specificity of your categorization.
+Up to two subcategories can provided each for the primary and secondary categories.
+
+For example:
+
+```yaml
+categories:
+  primary: BUSINESS
+  secondary: STICKERS
+  secondarySubcategories:
+    - STICKERS_ART
+```
+
+See the [App Categories](#app-categories) section below for more information on app categories.
+*/
 type Categories struct {
 	// ID for the primary category.
 	Primary string `yaml:"primary"`
@@ -213,7 +237,21 @@ type Categories struct {
 	SecondarySubcategories [2]string `yaml:"secondarySubcategories"`
 }
 
-// AgeRatingDeclaration describes the various content warnings you can provide or apply to your applications.
+/*
+AgeRatingDeclaration describes the various content warnings you can provide or apply to your applications.
+
+For example:
+
+```yaml
+ageRatings:
+  kidsAgeBand: 6-8
+  matureOrSuggestiveThemes: none
+  profanityOrCrudeHumor: none
+  violenceCartoonOrFantasy: frequentOrIntense
+  violenceRealistic: infrequentOrMild
+```
+.
+*/
 type AgeRatingDeclaration struct {
 	// Whether your app enables legally and guideline-compliant gambling.
 	GamblingAndContests *bool `yaml:"gamblingAndContests,omitempty"`
@@ -245,7 +283,21 @@ type AgeRatingDeclaration struct {
 	ViolenceRealisticProlongedGraphicOrSadistic *contentIntensity `yaml:"violenceRealisticProlongedGraphicOrSadistic,omitempty"`
 }
 
-// Availability wraps aspects of app availability, such as territories and pricing.
+/*
+Availability wraps aspects of app availability, such as territories and pricing.
+
+For example:
+
+```yaml
+availability:
+  pricing:
+    - tier: '0'
+  availableInNewTerritories: false
+  territories:
+    - USA
+```
+.
+*/
 type Availability struct {
 	// Indicates whether or not the app should be made automaticaly available
 	// in new App Store territories, as Apple makes new ones available.
@@ -259,11 +311,10 @@ type Availability struct {
 // PriceSchedule represents pricing availability information that an app should be immediately
 // configured to.
 type PriceSchedule struct {
-	// Tier corresponds to a representation of a tier on the App Store Pricing Matrix.
+	// Tier corresponds to a representation of a tier on the
+	// [App Store Pricing Matrix](https://appstoreconnect.apple.com/apps/pricingmatrix).
 	// For example, Tier 1 should be represented as "1" and the Free tier should be
 	// represented as "0".
-	//
-	// https://appstoreconnect.apple.com/apps/pricingmatrix
 	Tier string `yaml:"tier"`
 	// StartDate is the start date a price schedule should take effect. Set to nil to have it take
 	// effect immediately.
@@ -272,7 +323,22 @@ type PriceSchedule struct {
 	EndDate *time.Time `yaml:"endDate,omitempty"`
 }
 
-// AppLocalizations is a map of locales to AppLocalization objects.
+/*
+AppLocalizations is a map of [locale codes](#locales) to [AppLocalization](#applocalization) objects.
+
+For example:
+
+```yaml
+localizations:
+  en-US:
+    name: My App
+    subtitle: congratulations
+  ja:
+    name: 僕のアップ
+    subtitle: おめでとう
+```
+.
+*/
 type AppLocalizations map[string]AppLocalization
 
 // AppLocalization contains localized details for your App Store listing.
@@ -287,12 +353,26 @@ type AppLocalization struct {
 	PrivacyPolicyURL string `yaml:"privacyPolicyURL,omitempty"`
 }
 
-// Version outlines the general details of your app store version as it will be represented
-// on the App Store.
+/*
+Version outlines the general details of your app store version as it will be represented
+on the App Store.
+
+For example:
+
+```yaml
+versions:
+  platform: iOS
+  copyright: 2020 App
+  releaseType: manual
+  localizations: ...
+  reviewDetails: ...
+```
+.
+*/
 type Version struct {
 	// Platform the app is to be released on.
 	Platform Platform `yaml:"platform"`
-	// Map of locale IDs to localization configurations for App Store version information.
+	// Map of locale codes to [VersionLocalization](#versionlocalization) objects for App Store version information.
 	Localizations VersionLocalizations `yaml:"localizations"`
 	// Copyright information to display on the listing. Templated.
 	Copyright string `yaml:"copyright,omitempty"`
@@ -312,7 +392,20 @@ type Version struct {
 	ReviewDetails *ReviewDetails `yaml:"reviewDetails,omitempty"`
 }
 
-// VersionLocalizations is a map of locales to VersionLocalization objects.
+/*
+VersionLocalizations is a map of [locale codes](#locales) to [VersionLocalization](#versionlocalization) objects.
+
+For example:
+
+```yaml
+localizations:
+  en-US:
+    description: My App for cool people
+    keywords: Apps, Cool, Mine
+    whatsNew: Thank you for using My App! I bring you updates every week so this continues to be my app.
+```
+.
+*/
 type VersionLocalizations map[string]VersionLocalization
 
 // VersionLocalization contains localized details for the listing of a specific version on the App Store.
@@ -329,20 +422,70 @@ type VersionLocalization struct {
 	SupportURL string `yaml:"supportURL,omitempty"`
 	// "Whats New" release note text to use in this locale. Templated.
 	WhatsNewText string `yaml:"whatsNew,omitempty"`
-	// Map of app preview types to arrays of app screenshot resources.
+	// Map of preview types to arrays of app preview assets.
 	PreviewSets PreviewSets `yaml:"previewSets,omitempty"`
-	// Map of screenshot display types to arrays of app screenshot resources.
+	// Map of screenshot types to arrays of app screenshot assets.
 	ScreenshotSets ScreenshotSets `yaml:"screenshotSets,omitempty"`
 }
 
-// PreviewSets is a map of preview types to []Preview slices.
+/*
+PreviewSets is a map of preview types to arrays of [Preview](#preview)s. Each preview type can
+contain up to three preview assets, which can be content such as videos.
+
+For example:
+
+```yaml
+previewSets:
+  iphone65:
+    - file: assets/iphone65/preview1.mp4
+  ipadPro129:
+    - file: assets/ipadPro129/preview1.mp4
+```
+
+For more information, see [App preview specifications](https://help.apple.com/app-store-connect/#/dev4e413fcb8).
+*/
 type PreviewSets map[previewType][]Preview
 
-// ScreenshotSets is a map of screenshot types to []File slices.
+/*
+ScreenshotSets is a map of screenshot types to arrays of [File](#file)s. Each screenshot type
+can contain up to ten assets, which must be correctly sized and encoded images for each
+type.
+
+For example:
+
+```yaml
+screenshotSets:
+  iphone65:
+    - file: assets/iphone65/screenshot1.jpg
+    - file: assets/iphone65/screenshot2.jpg
+    - file: assets/iphone65/screenshot3.jpg
+  ipadPro129:
+    - file: assets/ipadPro129/screenshot1.jpg
+    - file: assets/ipadPro129/screenshot2.jpg
+    - file: assets/ipadPro129/screenshot3.jpg
+```
+
+Some screenshot sizes are required in order to submit your app for review. You’ll get an error at
+submission time if you don’t provide all of the required assets. For information about screenshot
+requirements, see [Screenshot specifications](https://help.apple.com/app-store-connect/#/devd274dd925).
+*/
 type ScreenshotSets map[screenshotType][]File
 
-// IDFADeclaration outlines regulatory information for Apple to use to handle your apps' use
-// of tracking identifiers. Implicitly enables `usesIdfa` when creating an app store version.
+/*
+IDFADeclaration outlines regulatory information for Apple to use to handle your apps' use
+of tracking identifiers. Implicitly enables `usesIdfa` when creating an app store version.
+
+For example:
+
+```yaml
+idfaDeclaration:
+  attributesActionWithPreviousAd: false
+  attributesAppInstallationToPreviousAd: false
+  honorsLimitedAdTracking: true
+  servesAds: false
+```
+.
+*/
 type IDFADeclaration struct {
 	// Indicates that the app attributes user action with previous ads.
 	AttributesActionWithPreviousAd bool `yaml:"attributesActionWithPreviousAd"`
@@ -355,7 +498,29 @@ type IDFADeclaration struct {
 	ServesAds bool `yaml:"servesAds"`
 }
 
-// ReviewDetails contains information for App Store reviewers to use in their assessment.
+/*
+ReviewDetails contains information for App Store reviewers to use in their evaluation.
+
+For example:
+
+```yaml
+reviewDetails:
+  contact:
+    email: person@company.com
+    firstName: Person
+    lastName: Personson
+    phone: '15555555555'
+  demoAccount:
+    isRequired: false
+  notes: |
+    This app is good and should pass review with flying colors, because it's so good.
+  attachments:
+    - path: assets/review/attachment1.png
+    - path: assets/review/attachment2.png
+```
+
+Note: review attachments are not considered during TestFlight review and are not handled by Cider.
+*/
 type ReviewDetails struct {
 	// Point of contact for the App Store reviewer.
 	Contact *ContactPerson `yaml:"contact,omitempty"`
@@ -397,7 +562,7 @@ type Testflight struct {
 	EnableAutoNotify bool `yaml:"enableAutoNotify"`
 	// Beta license agreement content. Templated.
 	LicenseAgreement string `yaml:"licenseAgreement"`
-	// Map of locale IDs to localization configurations for beta app and beta build information.
+	// Map of locale codes to localization configurations for beta app and beta build information.
 	Localizations TestflightLocalizations `yaml:"localizations"`
 	// Array of beta group names. If you want to refer to beta groups defined in this configuration
 	// file, use the value provided for the group field on the corresponding beta group. Beta groups
@@ -409,8 +574,37 @@ type Testflight struct {
 	ReviewDetails *ReviewDetails `yaml:"reviewDetails,omitempty"`
 }
 
-// TestflightLocalizations is a map of locales to TestflightLocalization objects.
+/*
+TestflightLocalizations is a map of [locale codes](#locales) to [TestflightLocalization](#testflightlocalization) objects.
+
+For example:
+
+```yaml
+localizations:
+  en-US:
+    description: My App for cool people
+    feedbackEmail: person@company.com
+    whatsNew: Thank you for using My App! I bring you updates every week so this continues to be my app.
+```
+.
+*/
 type TestflightLocalizations map[string]TestflightLocalization
+
+// TestflightLocalization contains localized details for the listing of a specific build in the Testflight app.
+type TestflightLocalization struct {
+	// Beta build description in this locale. Templated.
+	Description string `yaml:"description"`
+	// Email for testers to provide feedback to in this locale. Templated.
+	FeedbackEmail string `yaml:"feedbackEmail,omitempty"`
+	// Marketing URL to use in this locale. Templated.
+	MarketingURL string `yaml:"marketingURL,omitempty"`
+	// Privacy policy URL to use in this locale. Templated.
+	PrivacyPolicyURL string `yaml:"privacyPolicyURL,omitempty"`
+	// Privacy policy text to use on tvOS in this locale. Templated.
+	TVOSPrivacyPolicy string `yaml:"tvOSPrivacyPolicy,omitempty"`
+	// "Whats New" release note text to use in this locale. Templated.
+	WhatsNew string `yaml:"whatsNew,omitempty"`
+}
 
 // BetaGroup describes a beta group in Testflight that should be kept in sync and used with this app.
 type BetaGroup struct {
@@ -437,22 +631,6 @@ type BetaTester struct {
 	FirstName string `yaml:"firstName,omitempty"`
 	// Beta tester last (family) name.
 	LastName string `yaml:"lastName,omitempty"`
-}
-
-// TestflightLocalization contains localized details for the listing of a specific build in the Testflight app.
-type TestflightLocalization struct {
-	// Beta build description in this locale. Templated.
-	Description string `yaml:"description"`
-	// Email for testers to provide feedback to in this locale. Templated.
-	FeedbackEmail string `yaml:"feedbackEmail,omitempty"`
-	// Marketing URL to use in this locale. Templated.
-	MarketingURL string `yaml:"marketingURL,omitempty"`
-	// Privacy policy URL to use in this locale. Templated.
-	PrivacyPolicyURL string `yaml:"privacyPolicyURL,omitempty"`
-	// Privacy policy text to use on tvOS in this locale. Templated.
-	TVOSPrivacyPolicy string `yaml:"tvOSPrivacyPolicy,omitempty"`
-	// "Whats New" release note text to use in this locale. Templated.
-	WhatsNew string `yaml:"whatsNew,omitempty"`
 }
 
 // Load config file.

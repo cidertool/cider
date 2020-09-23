@@ -8,9 +8,14 @@ import (
 	"strings"
 
 	"github.com/cidertool/cider/internal/shell"
-	"github.com/cidertool/cider/pkg/config"
 	"github.com/cidertool/cider/pkg/context"
 )
+
+// Repo represents any kind of repo (github, gitlab, etc).
+type Repo struct {
+	Owner string
+	Name  string
+}
 
 // Git wraps a shell.Shell provider to provide an interface over
 // the git program in the PATH.
@@ -86,7 +91,7 @@ func (git *Git) ShowRef(spec, ref string) (string, error) {
 }
 
 // ExtractRepoFromConfig gets the repo name from the Git config.
-func (git *Git) ExtractRepoFromConfig() (result config.Repo, err error) {
+func (git *Git) ExtractRepoFromConfig() (result Repo, err error) {
 	if !git.IsRepo() {
 		return result, ErrNotRepository{git.CurrentDirectory()}
 	}
@@ -98,7 +103,7 @@ func (git *Git) ExtractRepoFromConfig() (result config.Repo, err error) {
 }
 
 // ExtractRepoFromURL gets the repo name from the remote URL.
-func ExtractRepoFromURL(s string) config.Repo {
+func ExtractRepoFromURL(s string) Repo {
 	// removes the .git suffix and any new lines
 	s = strings.NewReplacer(
 		".git", "",
@@ -112,7 +117,7 @@ func ExtractRepoFromURL(s string) config.Repo {
 	s = s[strings.LastIndex(s, ":")+1:]
 	// split by /, the last to parts should be the owner and name
 	ss := strings.Split(s, "/")
-	return config.Repo{
+	return Repo{
 		Owner: ss[len(ss)-2],
 		Name:  ss[len(ss)-1],
 	}

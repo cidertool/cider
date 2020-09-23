@@ -1,3 +1,7 @@
+## Locales
+
+The App Store operates in a variety of locales and territories. When referring to localized resources in Cider such as [AppLocalizations](#applocalizations), [VersionLocalizations](#versionlocalizations), or [TestflightLocalizations](#testflightlocalizations), use ISO 639-1 identifiers where possible, in the style of `"en-US"` where possible. If an ISO 639-1 code does not exist, use the appropriate ISO 639-2 code.
+
 ## App Categories
 
 App categories provided and supported by the App Store Connect API are fluid and difficult to create a consistent format for. The App Store adds categories regularly, and it represents a challenge for both metadata maintainers and maintainers of Cider to support. Therefore, the choice has been made to accept any string as a category ID, and let the API respond with whether or not it's valid.

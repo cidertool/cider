@@ -210,6 +210,7 @@ func newRenderer() (*docRenderer, error) {
 	r.Values = make(map[string][]string)
 	for _, typ := range pkg.Types {
 		r.Types[typ.Name] = typ
+
 		if len(typ.Consts) > 0 {
 			for _, cons := range typ.Consts {
 				name, values := gatherConsts(cons)
@@ -217,6 +218,7 @@ func newRenderer() (*docRenderer, error) {
 			}
 		}
 	}
+
 	for _, cons := range pkg.Consts {
 		name, values := gatherConsts(cons)
 		r.Values[name] = values
@@ -306,7 +308,7 @@ func (r *docRenderer) Render(w io.Writer) error {
 	if err != nil {
 		return err
 	}
-	r.WriteString(fmt.Sprintf("## Example\n\n```yaml\n%s```\n\n", string(proj)))
+	r.WriteString(fmt.Sprintf("## Full Example\n\n```yaml\n%s```\n\n", string(proj)))
 
 	if r.Footer != nil {
 		r.WriteString(r.Footer())
@@ -510,10 +512,23 @@ func formatDoc(s string) string {
 	}
 	doc := strings.Builder{}
 	lines := strings.Split(s, "\n")
+	var inBlock bool
 	for i, line := range lines {
-		if line == "" && i < len(lines)-1 {
+		switch {
+		case line == "" && i < len(lines)-1:
 			doc.WriteString("\n\n")
-		} else {
+		case line == "```yaml" && !inBlock:
+			// TODO: make work for other block types
+			inBlock = true
+			fallthrough
+		case inBlock:
+			if line == "```" {
+				inBlock = false
+			}
+			doc.WriteString(line + "\n")
+		case line == ".":
+			continue
+		default:
 			doc.WriteString(strings.TrimSpace(line) + " ")
 		}
 	}

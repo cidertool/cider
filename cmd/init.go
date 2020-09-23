@@ -33,7 +33,7 @@ func newInitCmd() *initCmd {
 	var root = &initCmd{}
 	var cmd = &cobra.Command{
 		Use:   "init",
-		Short: "Generates an .cider.yml file",
+		Short: "Generates a .cider.yml file",
 		Long: `Use to initialize a new Cider project. This will create a new configuration file
 		in the current directory that should be checked into source control.`,
 		Example:       "cider init",

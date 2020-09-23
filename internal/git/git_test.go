@@ -76,7 +76,7 @@ func TestShowRef(t *testing.T) {
 }
 
 func TestExtractRemoteFromConfig_Happy(t *testing.T) {
-	expected := config.Repo{
+	expected := Repo{
 		Name:  "cider",
 		Owner: "cidertool",
 	}
@@ -110,8 +110,8 @@ func TestExtractRemoteFromConfig_ErrNoRemoteNamedOrigin(t *testing.T) {
 }
 
 func TestExtractRepoFromURL(t *testing.T) {
-	var repo config.Repo
-	expected := config.Repo{
+	var repo Repo
+	expected := Repo{
 		Name:  "cider",
 		Owner: "cidertool",
 	}

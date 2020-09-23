@@ -8,7 +8,7 @@ nav_exclude: false
 
 ## cider init
 
-Generates an .cider.yml file
+Generates a .cider.yml file
 
 ### Synopsis
 

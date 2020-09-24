@@ -3,7 +3,7 @@ layout: page
 parent: Commands
 title: docs config
 nav_order: 0
-nav_exclude: false
+nav_exclude: true
 ---
 
 ## cider docs config

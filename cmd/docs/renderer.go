@@ -203,7 +203,7 @@ func (r *docRenderer) Render(w io.Writer) error {
 			r.renderTypePreamble(opt.Name, opt.Doc, 3+opt.Level)
 			r.renderMap(typ)
 		default:
-			log.Warnf("%s – %s", opt, typ)
+			continue
 		}
 		r.WriteString("\n")
 	}

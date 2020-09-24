@@ -195,7 +195,6 @@ versions:
 - [ ] **routingCoverage: [File](#file)** – Routing coverage resource.  
 - [ ] **reviewDetails: [ReviewDetails](#reviewdetails)** – Details about an app to share with the App Store reviewer.  
 
-
 ###### VersionLocalizations
 
 VersionLocalizations is a map of [locale codes](#locales) to [VersionLocalization](#versionlocalization) objects. 

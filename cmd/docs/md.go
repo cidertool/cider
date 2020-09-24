@@ -33,6 +33,7 @@ func runDocsMdCmd(cmd *cobra.Command, args []string) error {
 		"cider_check.md":       {order: 3},
 		"cider_completions.md": {order: 4},
 		"cider_docs.md":        {exclude: true},
+		"cider_docs_config.md": {exclude: true},
 		"cider_docs_man.md":    {exclude: true},
 		"cider_docs_md.md":     {exclude: true},
 	}

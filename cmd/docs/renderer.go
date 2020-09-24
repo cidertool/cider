@@ -22,12 +22,20 @@ type stringWriterTo interface {
 	io.WriterTo
 }
 
+type renderTypeOptions struct {
+	Name  string
+	Level int
+	Doc   string
+	Type  ast.Expr
+	// Parent *doc.Type
+}
+
 type docRenderer struct {
-	Package *doc.Package
-	Types   map[string]*doc.Type
-	Values  map[string][]string
-	Visited map[string]bool
-	Queue   []*doc.Type
+	Package       *doc.Package
+	Types         map[string]*doc.Type
+	Values        map[string][]string
+	Visited       map[string]bool
+	TypesToRender []renderTypeOptions
 
 	Header func() string
 	Footer func() string
@@ -44,40 +52,18 @@ func newRenderer() (*docRenderer, error) {
 	}
 	r.Package = pkg
 
-	r.Types = make(map[string]*doc.Type)
+	r.Types = make(map[string]*doc.Type, len(pkg.Types))
 	r.Values = make(map[string][]string)
-	for _, typ := range pkg.Types {
-		r.Types[typ.Name] = typ
-
-		if len(typ.Consts) > 0 {
-			for _, cons := range typ.Consts {
-				name, values := gatherConsts(cons)
-				r.Values[name] = values
-			}
-		}
-	}
-
-	for _, cons := range pkg.Consts {
-		name, values := gatherConsts(cons)
-		r.Values[name] = values
-	}
-
-	r.Visited = make(map[string]bool)
-	r.Queue = make([]*doc.Type, 0)
+	r.Visited = make(map[string]bool, len(pkg.Types))
+	r.TypesToRender = make([]renderTypeOptions, 0, len(r.Types))
 	r.buffer = new(bytes.Buffer)
 
-	return r, nil
-}
-
-func gatherConsts(cons *doc.Value) (name string, values []string) {
-	values = make([]string, len(cons.Decl.Specs))
-	for i, s := range cons.Decl.Specs {
-		if spec, ok := s.(*ast.ValueSpec); ok {
-			name = spec.Type.(*ast.Ident).Name
-			values[i] = spec.Values[0].(*ast.BasicLit).Value
-		}
+	err = r.gatherTypes()
+	if err != nil {
+		return nil, err
 	}
-	return name, values
+
+	return r, nil
 }
 
 func openPackage() (*doc.Package, error) {
@@ -108,6 +94,89 @@ func parseFilesInConfigPackage(fset *token.FileSet) (files []*ast.File, err erro
 	return files, err
 }
 
+func (r *docRenderer) gatherTypes() error {
+	for _, typ := range r.Package.Types {
+		r.Types[typ.Name] = typ
+
+		if len(typ.Consts) > 0 {
+			for _, cons := range typ.Consts {
+				name, values := r.gatherConsts(cons)
+				r.Values[name] = values
+			}
+		}
+	}
+	for _, cons := range r.Package.Consts {
+		name, values := r.gatherConsts(cons)
+		r.Values[name] = values
+	}
+
+	root, ok := r.Types["Project"]
+	if !ok ||
+		root == nil ||
+		len(root.Decl.Specs) == 0 {
+		return errors.New("config.Project not found")
+	}
+	r.insertTypeTree(root, 0)
+
+	return nil
+}
+
+func (r *docRenderer) insertTypeTree(t *doc.Type, level int) {
+	getSubTypeNames := func(e ast.Expr) []string {
+		switch t := e.(type) {
+		case *ast.ArrayType:
+			return []string{getTypeName(t)}
+		case *ast.StructType:
+			var fields = make([]string, len(t.Fields.List))
+			for i, field := range t.Fields.List {
+				fields[i] = getTypeName(field.Type)
+			}
+			return fields
+		case *ast.MapType:
+			return []string{getTypeName(t.Key), getTypeName(t.Value)}
+		case *ast.StarExpr:
+			return []string{getTypeName(t)}
+		case *ast.SelectorExpr:
+			return []string{getTypeName(t)}
+		}
+		return nil
+	}
+	decl := t.Decl
+	for _, s := range decl.Specs {
+		spec, ok := s.(*ast.TypeSpec)
+		if !ok {
+			continue
+		} else if r.Visited[spec.Name.Name] {
+			continue
+		}
+		r.Visited[spec.Name.Name] = true
+		r.TypesToRender = append(r.TypesToRender, renderTypeOptions{
+			Name:  spec.Name.Name,
+			Level: level,
+			Doc:   formatDoc(t.Doc),
+			Type:  spec.Type,
+		})
+		for _, name := range getSubTypeNames(spec.Type) {
+			typ, ok := r.Types[name]
+			if !ok {
+				continue
+			}
+			r.insertTypeTree(typ, level+1)
+		}
+	}
+}
+
+func (*docRenderer) gatherConsts(cons *doc.Value) (name string, values []string) {
+	values = make([]string, len(cons.Decl.Specs))
+	for i, s := range cons.Decl.Specs {
+		if spec, ok := s.(*ast.ValueSpec); ok {
+			name = spec.Type.(*ast.Ident).Name
+			values[i] = spec.Values[0].(*ast.BasicLit).Value
+		}
+	}
+	return name, values
+}
+
 func (r *docRenderer) WriteString(s string) {
 	_, err := r.buffer.WriteString(s)
 	if err != nil {
@@ -116,13 +185,6 @@ func (r *docRenderer) WriteString(s string) {
 }
 
 func (r *docRenderer) Render(w io.Writer) error {
-	projectType, ok := r.Types["Project"]
-	if !ok ||
-		projectType == nil ||
-		len(projectType.Decl.Specs) == 0 {
-		return errors.New("config.Project not found")
-	}
-
 	if r.Header != nil {
 		r.WriteString(r.Header())
 	}
@@ -132,14 +194,18 @@ func (r *docRenderer) Render(w io.Writer) error {
 	r.WriteString(docsConfigTableOfContents)
 	r.WriteString("## Specification\n\n")
 
-	r.Queue = append(r.Queue, projectType)
-
-	for {
-		typ := r.dequeueType()
-		if typ == nil {
-			break
+	for _, opt := range r.TypesToRender {
+		switch typ := opt.Type.(type) {
+		case *ast.StructType:
+			r.renderTypePreamble(opt.Name, opt.Doc, 3+opt.Level)
+			r.renderStruct(typ)
+		case *ast.MapType:
+			r.renderTypePreamble(opt.Name, opt.Doc, 3+opt.Level)
+			r.renderMap(typ)
+		default:
+			log.Warnf("%s – %s", opt, typ)
 		}
-		r.renderDecl(typ.Decl, formatDoc(typ.Doc))
+		r.WriteString("\n")
 	}
 
 	proj, err := yaml.Marshal(docsConfigExampleProject)
@@ -156,41 +222,10 @@ func (r *docRenderer) Render(w io.Writer) error {
 	return err
 }
 
-func (r *docRenderer) renderDecl(decl *ast.GenDecl, doc string) {
-	for _, spec := range decl.Specs {
-		r.renderSpec(spec, doc)
-	}
-}
-
-func (r *docRenderer) renderSpec(s ast.Spec, doc string) {
-	if spec, ok := s.(*ast.TypeSpec); ok {
-		r.renderType(spec.Name.Name, doc, spec.Type)
-	}
-}
-
-func (r *docRenderer) renderType(name string, doc string, expr ast.Expr) {
-	switch t := expr.(type) {
-	case *ast.ArrayType:
-		r.enqueueTypeFromExprs(t.Elt)
-	case *ast.StructType:
-		r.renderTypePreamble(name, doc, 3)
-		r.renderStruct(t)
-	case *ast.MapType:
-		r.renderTypePreamble(name, doc, 3)
-		r.renderMap(t)
-	case *ast.StarExpr:
-		r.enqueueTypeFromExprs(t.X)
-	case *ast.SelectorExpr:
-		r.enqueueTypeFromExprs(t.Sel)
-	case *ast.Ident:
-		r.enqueueTypeFromExprs(t)
-	default:
-		log.Warnf("%s", t)
-	}
-	r.WriteString("\n")
-}
-
 func (r *docRenderer) renderTypePreamble(name string, doc string, level int) {
+	if level > 6 {
+		level = 6
+	}
 	r.WriteString(fmt.Sprintf("%s %s\n\n", strings.Repeat("#", level), name))
 	if doc != "" {
 		r.WriteString(doc + "\n\n")
@@ -199,15 +234,20 @@ func (r *docRenderer) renderTypePreamble(name string, doc string, level int) {
 
 func (r *docRenderer) renderStruct(typ *ast.StructType) {
 	for _, field := range typ.Fields.List {
-		typeName := formatTypeName(field.Type)
+		typeName := getTypeName(field.Type)
+		typeNameFormatted := formatTypeName(field.Type)
 		tag, required := getTagValue(field.Tag)
 		var requiredStr = " "
-		if required && !strings.HasPrefix(typeName, "[") {
+		if required && !strings.HasPrefix(typeNameFormatted, "[") {
 			requiredStr = "x"
 		}
 		var options []string
 		if values, ok := r.Values[typeName]; ok {
-			typeName = "string"
+			if identName := r.asIdentName(typeName); identName != "" {
+				typeNameFormatted = identName
+			} else {
+				typeNameFormatted = "string"
+			}
 			options = values
 		}
 
@@ -232,7 +272,7 @@ func (r *docRenderer) renderStruct(typ *ast.StructType) {
 			"- [%s] **%s: %s** – %s%s",
 			requiredStr,
 			tag,
-			r.renderTypeLink(typeName, false),
+			r.renderItemType(typeName, typeNameFormatted),
 			formatDoc(field.Doc.Text()),
 			formatOptions(options, "", true),
 		)
@@ -240,7 +280,6 @@ func (r *docRenderer) renderStruct(typ *ast.StructType) {
 		if !strings.HasSuffix(line, "\n") {
 			r.WriteString("\n")
 		}
-		r.enqueueTypeFromExprs(field.Type)
 	}
 }
 
@@ -251,39 +290,6 @@ func (r *docRenderer) renderMap(typ *ast.MapType) {
 		options = values
 	}
 	r.WriteString(formatOptions(options, keyName, false) + "\n")
-	r.enqueueTypeFromExprs(typ.Key, typ.Value)
-}
-
-func (r *docRenderer) hasType(name string) bool {
-	_, ok := r.Types[name]
-	return ok
-}
-
-func (r *docRenderer) enqueueTypeFromExprs(exprs ...ast.Expr) {
-	for _, expr := range exprs {
-		name := getTypeName(expr)
-		if name == "" {
-			continue
-		}
-		typ, ok := r.Types[name]
-		if !ok {
-			continue
-		} else if r.Visited[name] {
-			continue
-		}
-		r.Visited[name] = true
-		r.Queue = append(r.Queue, typ)
-	}
-}
-
-func (r *docRenderer) dequeueType() *doc.Type {
-	if len(r.Queue) == 0 {
-		return nil
-	}
-	typ := r.Queue[0]
-	r.Queue[0] = nil
-	r.Queue = r.Queue[1:]
-	return typ
 }
 
 func getTagValue(tag *ast.BasicLit) (val string, required bool) {
@@ -300,15 +306,14 @@ func getTagValue(tag *ast.BasicLit) (val string, required bool) {
 	return val, required
 }
 
-func (r *docRenderer) renderTypeLink(name string, plural bool) string {
-	if r.hasType(name) {
-		var pluralStr string
-		if plural {
-			pluralStr = "s"
-		}
-		return fmt.Sprintf("[%s%s](#%s)", name, pluralStr, strings.ToLower(name))
+func (r *docRenderer) renderItemType(name, formatted string) string {
+	if ident := r.asIdentName(name); ident != "" {
+		return ident
 	}
-	return name
+	if _, ok := r.Types[name]; ok {
+		return fmt.Sprintf("[%s](#%s)", formatted, strings.ToLower(name))
+	}
+	return formatted
 }
 
 func getTypeName(expr ast.Expr) string {
@@ -341,6 +346,30 @@ func formatTypeName(expr ast.Expr) string {
 		log.Warnf("%s", t)
 		return "INVALID_EXPR"
 	}
+}
+
+func (r *docRenderer) asIdentName(typeName string) string {
+	typ, ok := r.Types[typeName]
+	if !ok {
+		return ""
+	}
+
+	if len(typ.Decl.Specs) == 0 {
+		return ""
+	}
+
+	s := typ.Decl.Specs[0]
+	spec, ok := s.(*ast.TypeSpec)
+	if !ok {
+		return ""
+	}
+
+	id, ok := spec.Type.(*ast.Ident)
+	if !ok {
+		return ""
+	}
+
+	return id.Name
 }
 
 func formatDoc(s string) string {

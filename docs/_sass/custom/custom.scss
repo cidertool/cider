@@ -1,3 +1,15 @@
 .main-content .task-list-item {
-  display: block;
+    display: block;
+}
+
+h4,
+.text-delta,
+h5,
+.text-epsilon,
+h6,
+.text-zeta {
+    font-size: 18px !important;
+    font-weight: inherit;
+    text-transform: inherit;
+    letter-spacing: inherit;
 }

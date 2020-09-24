@@ -44,7 +44,7 @@ Other App:
 
 
 
-### App
+#### App
 
 App is used to manage the high-level configuration options for an app in general.  
 
@@ -58,7 +58,7 @@ App is used to manage the high-level configuration options for an app in general
 - [x] **versions: [Version](#version)** – Metadata to configure new App Store versions.  
 - [x] **testflight: [Testflight](#testflight)** – Metadata to configure new Testflight beta releases.  
 
-### Availability
+##### Availability
 
 Availability wraps aspects of app availability, such as territories and pricing. 
 
@@ -75,10 +75,18 @@ availability:
  
 
 - [ ] **availableInNewTerritories: bool** – Indicates whether or not the app should be made automaticaly available in new App Store territories, as Apple makes new ones available.  
-- [ ] **priceTiers: [PriceSchedule]** – List of PriceSchedules that describe the pricing details of your app.  
+- [ ] **priceTiers: [[PriceSchedule]](#priceschedule)** – List of PriceSchedules that describe the pricing details of your app.  
 - [ ] **territories: [string]** – Array of ISO 3166-1 Alpha-3 country codes corresponding to territories to make your app available in.  
 
-### Categories
+###### PriceSchedule
+
+PriceSchedule represents pricing availability information that an app should be immediately configured to.  
+
+- [x] **tier: string** – Tier corresponds to a representation of a tier on the [App Store Pricing Matrix](https://appstoreconnect.apple.com/apps/pricingmatrix). For example, Tier 1 should be represented as "1" and the Free tier should be represented as "0".  
+- [ ] **startDate: Time** – StartDate is the start date a price schedule should take effect. Set to nil to have it take effect immediately.  
+- [ ] **endDate: Time** – EndDate is the end date a price schedule should be in effect until. Field is currently a no-op.  
+
+##### Categories
 
 Categories describes the categories your app belongs to. A primary category is required, and a secondary category is encouraged. 
 
@@ -102,7 +110,7 @@ See the [App Categories](#app-categories) section below for more information on 
 - [ ] **secondary: string** – ID for the secondary category.  
 - [ ] **secondarySubcategories: [string]** – IDs of any subcategories to apply to the secondary category. Only up to two will be accepted.  
 
-### AgeRatingDeclaration
+##### AgeRatingDeclaration
 
 AgeRatingDeclaration describes the various content warnings you can provide or apply to your applications. 
 
@@ -133,7 +141,7 @@ ageRatings:
 - [ ] **violenceRealistic: string** – Whether your app contains realistic violence.   Valid options: `"none"`, `"infrequentOrMild"`, `"frequentOrIntense"`.
 - [ ] **violenceRealisticProlongedGraphicOrSadistic: string** – Whether your app contains prolonged, realistic violence that is graphic or sadistic in nature.   Valid options: `"none"`, `"infrequentOrMild"`, `"frequentOrIntense"`.
 
-### AppLocalizations
+##### AppLocalizations
 
 AppLocalizations is a map of [locale codes](#locales) to [AppLocalization](#applocalization) objects. 
 
@@ -152,7 +160,16 @@ localizations:
 
 
 
-### Version
+###### AppLocalization
+
+AppLocalization contains localized details for your App Store listing.  
+
+- [x] **name: string** – Name of the app in this locale. Templated.  
+- [ ] **subtitle: string** – Subtitle of the app in this locale. Templated.  
+- [ ] **privacyPolicyText: string** – Privacy policy text if not using a URL. Templated.  
+- [ ] **privacyPolicyURL: string** – Privacy policy URL if not using a text body. Templated.  
+
+##### Version
 
 Version outlines the general details of your app store version as it will be represented on the App Store. 
 
@@ -178,36 +195,8 @@ versions:
 - [ ] **routingCoverage: [File](#file)** – Routing coverage resource.  
 - [ ] **reviewDetails: [ReviewDetails](#reviewdetails)** – Details about an app to share with the App Store reviewer.  
 
-### Testflight
 
-Testflight represents configuration for beta distribution of apps.  
-
-- [x] **enableAutoNotify: bool** – Indicates whether to auto-notify existing beta testers of a new Testflight update.  
-- [x] **licenseAgreement: string** – Beta license agreement content. Templated.  
-- [x] **localizations: [TestflightLocalizations](#testflightlocalizations)** – Map of locale codes to localization configurations for beta app and beta build information.  
-- [ ] **betaGroups: [BetaGroup]** – Array of beta group names. If you want to refer to beta groups defined in this configuration file, use the value provided for the group field on the corresponding beta group. Beta groups to add or update in App Store Connect.  
-- [ ] **betaTesters: [BetaTester]** – Individual beta testers to add or update in App Store Connect.  
-- [ ] **reviewDetails: [ReviewDetails](#reviewdetails)** – Details about an app to share with the App Store reviewer.  
-
-### PriceSchedule
-
-PriceSchedule represents pricing availability information that an app should be immediately configured to.  
-
-- [x] **tier: string** – Tier corresponds to a representation of a tier on the [App Store Pricing Matrix](https://appstoreconnect.apple.com/apps/pricingmatrix). For example, Tier 1 should be represented as "1" and the Free tier should be represented as "0".  
-- [ ] **startDate: Time** – StartDate is the start date a price schedule should take effect. Set to nil to have it take effect immediately.  
-- [ ] **endDate: Time** – EndDate is the end date a price schedule should be in effect until. Field is currently a no-op.  
-
-### AppLocalization
-
-AppLocalization contains localized details for your App Store listing.  
-
-- [x] **name: string** – Name of the app in this locale. Templated.  
-- [ ] **subtitle: string** – Subtitle of the app in this locale. Templated.  
-- [ ] **privacyPolicyText: string** – Privacy policy text if not using a URL. Templated.  
-- [ ] **privacyPolicyURL: string** – Privacy policy URL if not using a text body. Templated.  
-
-
-### VersionLocalizations
+###### VersionLocalizations
 
 VersionLocalizations is a map of [locale codes](#locales) to [VersionLocalization](#versionlocalization) objects. 
 
@@ -224,99 +213,7 @@ localizations:
 
 
 
-### IDFADeclaration
-
-IDFADeclaration outlines regulatory information for Apple to use to handle your apps' use of tracking identifiers. Implicitly enables `usesIdfa` when creating an app store version. 
-
-For example: 
-
-```yaml
-idfaDeclaration:
-  attributesActionWithPreviousAd: false
-  attributesAppInstallationToPreviousAd: false
-  honorsLimitedAdTracking: true
-  servesAds: false
-```
- 
-
-- [x] **attributesActionWithPreviousAd: bool** – Indicates that the app attributes user action with previous ads.  
-- [x] **attributesAppInstallationToPreviousAd: bool** – Indicates that the app attributes user installation with previous ads.  
-- [x] **honorsLimitedAdTracking: bool** – Indicates that the app developer will honor Apple's guidelines around tracking when the user has chosen to limit ad tracking.  
-- [x] **servesAds: bool** – Indicates that the app serves ads  
-
-### File
-
-File refers to a file on disk by name.  
-
-- [x] **path: string** – Path to a file on-disk. Templated.  
-
-### ReviewDetails
-
-ReviewDetails contains information for App Store reviewers to use in their evaluation. 
-
-For example: 
-
-```yaml
-reviewDetails:
-  contact:
-    email: person@company.com
-    firstName: Person
-    lastName: Personson
-    phone: '15555555555'
-  demoAccount:
-    isRequired: false
-  notes: |
-    This app is good and should pass review with flying colors, because it's so good.
-  attachments:
-    - path: assets/review/attachment1.png
-    - path: assets/review/attachment2.png
-```
-
-
-Note: review attachments are not considered during TestFlight review and are not handled by Cider.  
-
-- [ ] **contact: [ContactPerson](#contactperson)** – Point of contact for the App Store reviewer.  
-- [ ] **demoAccount: [DemoAccount](#demoaccount)** – A demo account the reviewer can use to evaluate functionality  
-- [ ] **notes: string** – Notes that the reviewer should be aware of. Templated.  
-- [ ] **attachments: [File]** – Attachment resources the reviewer should be aware of or use in evaluation.  
-
-### TestflightLocalizations
-
-TestflightLocalizations is a map of [locale codes](#locales) to [TestflightLocalization](#testflightlocalization) objects. 
-
-For example: 
-
-```yaml
-localizations:
-  en-US:
-    description: My App for cool people
-    feedbackEmail: person@company.com
-    whatsNew: Thank you for using My App! I bring you updates every week so this continues to be my app.
-```
- 
-
-
-
-### BetaGroup
-
-BetaGroup describes a beta group in Testflight that should be kept in sync and used with this app.  
-
-- [x] **group: string** – Name of the beta group.  
-- [ ] **publicLinkEnabled: bool** – Indicates whether to enable the public link.  
-- [ ] **publicLinkLimitEnabled: bool** – Indicates whether a limit on the number of testers who can use the public link is enabled.  
-- [ ] **feedbackEnabled: bool** – Indicates whether tester feedback is enabled within TestFlight  
-- [ ] **publicLinkLimit: int** – Maximum number of testers that can join the beta group using the public link.  
-- [ ] **testers: [BetaTester]** – Array of beta testers to explicitly assign to the beta group.  
-
-### BetaTester
-
-BetaTester describes an individual beta tester that should have access to this app.  
-
-- [x] **email: string** – Beta tester email.  
-- [ ] **firstName: string** – Beta tester first (given) name.  
-- [ ] **lastName: string** – Beta tester last (family) name.  
-
-### VersionLocalization
+###### VersionLocalization
 
 VersionLocalization contains localized details for the listing of a specific version on the App Store.  
 
@@ -329,35 +226,7 @@ VersionLocalization contains localized details for the listing of a specific ver
 - [ ] **previewSets: [PreviewSets](#previewsets)** – Map of preview types to arrays of app preview assets.  
 - [ ] **screenshotSets: [ScreenshotSets](#screenshotsets)** – Map of screenshot types to arrays of app screenshot assets.  
 
-### ContactPerson
-
-ContactPerson is a point of contact for App Store reviewers to reach out to in case of an issue.  
-
-- [x] **email: string** – Contact email. Templated.  
-- [x] **firstName: string** – Contact first (given) name. Templated.  
-- [x] **lastName: string** – Contact last (family) name. Templated.  
-- [x] **phone: string** – Contact phone number. Templated.  
-
-### DemoAccount
-
-DemoAccount contains account credentials for App Store reviewers to assess your apps.  
-
-- [x] **isRequired: bool** – Whether or not a demo account is required. Other fields can be omitted if this is set to false.  
-- [ ] **name: string** – Demo account name or login. Templated.  
-- [ ] **password: string** – Demo account password. Templated.  
-
-### TestflightLocalization
-
-TestflightLocalization contains localized details for the listing of a specific build in the Testflight app.  
-
-- [x] **description: string** – Beta build description in this locale. Templated.  
-- [ ] **feedbackEmail: string** – Email for testers to provide feedback to in this locale. Templated.  
-- [ ] **marketingURL: string** – Marketing URL to use in this locale. Templated.  
-- [ ] **privacyPolicyURL: string** – Privacy policy URL to use in this locale. Templated.  
-- [ ] **tvOSPrivacyPolicy: string** – Privacy policy text to use on tvOS in this locale. Templated.  
-- [ ] **whatsNew: string** – "Whats New" release note text to use in this locale. Templated.  
-
-### PreviewSets
+###### PreviewSets
 
 PreviewSets is a map of preview types to arrays of [Preview](#preview)s. Each preview type can contain up to three preview assets, which can be content such as videos. 
 
@@ -392,7 +261,21 @@ For more information, see [App preview specifications](https://help.apple.com/ap
 - `"watchSeries3"`
 - `"watchSeries4"`
 
-### ScreenshotSets
+###### Preview
+
+Preview is an expansion of File that defines a new app preview asset.  
+
+- [x] **path: string** – Path to a file on-disk. Templated.  
+- [ ] **mimeType: string** – MIME type of the asset. Overriding this is usually unnecessary.  
+- [ ] **previewFrameTimeCode: string** – Time code to a frame to show as a preview of the video, if not the beginning.  
+
+###### File
+
+File refers to a file on disk by name.  
+
+- [x] **path: string** – Path to a file on-disk. Templated.  
+
+###### ScreenshotSets
 
 ScreenshotSets is a map of screenshot types to arrays of [File](#file)s. Each screenshot type can contain up to ten assets, which must be correctly sized and encoded images for each type. 
 
@@ -441,13 +324,130 @@ Some screenshot sizes are required in order to submit your app for review. You�
 - `"iphone58imessage"`
 - `"iphone65imessage"`
 
-### Preview
+###### IDFADeclaration
 
-Preview is an expansion of File that defines a new app preview asset.  
+IDFADeclaration outlines regulatory information for Apple to use to handle your apps' use of tracking identifiers. Implicitly enables `usesIdfa` when creating an app store version. 
 
-- [x] **path: string** – Path to a file on-disk. Templated.  
-- [ ] **mimeType: string** – MIME type of the asset. Overriding this is usually unnecessary.  
-- [ ] **previewFrameTimeCode: string** – Time code to a frame to show as a preview of the video, if not the beginning.  
+For example: 
+
+```yaml
+idfaDeclaration:
+  attributesActionWithPreviousAd: false
+  attributesAppInstallationToPreviousAd: false
+  honorsLimitedAdTracking: true
+  servesAds: false
+```
+ 
+
+- [x] **attributesActionWithPreviousAd: bool** – Indicates that the app attributes user action with previous ads.  
+- [x] **attributesAppInstallationToPreviousAd: bool** – Indicates that the app attributes user installation with previous ads.  
+- [x] **honorsLimitedAdTracking: bool** – Indicates that the app developer will honor Apple's guidelines around tracking when the user has chosen to limit ad tracking.  
+- [x] **servesAds: bool** – Indicates that the app serves ads  
+
+###### ReviewDetails
+
+ReviewDetails contains information for App Store reviewers to use in their evaluation. 
+
+For example: 
+
+```yaml
+reviewDetails:
+  contact:
+    email: person@company.com
+    firstName: Person
+    lastName: Personson
+    phone: '15555555555'
+  demoAccount:
+    isRequired: false
+  notes: |
+    This app is good and should pass review with flying colors, because it's so good.
+  attachments:
+    - path: assets/review/attachment1.png
+    - path: assets/review/attachment2.png
+```
+
+
+Note: review attachments are not considered during TestFlight review and are not handled by Cider.  
+
+- [ ] **contact: [ContactPerson](#contactperson)** – Point of contact for the App Store reviewer.  
+- [ ] **demoAccount: [DemoAccount](#demoaccount)** – A demo account the reviewer can use to evaluate functionality  
+- [ ] **notes: string** – Notes that the reviewer should be aware of. Templated.  
+- [ ] **attachments: [[File]](#file)** – Attachment resources the reviewer should be aware of or use in evaluation.  
+
+###### ContactPerson
+
+ContactPerson is a point of contact for App Store reviewers to reach out to in case of an issue.  
+
+- [x] **email: string** – Contact email. Templated.  
+- [x] **firstName: string** – Contact first (given) name. Templated.  
+- [x] **lastName: string** – Contact last (family) name. Templated.  
+- [x] **phone: string** – Contact phone number. Templated.  
+
+###### DemoAccount
+
+DemoAccount contains account credentials for App Store reviewers to assess your apps.  
+
+- [x] **isRequired: bool** – Whether or not a demo account is required. Other fields can be omitted if this is set to false.  
+- [ ] **name: string** – Demo account name or login. Templated.  
+- [ ] **password: string** – Demo account password. Templated.  
+
+##### Testflight
+
+Testflight represents configuration for beta distribution of apps.  
+
+- [x] **enableAutoNotify: bool** – Indicates whether to auto-notify existing beta testers of a new Testflight update.  
+- [x] **licenseAgreement: string** – Beta license agreement content. Templated.  
+- [x] **localizations: [TestflightLocalizations](#testflightlocalizations)** – Map of locale codes to localization configurations for beta app and beta build information.  
+- [ ] **betaGroups: [[BetaGroup]](#betagroup)** – Array of beta group names. If you want to refer to beta groups defined in this configuration file, use the value provided for the group field on the corresponding beta group. Beta groups to add or update in App Store Connect.  
+- [ ] **betaTesters: [[BetaTester]](#betatester)** – Individual beta testers to add or update in App Store Connect.  
+- [ ] **reviewDetails: [ReviewDetails](#reviewdetails)** – Details about an app to share with the App Store reviewer.  
+
+###### TestflightLocalizations
+
+TestflightLocalizations is a map of [locale codes](#locales) to [TestflightLocalization](#testflightlocalization) objects. 
+
+For example: 
+
+```yaml
+localizations:
+  en-US:
+    description: My App for cool people
+    feedbackEmail: person@company.com
+    whatsNew: Thank you for using My App! I bring you updates every week so this continues to be my app.
+```
+ 
+
+
+
+###### TestflightLocalization
+
+TestflightLocalization contains localized details for the listing of a specific build in the Testflight app.  
+
+- [x] **description: string** – Beta build description in this locale. Templated.  
+- [ ] **feedbackEmail: string** – Email for testers to provide feedback to in this locale. Templated.  
+- [ ] **marketingURL: string** – Marketing URL to use in this locale. Templated.  
+- [ ] **privacyPolicyURL: string** – Privacy policy URL to use in this locale. Templated.  
+- [ ] **tvOSPrivacyPolicy: string** – Privacy policy text to use on tvOS in this locale. Templated.  
+- [ ] **whatsNew: string** – "Whats New" release note text to use in this locale. Templated.  
+
+###### BetaGroup
+
+BetaGroup describes a beta group in Testflight that should be kept in sync and used with this app.  
+
+- [x] **group: string** – Name of the beta group.  
+- [ ] **publicLinkEnabled: bool** – Indicates whether to enable the public link.  
+- [ ] **publicLinkLimitEnabled: bool** – Indicates whether a limit on the number of testers who can use the public link is enabled.  
+- [ ] **feedbackEnabled: bool** – Indicates whether tester feedback is enabled within TestFlight  
+- [ ] **publicLinkLimit: int** – Maximum number of testers that can join the beta group using the public link.  
+- [ ] **testers: [[BetaTester]](#betatester)** – Array of beta testers to explicitly assign to the beta group.  
+
+###### BetaTester
+
+BetaTester describes an individual beta tester that should have access to this app.  
+
+- [x] **email: string** – Beta tester email.  
+- [ ] **firstName: string** – Beta tester first (given) name.  
+- [ ] **lastName: string** – Beta tester last (family) name.  
 
 ## Full Example
 

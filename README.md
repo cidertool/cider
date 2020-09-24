@@ -6,7 +6,7 @@
 
 ---
 
-Cider is a tool managing the entire release process of an iOS, macOS or tvOS application, supported by official Apple APIs. It takes the builds you've uploaded to App Store Connect, updates their metadata, and submits them for review automatically using an expressive YAML configuration. Unlike Xcode or altool, Cider is designed to be useful on Linux and Windows, in addition to macOS. 
+Cider is a tool managing the entire release process of an iOS, macOS or tvOS application, supported by official Apple APIs. It takes the builds you've uploaded to App Store Connect, updates their metadata, and submits them for review automatically using an expressive YAML configuration. Unlike Xcode or altool, Cider is designed to be useful on Linux and Windows, in addition to macOS.
 
 ## Documentation
 

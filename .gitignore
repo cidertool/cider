@@ -26,6 +26,7 @@ vendor/
 .env
 *.p8
 .vscode/
+*.prettierrc*
 
 # System files
 Thumbs.db
@@ -34,6 +35,8 @@ Thumbs.db
 
 # Documentation
 docs/_site
+docs/bin
+docs/tmp
 
 # GoReleaser
 dist/

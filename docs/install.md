@@ -34,7 +34,7 @@ docker run --rm \
 
 ### Pre-built Binary
 
-Download the specific version for your platform on Cider's [releases page](https://github.com/cidertool/cider/releases). 
+Download the specific version for your platform on Cider's [releases page](https://github.com/cidertool/cider/releases).
 
 ### Compile from Source
 
@@ -44,7 +44,7 @@ cd cider
 go build -o cider .
 ```
 
-From there, you can use your locally-built Cider binary for whatever purposes you need. 
+From there, you can use your locally-built Cider binary for whatever purposes you need.
 
 ## Missing your favorite?
 

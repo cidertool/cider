@@ -19,3 +19,9 @@ footer_content: 'Copyright &copy; 2020 Aaron Sky. Distributed under the <a href=
 last_edit_timestamp: true
 # last_edit_time_format uses ruby's time format: https://ruby-doc.org/stdlib-2.7.0/libdoc/time/rdoc/Time.html
 last_edit_time_format: '%b %e %Y at %I:%M %p'
+
+exclude:
+  - configuration-footer.md
+  - man/*
+  - bin/*
+  - htmltest.yml

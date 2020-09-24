@@ -20,6 +20,8 @@ func newCheckCmd() *checkCmd {
 	var cmd = &cobra.Command{
 		Use:           "check",
 		Short:         "Checks if the configuration is valid",
+		Long:          `Use to validate your configuration file.`,
+		Example:       "cider check",
 		SilenceUsage:  true,
 		SilenceErrors: true,
 		RunE: func(cmd *cobra.Command, args []string) error {

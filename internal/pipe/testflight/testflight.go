@@ -13,7 +13,9 @@ import (
 )
 
 // Pipe is a global hook pipe.
-type Pipe struct{}
+type Pipe struct {
+	Client client.Client
+}
 
 // String is the name of this pipe.
 func (Pipe) String() string {
@@ -21,12 +23,17 @@ func (Pipe) String() string {
 }
 
 // Publish to Testflight.
-func (p Pipe) Publish(ctx *context.Context) error {
-	client := client.New(ctx)
+func (p *Pipe) Publish(ctx *context.Context) error {
+	if p.Client == nil {
+		p.Client = client.New(ctx)
+	}
 	for _, name := range ctx.AppsToRelease {
-		app := ctx.Config[name]
+		app, ok := ctx.Config[name]
+		if !ok {
+			return pipe.ErrMissingApp(name)
+		}
 		log.WithField("name", name).Info("preparing")
-		err := doRelease(ctx, app, client)
+		err := p.doRelease(ctx, app)
 		if err != nil {
 			return err
 		}
@@ -34,12 +41,12 @@ func (p Pipe) Publish(ctx *context.Context) error {
 	return nil
 }
 
-func doRelease(ctx *context.Context, config config.App, client client.Client) error {
-	app, err := client.GetAppForBundleID(ctx, config.BundleID)
+func (p *Pipe) doRelease(ctx *context.Context, config config.App) error {
+	app, err := p.Client.GetAppForBundleID(ctx, config.BundleID)
 	if err != nil {
 		return err
 	}
-	build, err := client.GetBuild(ctx, app)
+	build, err := p.Client.GetBuild(ctx, app)
 	if err != nil {
 		return err
 	}
@@ -54,7 +61,7 @@ func doRelease(ctx *context.Context, config config.App, client client.Client) er
 		log.Warn("skipping updating metdata")
 	} else {
 		log.Info("updating metadata")
-		if err := updateBetaDetails(ctx, config, client, app, build); err != nil {
+		if err := p.updateBetaDetails(ctx, config, app, build); err != nil {
 			return err
 		}
 	}
@@ -67,37 +74,37 @@ func doRelease(ctx *context.Context, config config.App, client client.Client) er
 		WithField("build", buildVersionLog).
 		Info("submitting to testflight")
 
-	return client.SubmitBetaApp(ctx, build.ID)
+	return p.Client.SubmitBetaApp(ctx, build.ID)
 }
 
-func updateBetaDetails(ctx *context.Context, config config.App, client client.Client, app *asc.App, build *asc.Build) error {
+func (p *Pipe) updateBetaDetails(ctx *context.Context, config config.App, app *asc.App, build *asc.Build) error {
 	log.Infof("updating %d beta app localizations", len(config.Testflight.Localizations))
-	if err := client.UpdateBetaAppLocalizations(ctx, app.ID, config.Testflight.Localizations); err != nil {
+	if err := p.Client.UpdateBetaAppLocalizations(ctx, app.ID, config.Testflight.Localizations); err != nil {
 		return err
 	}
 	log.Info("updating beta build details")
-	if err := client.UpdateBetaBuildDetails(ctx, build.ID, config.Testflight); err != nil {
+	if err := p.Client.UpdateBetaBuildDetails(ctx, build.ID, config.Testflight); err != nil {
 		return err
 	}
 	log.Infof("updating %d beta build localizations", len(config.Testflight.Localizations))
-	if err := client.UpdateBetaBuildLocalizations(ctx, build.ID, config.Testflight.Localizations); err != nil {
+	if err := p.Client.UpdateBetaBuildLocalizations(ctx, build.ID, config.Testflight.Localizations); err != nil {
 		return err
 	}
 	log.Info("updating beta license agreement")
-	if err := client.UpdateBetaLicenseAgreement(ctx, app.ID, config.Testflight); err != nil {
+	if err := p.Client.UpdateBetaLicenseAgreement(ctx, app.ID, config.Testflight); err != nil {
 		return err
 	}
 	log.Info("updating build beta groups")
-	if err := client.AssignBetaGroups(ctx, app.ID, build.ID, config.Testflight.BetaGroups); err != nil {
+	if err := p.Client.AssignBetaGroups(ctx, app.ID, build.ID, config.Testflight.BetaGroups); err != nil {
 		return err
 	}
 	log.Info("updating build beta testers")
-	if err := client.AssignBetaTesters(ctx, app.ID, build.ID, config.Testflight.BetaTesters); err != nil {
+	if err := p.Client.AssignBetaTesters(ctx, app.ID, build.ID, config.Testflight.BetaTesters); err != nil {
 		return err
 	}
 	if config.Testflight.ReviewDetails != nil {
 		log.Info("updating beta review details")
-		if err := client.UpdateBetaReviewDetails(ctx, app.ID, *config.Testflight.ReviewDetails); err != nil {
+		if err := p.Client.UpdateBetaReviewDetails(ctx, app.ID, *config.Testflight.ReviewDetails); err != nil {
 			return err
 		}
 	}

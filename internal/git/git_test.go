@@ -1,27 +1,25 @@
 package git
 
 import (
-	"os/exec"
-	"strconv"
 	"testing"
 
 	"github.com/cidertool/cider/internal/shell"
+	"github.com/cidertool/cider/internal/shell/shelltest"
 	"github.com/cidertool/cider/pkg/config"
 	"github.com/cidertool/cider/pkg/context"
 	"github.com/stretchr/testify/assert"
 )
 
-func newMockGit(commands ...command) *Git {
+func newMockGit(commands ...shelltest.Command) *Git {
 	ctx := context.New(config.Project{})
 	return newMockGitWithContext(ctx, commands...)
 }
 
-func newMockGitWithContext(ctx *context.Context, commands ...command) *Git {
+func newMockGitWithContext(ctx *context.Context, commands ...shelltest.Command) *Git {
 	return &Git{
-		Shell: &mockShell{
-			Context:      ctx,
-			commandIndex: 0,
-			commands:     commands,
+		Shell: &shelltest.Shell{
+			Context:  ctx,
+			Commands: commands,
 		},
 	}
 }
@@ -44,8 +42,8 @@ func TestSanitizeProcess(t *testing.T) {
 	ctx.CurrentDirectory = "test"
 	client := newMockGitWithContext(
 		ctx,
-		command{Stdout: "true", Stderr: "false"},
-		command{ReturnCode: 1, Stdout: "true", Stderr: "false"},
+		shelltest.Command{Stdout: "true", Stderr: "false"},
+		shelltest.Command{ReturnCode: 1, Stdout: "true", Stderr: "false"},
 	)
 
 	// Test out sanitize
@@ -68,7 +66,7 @@ func TestShowRef(t *testing.T) {
 	// Selected the initial commit of this repo, because I needed a sha1 hash.
 	expected := "eac16d260ebf8af83873c9704169cf40a5501f84"
 	client := newMockGit(
-		command{Stdout: expected},
+		shelltest.Command{Stdout: expected},
 	)
 	got, err := client.Show("%H")
 	assert.NoError(t, err)
@@ -82,8 +80,8 @@ func TestExtractRemoteFromConfig_Happy(t *testing.T) {
 	}
 
 	client := newMockGit(
-		command{Stdout: "true"},
-		command{Stdout: "git@github.com:cidertool/cider.git"},
+		shelltest.Command{Stdout: "true"},
+		shelltest.Command{Stdout: "git@github.com:cidertool/cider.git"},
 	)
 	repo, err := client.ExtractRepoFromConfig()
 	assert.NoError(t, err)
@@ -92,7 +90,7 @@ func TestExtractRemoteFromConfig_Happy(t *testing.T) {
 
 func TestExtractRemoteFromConfig_ErrIsNotRepo(t *testing.T) {
 	client := newMockGit(
-		command{Stdout: "false"},
+		shelltest.Command{Stdout: "false"},
 	)
 	repo, err := client.ExtractRepoFromConfig()
 	assert.Error(t, err)
@@ -101,8 +99,8 @@ func TestExtractRemoteFromConfig_ErrIsNotRepo(t *testing.T) {
 
 func TestExtractRemoteFromConfig_ErrNoRemoteNamedOrigin(t *testing.T) {
 	client := newMockGit(
-		command{Stdout: "true"},
-		command{ReturnCode: 1, Stderr: "no repo"},
+		shelltest.Command{Stdout: "true"},
+		shelltest.Command{ReturnCode: 1, Stderr: "no repo"},
 	)
 	repo, err := client.ExtractRepoFromConfig()
 	assert.Error(t, err)
@@ -125,55 +123,4 @@ func TestExtractRepoFromURL(t *testing.T) {
 	assert.Equal(t, expected, repo)
 	repo = ExtractRepoFromURL("git@github.com:cidertool/cider.git")
 	assert.Equal(t, expected, repo)
-}
-
-type mockShell struct {
-	Context      *context.Context
-	commandIndex int
-	commands     []command
-}
-
-type command struct {
-	ReturnCode int
-	Stdout     string
-	Stderr     string
-}
-
-func (sh *mockShell) NewCommand(name string, arg ...string) *exec.Cmd {
-	return exec.Command(name, arg...) // #nosec
-}
-
-func (sh *mockShell) Exec(cmd *exec.Cmd) (*shell.CompletedProcess, error) {
-	currentCommand := sh.commands[sh.commandIndex]
-	ps := shell.CompletedProcess{
-		Name:       cmd.Path,
-		Args:       cmd.Args,
-		ReturnCode: currentCommand.ReturnCode,
-		Stdout:     currentCommand.Stdout,
-		Stderr:     currentCommand.Stderr,
-	}
-	sh.commandIndex++
-	var err error
-	if currentCommand.ReturnCode != 0 {
-		err = &mockShellError{
-			Process: ps,
-		}
-	}
-	return &ps, err
-}
-
-func (sh *mockShell) Exists(program string) bool {
-	return true
-}
-
-func (sh *mockShell) CurrentDirectory() string {
-	return sh.Context.CurrentDirectory
-}
-
-type mockShellError struct {
-	Process shell.CompletedProcess
-}
-
-func (err *mockShellError) Error() string {
-	return strconv.Itoa(err.Process.ReturnCode)
 }

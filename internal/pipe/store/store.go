@@ -11,7 +11,9 @@ import (
 )
 
 // Pipe is a global hook pipe.
-type Pipe struct{}
+type Pipe struct {
+	Client client.Client
+}
 
 // String is the name of this pipe.
 func (Pipe) String() string {
@@ -19,12 +21,17 @@ func (Pipe) String() string {
 }
 
 // Publish to App Store Review.
-func (p Pipe) Publish(ctx *context.Context) error {
-	client := client.New(ctx)
+func (p *Pipe) Publish(ctx *context.Context) error {
+	if p.Client == nil {
+		p.Client = client.New(ctx)
+	}
 	for _, name := range ctx.AppsToRelease {
-		app := ctx.Config[name]
+		app, ok := ctx.Config[name]
+		if !ok {
+			return pipe.ErrMissingApp(name)
+		}
 		log.WithField("app", name).Info("updating metadata")
-		err := doRelease(ctx, app, client)
+		err := p.doRelease(ctx, app)
 		if err != nil {
 			return err
 		}
@@ -32,21 +39,21 @@ func (p Pipe) Publish(ctx *context.Context) error {
 	return nil
 }
 
-func doRelease(ctx *context.Context, config config.App, client client.Client) error {
-	app, err := client.GetAppForBundleID(ctx, config.BundleID)
+func (p *Pipe) doRelease(ctx *context.Context, config config.App) error {
+	app, err := p.Client.GetAppForBundleID(ctx, config.BundleID)
 	if err != nil {
 		return err
 	}
-	isInitial, err := client.ReleaseForAppIsInitial(ctx, app.ID)
+	isInitial, err := p.Client.ReleaseForAppIsInitial(ctx, app.ID)
 	if err != nil {
 		return err
 	}
 	ctx.VersionIsInitialRelease = isInitial
-	build, err := client.GetBuild(ctx, app)
+	build, err := p.Client.GetBuild(ctx, app)
 	if err != nil {
 		return err
 	}
-	version, err := client.CreateVersionIfNeeded(ctx, app.ID, build.ID, config.Versions)
+	version, err := p.Client.CreateVersionIfNeeded(ctx, app.ID, build.ID, config.Versions)
 	if err != nil {
 		return err
 	}
@@ -61,7 +68,7 @@ func doRelease(ctx *context.Context, config config.App, client client.Client) er
 		log.Warn("skipping updating metdata")
 	} else {
 		log.Info("updating metadata")
-		if err := updateVersionDetails(ctx, config, client, app, version); err != nil {
+		if err := p.updateVersionDetails(ctx, config, app, version); err != nil {
 			return err
 		}
 	}
@@ -72,48 +79,48 @@ func doRelease(ctx *context.Context, config config.App, client client.Client) er
 
 	if config.Versions.PhasedReleaseEnabled && !ctx.VersionIsInitialRelease {
 		log.Info("preparing phased release details")
-		if err := client.EnablePhasedRelease(ctx, version.ID); err != nil {
+		if err := p.Client.EnablePhasedRelease(ctx, version.ID); err != nil {
 			return err
 		}
 	}
 	log.
 		WithField("version", *version.Attributes.VersionString).
 		Info("submitting to app store")
-	return client.SubmitApp(ctx, version.ID)
+	return p.Client.SubmitApp(ctx, version.ID)
 }
 
-func updateVersionDetails(ctx *context.Context, config config.App, client client.Client, app *asc.App, version *asc.AppStoreVersion) error {
-	appInfo, err := client.GetAppInfo(ctx, app.ID)
+func (p *Pipe) updateVersionDetails(ctx *context.Context, config config.App, app *asc.App, version *asc.AppStoreVersion) error {
+	appInfo, err := p.Client.GetAppInfo(ctx, app.ID)
 	if err != nil {
 		return err
 	}
 	log.Info("updating app details")
-	if err := client.UpdateApp(ctx, app.ID, appInfo.ID, version.ID, config); err != nil {
+	if err := p.Client.UpdateApp(ctx, app.ID, appInfo.ID, version.ID, config); err != nil {
 		return err
 	}
 	log.Infof("updating %d app localizations", len(config.Localizations))
-	if err := client.UpdateAppLocalizations(ctx, app.ID, config.Localizations); err != nil {
+	if err := p.Client.UpdateAppLocalizations(ctx, app.ID, config.Localizations); err != nil {
 		return err
 	}
 	log.Infof("updating %d app store version localizations", len(config.Versions.Localizations))
-	if err := client.UpdateVersionLocalizations(ctx, version.ID, config.Versions.Localizations); err != nil {
+	if err := p.Client.UpdateVersionLocalizations(ctx, version.ID, config.Versions.Localizations); err != nil {
 		return err
 	}
 	if config.Versions.IDFADeclaration != nil {
 		log.Info("updating IDFA declaration")
-		if err := client.UpdateIDFADeclaration(ctx, version.ID, *config.Versions.IDFADeclaration); err != nil {
+		if err := p.Client.UpdateIDFADeclaration(ctx, version.ID, *config.Versions.IDFADeclaration); err != nil {
 			return err
 		}
 	}
 	if config.Versions.RoutingCoverage != nil {
 		log.Info("uploading routing coverage asset")
-		if err := client.UploadRoutingCoverage(ctx, version.ID, *config.Versions.RoutingCoverage); err != nil {
+		if err := p.Client.UploadRoutingCoverage(ctx, version.ID, *config.Versions.RoutingCoverage); err != nil {
 			return err
 		}
 	}
 	if config.Versions.ReviewDetails != nil {
 		log.Info("updating review details")
-		if err := client.UpdateReviewDetails(ctx, version.ID, *config.Versions.ReviewDetails); err != nil {
+		if err := p.Client.UpdateReviewDetails(ctx, version.ID, *config.Versions.ReviewDetails); err != nil {
 			return err
 		}
 	}

@@ -4,6 +4,7 @@ package publish
 import (
 	"fmt"
 
+	"github.com/cidertool/cider/internal/client"
 	"github.com/cidertool/cider/internal/middleware"
 	"github.com/cidertool/cider/internal/pipe"
 	"github.com/cidertool/cider/internal/pipe/store"
@@ -11,8 +12,15 @@ import (
 	"github.com/cidertool/cider/pkg/context"
 )
 
+// ErrUnsupportedPublishMode happens when an unsupported publish mode is provided to the pipe.
+func ErrUnsupportedPublishMode(mode string) error {
+	return fmt.Errorf("failed to publish: unsupported publish mode %s", mode)
+}
+
 // Pipe that publishes artifacts.
-type Pipe struct{}
+type Pipe struct {
+	client client.Client
+}
 
 func (Pipe) String() string {
 	return "publishing from app store connect"
@@ -27,19 +35,19 @@ type Publisher interface {
 }
 
 // Run the pipe.
-func (Pipe) Run(ctx *context.Context) error {
+func (p Pipe) Run(ctx *context.Context) error {
 	if len(ctx.AppsToRelease) == 0 {
-		return pipe.Skip("no apps selected to publish")
+		return pipe.ErrSkipNoAppsToPublish
 	}
 
 	var publisher Publisher
 	switch ctx.PublishMode {
 	case context.PublishModeTestflight:
-		publisher = testflight.Pipe{}
+		publisher = &testflight.Pipe{Client: p.client}
 	case context.PublishModeAppStore:
-		publisher = store.Pipe{}
+		publisher = &store.Pipe{Client: p.client}
 	default:
-		return fmt.Errorf("failed to publish: unsupported publish mode %s", ctx.PublishMode)
+		return ErrUnsupportedPublishMode(ctx.PublishMode.String())
 	}
 
 	if err := middleware.Logging(

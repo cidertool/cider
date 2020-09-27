@@ -1,18 +1,24 @@
 // Package pipe declares utilities and errors for pipes
 package pipe
 
+import "fmt"
+
 // ErrSkipGitEnabled happens if --skip-git is set. It means that the part of a Piper that
 // extracts metadata from the Git repository was not run.
 var ErrSkipGitEnabled = Skip("inspecting git state is disabled")
 
-// ErrSkipUpdateMetadataEnabled happens if --skip-update-metadata is set.
-// It means that the part of a Piper that updates metadata in App Store Connect
-// was not run.
-var ErrSkipUpdateMetadataEnabled = Skip("updating metadata is disabled")
+// ErrSkipNoAppsToPublish happens when there are no apps in the configuration to publish
+// or update metadata for. It will be raised when the configuration is effectively empty.
+var ErrSkipNoAppsToPublish = Skip("no apps selected to publish")
 
 // ErrSkipSubmitEnabled happens if --skip-submit is set.
 // It means that the part of a Piper that submits to Apple for review was not run.
 var ErrSkipSubmitEnabled = Skip("submission is disabled")
+
+// ErrMissingApp happens when an app is selected in the interface that is not defined in the configuration.
+func ErrMissingApp(name string) error {
+	return fmt.Errorf("no app defined in configuration matching the name %s", name)
+}
 
 // IsSkip returns true if the error is an ErrSkip.
 func IsSkip(err error) bool {

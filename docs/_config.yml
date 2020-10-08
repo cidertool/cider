@@ -2,8 +2,8 @@ title: Cider
 description: Cider documentation
 permalink: pretty
 remote_theme: pmarsceill/just-the-docs
-# logo: "/assets/images/just-the-docs.png"
-# color_scheme: dark
+logo: /assets/images/icon.png
+color_scheme: dark
 
 plugins:
   - jekyll-seo-tag

@@ -1,5 +1,5 @@
 <p align="center">
-  <!-- <img alt="Cider logo" src="assets/go.png" height="150" /> -->
+  <img alt="Cider logo" src="https://raw.githubusercontent.com/cidertool/art/main/slices/header.png" height="150" />
   <h3 align="center">Cider</h3>
   <p align="center">Submit to the App Store in seconds!</p>
 </p>

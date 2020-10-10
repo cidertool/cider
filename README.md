@@ -1,6 +1,9 @@
 <p align="center">
-  <img alt="Cider logo" src="https://raw.githubusercontent.com/cidertool/art/main/slices/header.png" height="150" />
-  <h3 align="center">Cider</h3>
+  <img 
+    alt="Cider logo" 
+    src="docs/assets/images/header.png" 
+    height="100px"
+  />
   <p align="center">Submit to the App Store in seconds!</p>
 </p>
 
@@ -14,8 +17,8 @@ Documentation is hosted at <https://cidertool.github.io/cider>. Check out our in
 
 ## Integrations
 
-- [GitHub Action](https://github.com/marketplace/actions/cider-action)
-- [Buildkite Plugin](https://github.com/cidertool/cider-buildkite-plugin)
+-   [GitHub Action](https://github.com/marketplace/actions/cider-action)
+-   [Buildkite Plugin](https://github.com/cidertool/cider-buildkite-plugin)
 
 ## Badges
 
@@ -34,7 +37,7 @@ This project's primary goal is to simplify the process to release on the App Sto
 
 Special thanks to:
 
-- [GoReleaser](https://goreleaser.com/) for inspiring the architecture and open sourcing several components used in Cider
+-   [GoReleaser](https://goreleaser.com/) for inspiring the architecture and open sourcing several components used in Cider
 
 ## License
 

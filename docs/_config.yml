@@ -2,7 +2,7 @@ title: Cider
 description: Cider documentation
 permalink: pretty
 remote_theme: pmarsceill/just-the-docs
-logo: /assets/images/icon.png
+logo: assets/images/icon.png
 color_scheme: dark
 
 plugins:

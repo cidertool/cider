@@ -10,8 +10,7 @@ import (
 )
 
 func TestConfig_Happy_CustomPath(t *testing.T) {
-	var folder = t.TempDir()
-	var path = filepath.Join(folder, "foo.yaml")
+	var path = filepath.Join(t.TempDir(), "foo.yaml")
 	var proj config.Project
 	s, err := proj.String()
 	assert.NoError(t, err)
@@ -36,8 +35,7 @@ func TestConfig_Happy_DefaultPath(t *testing.T) {
 }
 
 func TestConfig_Err_DoesntExist(t *testing.T) {
-	var folder = t.TempDir()
-	cfg, err := loadConfig("", folder)
+	cfg, err := loadConfig("", t.TempDir())
 	assert.Error(t, err)
 	assert.Empty(t, cfg)
 }

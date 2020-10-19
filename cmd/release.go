@@ -46,8 +46,9 @@ func newReleaseCmd() *releaseCmd {
 		
 You can provide a path to a project directory as an argument to be the root directory
 of all relative path expansions in the program, such as the Git repository, preview sets,
-and screenshot resources. An exception to this is if you set a custom configuration file
-path with the ` + "`--config`" + ` flag.
+and screenshot resources. The only exception to this is if you provide a custom configuration 
+file path with the ` + "`--config`" + ` flag. Instead, that file will be loaded relative to 
+the working directory of the Cider process itself. 
 
 Additionally, Cider requires a few environment variables to be set in order to operate.
 They each correspond to an element of authorization described by the Apple Developer Documentation.
@@ -222,9 +223,11 @@ func releaseProject(options releaseOpts) (*context.Context, error) {
 			return nil, err
 		}
 	}
+
 	ctx, cancel := context.NewWithTimeout(cfg, options.timeout)
 	defer cancel()
 	setupReleaseContext(ctx, options, forceAllSkips)
+
 	return ctx, context.NewInterrupt().Run(ctx, func() error {
 		for _, pipe := range pipeline.Pipeline {
 			if err := middleware.Logging(

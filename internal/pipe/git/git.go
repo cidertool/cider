@@ -72,6 +72,7 @@ func (p Pipe) Run(ctx *context.Context) error {
 	log.WithFields(log.Fields{
 		"version": ctx.Version,
 		"commit":  info.Commit,
+		"workdir": ctx.CurrentDirectory,
 	}).Info("releasing")
 
 	return validate(ctx, client)

@@ -85,14 +85,6 @@ func TestGit_Happy_EnvCurrentTag(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-func TestGit_Err_LoginShell(t *testing.T) {
-	ctx := context.New(config.Project{})
-	p := Pipe{}
-
-	err := p.Run(ctx)
-	assert.Error(t, err)
-}
-
 func TestGit_Err_NoGit(t *testing.T) {
 	ctx := context.New(config.Project{})
 	p := Pipe{}

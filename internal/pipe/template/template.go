@@ -183,27 +183,38 @@ func updateVersionLocalization(loc *config.VersionLocalization, tmpl *template.T
 
 func updateReviewDetails(details *config.ReviewDetails, tmpl *template.Template) error {
 	var errors error
-	if err := applyTemplateVar(&details.Contact.Email, details.Contact.Email, tmpl); err != nil {
-		errors = multierror.Append(errors, err)
+	if details == nil {
+		return errors
 	}
-	if err := applyTemplateVar(&details.Contact.FirstName, details.Contact.FirstName, tmpl); err != nil {
-		errors = multierror.Append(errors, err)
+
+	if details.Contact != nil {
+		if err := applyTemplateVar(&details.Contact.Email, details.Contact.Email, tmpl); err != nil {
+			errors = multierror.Append(errors, err)
+		}
+		if err := applyTemplateVar(&details.Contact.FirstName, details.Contact.FirstName, tmpl); err != nil {
+			errors = multierror.Append(errors, err)
+		}
+		if err := applyTemplateVar(&details.Contact.LastName, details.Contact.LastName, tmpl); err != nil {
+			errors = multierror.Append(errors, err)
+		}
+		if err := applyTemplateVar(&details.Contact.Phone, details.Contact.Phone, tmpl); err != nil {
+			errors = multierror.Append(errors, err)
+		}
 	}
-	if err := applyTemplateVar(&details.Contact.LastName, details.Contact.LastName, tmpl); err != nil {
-		errors = multierror.Append(errors, err)
+
+	if details.DemoAccount != nil {
+		if err := applyTemplateVar(&details.DemoAccount.Name, details.DemoAccount.Name, tmpl); err != nil {
+			errors = multierror.Append(errors, err)
+		}
+		if err := applyTemplateVar(&details.DemoAccount.Password, details.DemoAccount.Password, tmpl); err != nil {
+			errors = multierror.Append(errors, err)
+		}
 	}
-	if err := applyTemplateVar(&details.Contact.Phone, details.Contact.Phone, tmpl); err != nil {
-		errors = multierror.Append(errors, err)
-	}
-	if err := applyTemplateVar(&details.DemoAccount.Name, details.DemoAccount.Name, tmpl); err != nil {
-		errors = multierror.Append(errors, err)
-	}
-	if err := applyTemplateVar(&details.DemoAccount.Password, details.DemoAccount.Password, tmpl); err != nil {
-		errors = multierror.Append(errors, err)
-	}
+
 	if err := applyTemplateVar(&details.Notes, details.Notes, tmpl); err != nil {
 		errors = multierror.Append(errors, err)
 	}
+
 	var attachments = make([]config.File, len(details.Attachments))
 	for i, attachment := range details.Attachments {
 		if err := applyTemplateVar(&attachment.Path, attachment.Path, tmpl); err != nil {
@@ -212,6 +223,7 @@ func updateReviewDetails(details *config.ReviewDetails, tmpl *template.Template)
 		attachments[i] = attachment
 	}
 	details.Attachments = attachments
+
 	return errors
 }
 

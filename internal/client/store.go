@@ -19,7 +19,7 @@ func (c *ascClient) UpdateApp(ctx *context.Context, appID string, appInfoID stri
 	var g = parallel.New(ctx.MaxProcesses)
 
 	g.Go(func() error {
-		attributes := asc.AppUpdateRequestAttributes{
+		attrs := asc.AppUpdateRequestAttributes{
 			ContentRightsDeclaration: contentRightsDeclaration(config.UsesThirdPartyContent),
 		}
 
@@ -33,13 +33,13 @@ func (c *ascClient) UpdateApp(ctx *context.Context, appID string, appInfoID stri
 				return err
 			}
 			prices = priceSchedules(config.Availability.Pricing)
-			attributes.AvailableInNewTerritories = config.Availability.AvailableInNewTerritories
+			attrs.AvailableInNewTerritories = config.Availability.AvailableInNewTerritories
 		}
 		if config.PrimaryLocale != "" {
-			attributes.PrimaryLocale = &config.PrimaryLocale
+			attrs.PrimaryLocale = &config.PrimaryLocale
 		}
 
-		_, _, err := c.client.Apps.UpdateApp(ctx, appID, &attributes, availableTerritoryIDs, prices)
+		_, _, err := c.client.Apps.UpdateApp(ctx, appID, &attrs, availableTerritoryIDs, prices)
 		return err
 	})
 
@@ -119,52 +119,52 @@ func priceSchedules(schedules []config.PriceSchedule) (priceSchedules []asc.NewA
 }
 
 func categoriesUpdate(config config.Categories) *asc.AppInfoUpdateRequestRelationships {
-	attributes := asc.AppInfoUpdateRequestRelationships{}
+	attrs := asc.AppInfoUpdateRequestRelationships{}
 
 	if config.Primary != "" {
-		attributes.PrimaryCategoryID = &config.Primary
+		attrs.PrimaryCategoryID = &config.Primary
 
 		if config.PrimarySubcategories[0] != "" {
-			attributes.PrimarySubcategoryOneID = &config.PrimarySubcategories[0]
+			attrs.PrimarySubcategoryOneID = &config.PrimarySubcategories[0]
 		}
 		if config.PrimarySubcategories[1] != "" {
-			attributes.PrimarySubcategoryTwoID = &config.PrimarySubcategories[1]
+			attrs.PrimarySubcategoryTwoID = &config.PrimarySubcategories[1]
 		}
 	}
 
 	if config.Secondary != "" {
-		attributes.SecondaryCategoryID = &config.Secondary
+		attrs.SecondaryCategoryID = &config.Secondary
 
 		if config.SecondarySubcategories[0] != "" {
-			attributes.SecondarySubcategoryOneID = &config.SecondarySubcategories[0]
+			attrs.SecondarySubcategoryOneID = &config.SecondarySubcategories[0]
 		}
 		if config.SecondarySubcategories[1] != "" {
-			attributes.SecondarySubcategoryTwoID = &config.SecondarySubcategories[1]
+			attrs.SecondarySubcategoryTwoID = &config.SecondarySubcategories[1]
 		}
 	}
 
-	return &attributes
+	return &attrs
 }
 
 func ageRatingDeclaration(config config.AgeRatingDeclaration) *asc.AgeRatingDeclarationUpdateRequestAttributes {
-	attributes := asc.AgeRatingDeclarationUpdateRequestAttributes{}
+	attrs := asc.AgeRatingDeclarationUpdateRequestAttributes{}
 
-	attributes.AlcoholTobaccoOrDrugUseOrReferences = config.AlcoholTobaccoOrDrugUseOrReferences.APIValue()
-	attributes.GamblingAndContests = config.GamblingAndContests
-	attributes.GamblingSimulated = config.GamblingSimulated.APIValue()
-	attributes.HorrorOrFearThemes = config.HorrorOrFearThemes.APIValue()
-	attributes.KidsAgeBand = config.KidsAgeBand.APIValue()
-	attributes.MatureOrSuggestiveThemes = config.MatureOrSuggestiveThemes.APIValue()
-	attributes.MedicalOrTreatmentInformation = config.MedicalOrTreatmentInformation.APIValue()
-	attributes.ProfanityOrCrudeHumor = config.ProfanityOrCrudeHumor.APIValue()
-	attributes.SexualContentGraphicAndNudity = config.SexualContentGraphicAndNudity.APIValue()
-	attributes.SexualContentOrNudity = config.SexualContentOrNudity.APIValue()
-	attributes.UnrestrictedWebAccess = config.UnrestrictedWebAccess
-	attributes.ViolenceCartoonOrFantasy = config.ViolenceCartoonOrFantasy.APIValue()
-	attributes.ViolenceRealistic = config.ViolenceRealistic.APIValue()
-	attributes.ViolenceRealisticProlongedGraphicOrSadistic = config.ViolenceRealisticProlongedGraphicOrSadistic.APIValue()
+	attrs.AlcoholTobaccoOrDrugUseOrReferences = config.AlcoholTobaccoOrDrugUseOrReferences.APIValue()
+	attrs.GamblingAndContests = config.GamblingAndContests
+	attrs.GamblingSimulated = config.GamblingSimulated.APIValue()
+	attrs.HorrorOrFearThemes = config.HorrorOrFearThemes.APIValue()
+	attrs.KidsAgeBand = config.KidsAgeBand.APIValue()
+	attrs.MatureOrSuggestiveThemes = config.MatureOrSuggestiveThemes.APIValue()
+	attrs.MedicalOrTreatmentInformation = config.MedicalOrTreatmentInformation.APIValue()
+	attrs.ProfanityOrCrudeHumor = config.ProfanityOrCrudeHumor.APIValue()
+	attrs.SexualContentGraphicAndNudity = config.SexualContentGraphicAndNudity.APIValue()
+	attrs.SexualContentOrNudity = config.SexualContentOrNudity.APIValue()
+	attrs.UnrestrictedWebAccess = config.UnrestrictedWebAccess
+	attrs.ViolenceCartoonOrFantasy = config.ViolenceCartoonOrFantasy.APIValue()
+	attrs.ViolenceRealistic = config.ViolenceRealistic.APIValue()
+	attrs.ViolenceRealisticProlongedGraphicOrSadistic = config.ViolenceRealisticProlongedGraphicOrSadistic.APIValue()
 
-	return &attributes
+	return &attrs
 }
 
 func (c *ascClient) UpdateAppLocalizations(ctx *context.Context, appID string, config config.AppLocalizations) error {
@@ -287,19 +287,8 @@ func (c *ascClient) UpdateVersionLocalizations(ctx *context.Context, versionID s
 		found[locale] = true
 
 		g.Go(func() error {
-			attrs := asc.AppStoreVersionLocalizationUpdateRequestAttributes{
-				Description:     &locConfig.Description,
-				Keywords:        &locConfig.Keywords,
-				MarketingURL:    &locConfig.MarketingURL,
-				PromotionalText: &locConfig.PromotionalText,
-				SupportURL:      &locConfig.SupportURL,
-			}
-			// If WhatsNew is set on an app that has never released before, the API will respond with a 409 Conflict when attempting to set the value.
-			if !ctx.VersionIsInitialRelease {
-				attrs.WhatsNew = &locConfig.WhatsNewText
-			}
 			log.WithField("locale", locale).Debug("update version locale")
-			updatedLocResp, _, err := c.client.Apps.UpdateAppStoreVersionLocalization(ctx, loc.ID, &attrs)
+			updatedLocResp, _, err := c.client.Apps.UpdateAppStoreVersionLocalization(ctx, loc.ID, appStoreVersionLocalizationUpdateRequestAttributes(ctx, locConfig))
 			if err != nil {
 				return err
 			}
@@ -315,19 +304,8 @@ func (c *ascClient) UpdateVersionLocalizations(ctx *context.Context, versionID s
 		locConfig := config[locale]
 
 		g.Go(func() error {
-			attrs := asc.AppStoreVersionLocalizationCreateRequestAttributes{
-				Description:     &locConfig.Description,
-				Keywords:        &locConfig.Keywords,
-				MarketingURL:    &locConfig.MarketingURL,
-				PromotionalText: &locConfig.PromotionalText,
-				SupportURL:      &locConfig.SupportURL,
-			}
-			// If WhatsNew is set on an app that has never released before, the API will respond with a 409 Conflict when attempting to set the value.
-			if !ctx.VersionIsInitialRelease {
-				attrs.WhatsNew = &locConfig.WhatsNewText
-			}
 			log.WithField("locale", locale).Debug("create version locale")
-			locResp, _, err := c.client.Apps.CreateAppStoreVersionLocalization(ctx.Context, attrs, versionID)
+			locResp, _, err := c.client.Apps.CreateAppStoreVersionLocalization(ctx.Context, appStoreVersionLocalizationCreateRequestAttributes(ctx, locale, locConfig), versionID)
 			if err != nil {
 				return err
 			}
@@ -336,6 +314,56 @@ func (c *ascClient) UpdateVersionLocalizations(ctx *context.Context, versionID s
 	}
 
 	return g.Wait()
+}
+
+func appStoreVersionLocalizationUpdateRequestAttributes(ctx *context.Context, config config.VersionLocalization) *asc.AppStoreVersionLocalizationUpdateRequestAttributes {
+	attrs := asc.AppStoreVersionLocalizationUpdateRequestAttributes{}
+	if config.Description != "" {
+		attrs.Description = &config.Description
+	}
+	if config.Keywords != "" {
+		attrs.Keywords = &config.Keywords
+	}
+	if config.MarketingURL != "" {
+		attrs.MarketingURL = &config.MarketingURL
+	}
+	if config.PromotionalText != "" {
+		attrs.PromotionalText = &config.PromotionalText
+	}
+	if config.SupportURL != "" {
+		attrs.SupportURL = &config.SupportURL
+	}
+	// If WhatsNew is set on an app that has never released before, the API will respond with a 409 Conflict when attempting to set the value.
+	if !ctx.VersionIsInitialRelease && config.WhatsNewText != "" {
+		attrs.WhatsNew = &config.WhatsNewText
+	}
+	return &attrs
+}
+
+func appStoreVersionLocalizationCreateRequestAttributes(ctx *context.Context, locale string, config config.VersionLocalization) asc.AppStoreVersionLocalizationCreateRequestAttributes {
+	attrs := asc.AppStoreVersionLocalizationCreateRequestAttributes{
+		Locale: locale,
+	}
+	if config.Description != "" {
+		attrs.Description = &config.Description
+	}
+	if config.Keywords != "" {
+		attrs.Keywords = &config.Keywords
+	}
+	if config.MarketingURL != "" {
+		attrs.MarketingURL = &config.MarketingURL
+	}
+	if config.PromotionalText != "" {
+		attrs.PromotionalText = &config.PromotionalText
+	}
+	if config.SupportURL != "" {
+		attrs.SupportURL = &config.SupportURL
+	}
+	// If WhatsNew is set on an app that has never released before, the API will respond with a 409 Conflict when attempting to set the value.
+	if !ctx.VersionIsInitialRelease && config.WhatsNewText != "" {
+		attrs.WhatsNew = &config.WhatsNewText
+	}
+	return attrs
 }
 
 func (c *ascClient) UpdateIDFADeclaration(ctx *context.Context, versionID string, config config.IDFADeclaration) error {
@@ -378,20 +406,20 @@ func (c *ascClient) UpdateReviewDetails(ctx *context.Context, versionID string, 
 }
 
 func (c *ascClient) CreateReviewDetail(ctx *context.Context, versionID string, config config.ReviewDetails) (*asc.AppStoreReviewDetail, error) {
-	attributes := asc.AppStoreReviewDetailCreateRequestAttributes{}
+	attrs := asc.AppStoreReviewDetailCreateRequestAttributes{}
 	if config.Contact != nil {
-		attributes.ContactEmail = &config.Contact.Email
-		attributes.ContactFirstName = &config.Contact.FirstName
-		attributes.ContactLastName = &config.Contact.LastName
-		attributes.ContactPhone = &config.Contact.Phone
+		attrs.ContactEmail = &config.Contact.Email
+		attrs.ContactFirstName = &config.Contact.FirstName
+		attrs.ContactLastName = &config.Contact.LastName
+		attrs.ContactPhone = &config.Contact.Phone
 	}
 	if config.DemoAccount != nil {
-		attributes.DemoAccountName = &config.DemoAccount.Name
-		attributes.DemoAccountPassword = &config.DemoAccount.Password
-		attributes.DemoAccountRequired = &config.DemoAccount.Required
+		attrs.DemoAccountName = &config.DemoAccount.Name
+		attrs.DemoAccountPassword = &config.DemoAccount.Password
+		attrs.DemoAccountRequired = &config.DemoAccount.Required
 	}
-	attributes.Notes = &config.Notes
-	resp, _, err := c.client.Submission.CreateReviewDetail(ctx, &attributes, versionID)
+	attrs.Notes = &config.Notes
+	resp, _, err := c.client.Submission.CreateReviewDetail(ctx, &attrs, versionID)
 	if err != nil {
 		return nil, err
 	}
@@ -399,20 +427,20 @@ func (c *ascClient) CreateReviewDetail(ctx *context.Context, versionID string, c
 }
 
 func (c *ascClient) UpdateReviewDetail(ctx *context.Context, reviewDetailID string, config config.ReviewDetails) (*asc.AppStoreReviewDetail, error) {
-	attributes := asc.AppStoreReviewDetailUpdateRequestAttributes{}
+	attrs := asc.AppStoreReviewDetailUpdateRequestAttributes{}
 	if config.Contact != nil {
-		attributes.ContactEmail = &config.Contact.Email
-		attributes.ContactFirstName = &config.Contact.FirstName
-		attributes.ContactLastName = &config.Contact.LastName
-		attributes.ContactPhone = &config.Contact.Phone
+		attrs.ContactEmail = &config.Contact.Email
+		attrs.ContactFirstName = &config.Contact.FirstName
+		attrs.ContactLastName = &config.Contact.LastName
+		attrs.ContactPhone = &config.Contact.Phone
 	}
 	if config.DemoAccount != nil {
-		attributes.DemoAccountName = &config.DemoAccount.Name
-		attributes.DemoAccountPassword = &config.DemoAccount.Password
-		attributes.DemoAccountRequired = &config.DemoAccount.Required
+		attrs.DemoAccountName = &config.DemoAccount.Name
+		attrs.DemoAccountPassword = &config.DemoAccount.Password
+		attrs.DemoAccountRequired = &config.DemoAccount.Required
 	}
-	attributes.Notes = &config.Notes
-	resp, _, err := c.client.Submission.UpdateReviewDetail(ctx, reviewDetailID, &attributes)
+	attrs.Notes = &config.Notes
+	resp, _, err := c.client.Submission.UpdateReviewDetail(ctx, reviewDetailID, &attrs)
 	if err != nil {
 		return nil, err
 	}

@@ -315,6 +315,14 @@ func TestUpdateBetaLicenseAgreement_Happy(t *testing.T) {
 	)
 	defer ctx.Close()
 
+	err := client.UpdateBetaLicenseAgreement(ctx.Context, testID, config.Testflight{LicenseAgreement: "TEST"})
+	assert.NoError(t, err)
+}
+
+func TestUpdateBetaLicenseAgreement_NoLicense(t *testing.T) {
+	ctx, client := newTestContext()
+	defer ctx.Close()
+
 	err := client.UpdateBetaLicenseAgreement(ctx.Context, testID, config.Testflight{})
 	assert.NoError(t, err)
 }
@@ -328,7 +336,7 @@ func TestUpdateBetaLicenseAgreement_ErrGet(t *testing.T) {
 	)
 	defer ctx.Close()
 
-	err := client.UpdateBetaLicenseAgreement(ctx.Context, testID, config.Testflight{})
+	err := client.UpdateBetaLicenseAgreement(ctx.Context, testID, config.Testflight{LicenseAgreement: "TEST"})
 	assert.Error(t, err)
 }
 
@@ -344,7 +352,7 @@ func TestUpdateBetaLicenseAgreement_ErrUpdate(t *testing.T) {
 	)
 	defer ctx.Close()
 
-	err := client.UpdateBetaLicenseAgreement(ctx.Context, testID, config.Testflight{})
+	err := client.UpdateBetaLicenseAgreement(ctx.Context, testID, config.Testflight{LicenseAgreement: "TEST"})
 	assert.Error(t, err)
 }
 

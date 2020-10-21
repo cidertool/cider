@@ -66,6 +66,17 @@ func (p *Pipe) doRelease(ctx *context.Context, config config.App) error {
 		}
 	}
 
+	if !ctx.SkipUpdateMetadata || ctx.OverrideBetaGroups {
+		if err := p.updateBetaGroups(ctx, config, app, build); err != nil {
+			return err
+		}
+	}
+	if !ctx.SkipUpdateMetadata || ctx.OverrideBetaTesters {
+		if err := p.updateBetaTesters(ctx, config, app, build); err != nil {
+			return err
+		}
+	}
+
 	if ctx.SkipSubmit {
 		return pipe.ErrSkipSubmitEnabled
 	}
@@ -94,14 +105,6 @@ func (p *Pipe) updateBetaDetails(ctx *context.Context, config config.App, app *a
 	if err := p.Client.UpdateBetaLicenseAgreement(ctx, app.ID, config.Testflight); err != nil {
 		return err
 	}
-	log.Info("updating build beta groups")
-	if err := p.Client.AssignBetaGroups(ctx, app.ID, build.ID, config.Testflight.BetaGroups); err != nil {
-		return err
-	}
-	log.Info("updating build beta testers")
-	if err := p.Client.AssignBetaTesters(ctx, app.ID, build.ID, config.Testflight.BetaTesters); err != nil {
-		return err
-	}
 	if config.Testflight.ReviewDetails != nil {
 		log.Info("updating beta review details")
 		if err := p.Client.UpdateBetaReviewDetails(ctx, app.ID, *config.Testflight.ReviewDetails); err != nil {
@@ -109,4 +112,14 @@ func (p *Pipe) updateBetaDetails(ctx *context.Context, config config.App, app *a
 		}
 	}
 	return nil
+}
+
+func (p *Pipe) updateBetaGroups(ctx *context.Context, config config.App, app *asc.App, build *asc.Build) error {
+	log.Info("updating build beta groups")
+	return p.Client.AssignBetaGroups(ctx, app.ID, build.ID, config.Testflight.BetaGroups)
+}
+
+func (p *Pipe) updateBetaTesters(ctx *context.Context, config config.App, app *asc.App, build *asc.Build) error {
+	log.Info("updating build beta testers")
+	return p.Client.AssignBetaTesters(ctx, app.ID, build.ID, config.Testflight.BetaTesters)
 }

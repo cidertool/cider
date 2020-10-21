@@ -26,15 +26,8 @@ func (c *ascClient) UpdateBetaAppLocalizations(ctx *context.Context, appID strin
 			continue
 		}
 		found[locale] = true
-
 		g.Go(func() error {
-			_, _, err = c.client.TestFlight.UpdateBetaAppLocalization(ctx, loc.ID, &asc.BetaAppLocalizationUpdateRequestAttributes{
-				Description:       &locConfig.Description,
-				FeedbackEmail:     &locConfig.FeedbackEmail,
-				MarketingURL:      &locConfig.MarketingURL,
-				PrivacyPolicyURL:  &locConfig.PrivacyPolicyURL,
-				TVOSPrivacyPolicy: &locConfig.TVOSPrivacyPolicy,
-			})
+			_, _, err = c.client.TestFlight.UpdateBetaAppLocalization(ctx, loc.ID, betaAppLocalizationUpdateRequestAttributes(locConfig))
 			return err
 		})
 	}
@@ -47,19 +40,54 @@ func (c *ascClient) UpdateBetaAppLocalizations(ctx *context.Context, appID strin
 		locConfig := config[locale]
 
 		g.Go(func() error {
-			_, _, err = c.client.TestFlight.CreateBetaAppLocalization(ctx.Context, asc.BetaAppLocalizationCreateRequestAttributes{
-				Description:       &locConfig.Description,
-				FeedbackEmail:     &locConfig.FeedbackEmail,
-				Locale:            locale,
-				MarketingURL:      &locConfig.MarketingURL,
-				PrivacyPolicyURL:  &locConfig.PrivacyPolicyURL,
-				TVOSPrivacyPolicy: &locConfig.TVOSPrivacyPolicy,
-			}, appID)
+			_, _, err = c.client.TestFlight.CreateBetaAppLocalization(ctx.Context, betaAppLocalizationCreateRequestAttributes(locale, locConfig), appID)
 			return err
 		})
 	}
 
 	return g.Wait()
+}
+
+func betaAppLocalizationUpdateRequestAttributes(locConfig config.TestflightLocalization) *asc.BetaAppLocalizationUpdateRequestAttributes {
+	attrs := asc.BetaAppLocalizationUpdateRequestAttributes{}
+	if locConfig.Description != "" {
+		attrs.Description = &locConfig.Description
+	}
+	if locConfig.FeedbackEmail != "" {
+		attrs.FeedbackEmail = &locConfig.FeedbackEmail
+	}
+	if locConfig.MarketingURL != "" {
+		attrs.MarketingURL = &locConfig.MarketingURL
+	}
+	if locConfig.PrivacyPolicyURL != "" {
+		attrs.PrivacyPolicyURL = &locConfig.PrivacyPolicyURL
+	}
+	if locConfig.TVOSPrivacyPolicy != "" {
+		attrs.TVOSPrivacyPolicy = &locConfig.TVOSPrivacyPolicy
+	}
+	return &attrs
+}
+
+func betaAppLocalizationCreateRequestAttributes(locale string, locConfig config.TestflightLocalization) asc.BetaAppLocalizationCreateRequestAttributes {
+	attrs := asc.BetaAppLocalizationCreateRequestAttributes{
+		Locale: locale,
+	}
+	if locConfig.Description != "" {
+		attrs.Description = &locConfig.Description
+	}
+	if locConfig.FeedbackEmail != "" {
+		attrs.FeedbackEmail = &locConfig.FeedbackEmail
+	}
+	if locConfig.MarketingURL != "" {
+		attrs.MarketingURL = &locConfig.MarketingURL
+	}
+	if locConfig.PrivacyPolicyURL != "" {
+		attrs.PrivacyPolicyURL = &locConfig.PrivacyPolicyURL
+	}
+	if locConfig.TVOSPrivacyPolicy != "" {
+		attrs.TVOSPrivacyPolicy = &locConfig.TVOSPrivacyPolicy
+	}
+	return attrs
 }
 
 func (c *ascClient) UpdateBetaBuildDetails(ctx *context.Context, buildID string, config config.Testflight) error {
@@ -83,6 +111,9 @@ func (c *ascClient) UpdateBetaBuildLocalizations(ctx *context.Context, buildID s
 		if !ok {
 			log.WithField("locale", locale).Debug("not in configuration. skipping...")
 			continue
+		} else if locConfig.WhatsNew == "" {
+			log.WithField("locale", locale).Warn("skipping updating beta build localization due to empty What's New text")
+			continue
 		}
 		found[locale] = true
 
@@ -98,6 +129,10 @@ func (c *ascClient) UpdateBetaBuildLocalizations(ctx *context.Context, buildID s
 			continue
 		}
 		locConfig := config[locale]
+		if locConfig.WhatsNew == "" {
+			log.WithField("locale", locale).Warn("skipping updating beta build localization due to empty What's New text")
+			continue
+		}
 
 		g.Go(func() error {
 			_, _, err := c.client.TestFlight.CreateBetaBuildLocalization(ctx.Context, locale, &locConfig.WhatsNew, buildID)
@@ -109,6 +144,10 @@ func (c *ascClient) UpdateBetaBuildLocalizations(ctx *context.Context, buildID s
 }
 
 func (c *ascClient) UpdateBetaLicenseAgreement(ctx *context.Context, appID string, config config.Testflight) error {
+	if config.LicenseAgreement == "" {
+		return nil
+	}
+
 	resp, _, err := c.client.TestFlight.GetBetaLicenseAgreementForApp(ctx, appID, nil)
 	if err != nil {
 		return err
@@ -368,23 +407,23 @@ func (c *ascClient) UpdateBetaReviewDetails(ctx *context.Context, appID string, 
 	if err != nil {
 		return err
 	}
-	attributes := asc.BetaAppReviewDetailUpdateRequestAttributes{}
+	attrs := asc.BetaAppReviewDetailUpdateRequestAttributes{}
 	if config.Contact != nil {
-		attributes.ContactEmail = &config.Contact.Email
-		attributes.ContactFirstName = &config.Contact.FirstName
-		attributes.ContactLastName = &config.Contact.LastName
-		attributes.ContactPhone = &config.Contact.Phone
+		attrs.ContactEmail = &config.Contact.Email
+		attrs.ContactFirstName = &config.Contact.FirstName
+		attrs.ContactLastName = &config.Contact.LastName
+		attrs.ContactPhone = &config.Contact.Phone
 	}
 	if config.DemoAccount != nil {
-		attributes.DemoAccountName = &config.DemoAccount.Name
-		attributes.DemoAccountPassword = &config.DemoAccount.Password
-		attributes.DemoAccountRequired = &config.DemoAccount.Required
+		attrs.DemoAccountName = &config.DemoAccount.Name
+		attrs.DemoAccountPassword = &config.DemoAccount.Password
+		attrs.DemoAccountRequired = &config.DemoAccount.Required
 	}
-	attributes.Notes = &config.Notes
+	attrs.Notes = &config.Notes
 	if len(config.Attachments) > 0 {
 		log.Warn("attachments are not supported for beta review details and will be ignored")
 	}
-	_, _, err = c.client.TestFlight.UpdateBetaAppReviewDetail(ctx, detailsResp.Data.ID, &attributes)
+	_, _, err = c.client.TestFlight.UpdateBetaAppReviewDetail(ctx, detailsResp.Data.ID, &attrs)
 	return err
 }
 

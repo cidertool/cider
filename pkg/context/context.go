@@ -38,6 +38,8 @@ type Context struct {
 	SkipUpdatePricing       bool
 	SkipUpdateMetadata      bool
 	SkipSubmit              bool
+	OverrideBetaGroups      bool
+	OverrideBetaTesters     bool
 	VersionIsInitialRelease bool
 	Version                 string
 	Build                   string

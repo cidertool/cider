@@ -2,6 +2,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
@@ -70,7 +71,8 @@ func (cmd *rootCmd) Execute(args []string) {
 	if err := cmd.cmd.Execute(); err != nil {
 		var code = 1
 		var msg = "command failed"
-		if eerr, ok := err.(*exitError); ok {
+		var eerr *exitError
+		if ok := errors.As(err, &eerr); ok {
 			code = eerr.code
 			if eerr.details != "" {
 				msg = eerr.details

@@ -1,6 +1,7 @@
 package template
 
 import (
+	"errors"
 	"testing"
 	"time"
 
@@ -105,7 +106,8 @@ func TestTemplateWithBadPatterns(t *testing.T) {
 	pipe := Pipe{}
 	err := pipe.Run(ctx)
 	assert.Error(t, err)
-	merr, ok := err.(*multierror.Error)
+	var merr *multierror.Error
+	ok := errors.As(err, &merr)
 	assert.True(t, ok)
 	assert.NotNil(t, merr)
 	assert.Equal(t, 55, merr.Len())

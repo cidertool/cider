@@ -1,7 +1,10 @@
 // Package pipe declares utilities and errors for pipes
 package pipe
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 // ErrSkipGitEnabled happens if --skip-git is set. It means that the part of a Piper that
 // extracts metadata from the Git repository was not run.
@@ -22,7 +25,8 @@ func ErrMissingApp(name string) error {
 
 // IsSkip returns true if the error is an ErrSkip.
 func IsSkip(err error) bool {
-	_, ok := err.(ErrSkip)
+	var serr ErrSkip
+	ok := errors.As(err, &serr)
 	return ok
 }
 

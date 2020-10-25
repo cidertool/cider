@@ -18,3 +18,5 @@ linters:
     - gci
     - nlreturn
     - testpackage
+    - exhaustivestruct
+    - wrapcheck

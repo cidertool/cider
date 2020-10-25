@@ -17,6 +17,10 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// ErrRootTypeNotFound indicates an error when the root type of the configuration file
+// could not be found in the project source.
+var ErrRootTypeNotFound = errors.New("root type config.Project not found")
+
 type stringWriterTo interface {
 	io.StringWriter
 	io.WriterTo
@@ -114,7 +118,7 @@ func (r *docRenderer) gatherTypes() error {
 	if !ok ||
 		root == nil ||
 		len(root.Decl.Specs) == 0 {
-		return errors.New("config.Project not found")
+		return ErrRootTypeNotFound
 	}
 	r.insertTypeTree(root, 0)
 

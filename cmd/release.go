@@ -13,6 +13,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// ErrSkipGitWithoutSetVersionFlag indicates an error when the --skip-git flag is set without also setting
+// the --set-version flag.
+var ErrSkipGitWithoutSetVersionFlag = errors.New("if --skip-git is set, --set-version must also be set")
+
 type releaseCmd struct {
 	cmd  *cobra.Command
 	opts releaseOpts
@@ -71,7 +75,8 @@ More info: https://developer.apple.com/documentation/appstoreconnectapi/creating
 				root.opts.currentDirectory = args[0]
 			}
 			if root.opts.skipGit && root.opts.versionOverride == "" {
-				return errors.New("if --skip-git is set, --set-version must also be set")
+				// Both of these flags are required, otherwise Cider has no safe way of determining which app version to query against.
+				return ErrSkipGitWithoutSetVersionFlag
 			}
 
 			start := time.Now()
@@ -215,7 +220,7 @@ func releaseProject(options releaseOpts) (*context.Context, error) {
 	var forceAllSkips bool
 	cfg, err := loadConfig(options.config, options.currentDirectory)
 	if err != nil {
-		if err == ErrConfigNotFound {
+		if errors.Is(err, ErrConfigNotFound) {
 			log.Warn(err.Error())
 			log.Warn("using defaults and enabling all skips to avoid dangerous consequences...")
 			forceAllSkips = true

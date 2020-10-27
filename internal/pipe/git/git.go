@@ -36,6 +36,7 @@ func (p Pipe) Run(ctx *context.Context) error {
 			ShortCommit: "none",
 			FullCommit:  "none",
 		}
+
 		return pipe.ErrSkipGitEnabled
 	}
 
@@ -52,7 +53,9 @@ func (p Pipe) Run(ctx *context.Context) error {
 	if err != nil {
 		return err
 	}
+
 	ctx.Git = info
+
 	log.WithFields(log.Fields{
 		"commit": info.Commit,
 		"tag":    info.CurrentTag,
@@ -65,6 +68,7 @@ func (p Pipe) Run(ctx *context.Context) error {
 		if err != nil {
 			return git.ErrNoTag
 		}
+
 		ctx.Git.CurrentTag = tag
 		ctx.Version = strings.TrimPrefix(tag, "v")
 	}
@@ -84,6 +88,7 @@ func getInfo(client *git.Git) (context.GitInfo, error) {
 			Dir: client.CurrentDirectory(),
 		}
 	}
+
 	return getGitInfo(client)
 }
 
@@ -92,18 +97,22 @@ func getGitInfo(client *git.Git) (context.GitInfo, error) {
 	if err != nil {
 		return context.GitInfo{}, fmt.Errorf("couldn't get current commit: %w", err)
 	}
+
 	full, err := getFullCommit(client)
 	if err != nil {
 		return context.GitInfo{}, fmt.Errorf("couldn't get current commit: %w", err)
 	}
+
 	date, err := getCommitDate(client)
 	if err != nil {
 		return context.GitInfo{}, fmt.Errorf("couldn't get commit date: %w", err)
 	}
+
 	url, err := getURL(client)
 	if err != nil {
 		return context.GitInfo{}, fmt.Errorf("couldn't get remote URL: %w", err)
 	}
+
 	return context.GitInfo{
 		CurrentTag:  NoTag,
 		Commit:      full,
@@ -119,6 +128,7 @@ func validate(ctx *context.Context, client *git.Git) error {
 	if strings.TrimSpace(proc.Stdout) != "" || err != nil {
 		return git.ErrDirty{Status: proc.Stdout}
 	}
+
 	if ctx.Git.CurrentTag != NoTag {
 		_, err := client.SanitizeProcess(client.Run("describe", "--exact-match", "--tags", "--match", ctx.Git.CurrentTag))
 		if err != nil {
@@ -128,6 +138,7 @@ func validate(ctx *context.Context, client *git.Git) error {
 			}
 		}
 	}
+
 	return nil
 }
 
@@ -136,14 +147,18 @@ func getCommitDate(client *git.Git) (time.Time, error) {
 	if err != nil {
 		return time.Time{}, err
 	}
+
 	if commit == "" {
 		return time.Time{}, nil
 	}
+
 	i, err := strconv.ParseInt(commit, 10, 64)
 	if err != nil {
 		return time.Time{}, err
 	}
+
 	t := time.Unix(i, 0).UTC()
+
 	return t, nil
 }
 
@@ -159,6 +174,7 @@ func getTag(client *git.Git) (string, error) {
 	if tag := os.Getenv("CIDER_CURRENT_TAG"); tag != "" {
 		return tag, nil
 	}
+
 	return client.SanitizeProcess(client.Run("describe", "--tags", "--abbrev=0"))
 }
 

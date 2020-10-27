@@ -81,6 +81,7 @@ func (c *ascClient) GetAppForBundleID(ctx *context.Context, bundleID string) (*a
 	} else if len(resp.Data) == 0 {
 		return nil, fmt.Errorf("app not found matching %s", bundleID)
 	}
+
 	return &resp.Data[0], nil
 }
 
@@ -89,12 +90,14 @@ func (c *ascClient) GetAppInfo(ctx *context.Context, appID string) (*asc.AppInfo
 	if err != nil {
 		return nil, err
 	}
+
 	for _, info := range resp.Data {
 		if info.Attributes == nil {
 			continue
 		} else if info.Attributes.AppStoreState == nil {
 			continue
 		}
+
 		state := *info.Attributes.AppStoreState
 		if state == asc.AppStoreVersionStatePrepareForSubmission {
 			return &info, nil
@@ -114,34 +117,45 @@ type errBuildNotFound struct {
 func (e errBuildNotFound) Error() string {
 	str := strings.Builder{}
 	str.WriteString("build not found")
+
 	listingFields := false
+
 	if e.AppID != "" {
 		if !listingFields {
 			str.WriteString(" matching ")
 		}
+
 		str.WriteString(fmt.Sprintf("app=%s", e.AppID))
+
 		listingFields = true
 	}
+
 	if e.VersionString != "" {
 		if listingFields {
 			str.WriteString(", ")
 		} else {
 			str.WriteString(" matching ")
 		}
+
 		str.WriteString(fmt.Sprintf("version=%s", e.VersionString))
+
 		listingFields = true
 	}
+
 	if e.BuildVersion != "" {
 		if listingFields {
 			str.WriteString(", ")
 		} else {
 			str.WriteString(" matching ")
 		}
+
 		str.WriteString(fmt.Sprintf("build=%s", e.BuildVersion))
 	}
+
 	if e.InnerErr != nil {
 		str.WriteString(fmt.Errorf(": %w", e.InnerErr).Error())
 	}
+
 	return str.String()
 }
 
@@ -149,13 +163,16 @@ func (c *ascClient) GetBuild(ctx *context.Context, app *asc.App) (*asc.Build, er
 	if ctx.Version == "" {
 		return nil, fmt.Errorf("no version provided to lookup build with")
 	}
+
 	query := asc.ListBuildsQuery{
 		FilterApp:                      []string{app.ID},
 		FilterPreReleaseVersionVersion: []string{ctx.Version},
 	}
+
 	if ctx.Build != "" {
 		query.FilterVersion = []string{ctx.Build}
 	}
+
 	resp, _, err := c.client.Builds.ListBuilds(ctx, &query)
 	if err != nil || len(resp.Data) == 0 {
 		return nil, errBuildNotFound{
@@ -165,16 +182,21 @@ func (c *ascClient) GetBuild(ctx *context.Context, app *asc.App) (*asc.Build, er
 			InnerErr:      err,
 		}
 	}
+
 	build := resp.Data[0]
+
 	if build.Attributes == nil {
 		return nil, fmt.Errorf("build %s has no attributes", build.ID)
 	}
+
 	if build.Attributes.ProcessingState == nil {
 		return nil, fmt.Errorf("build %s has no processing state", build.ID)
 	}
+
 	if *build.Attributes.ProcessingState != validProcessingState {
 		return nil, fmt.Errorf("latest build %s has a processing state of %s. it would be dangerous to proceed", build.ID, *build.Attributes.ProcessingState)
 	}
+
 	return &build, nil
 }
 
@@ -183,5 +205,6 @@ func (c *ascClient) ReleaseForAppIsInitial(ctx *context.Context, appID string) (
 	if err != nil {
 		return false, err
 	}
+
 	return len(resp.Data) <= 1, nil
 }

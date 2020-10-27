@@ -10,22 +10,27 @@ import (
 
 func (c *ascClient) UpdateBetaAppLocalizations(ctx *context.Context, appID string, config config.TestflightLocalizations) error {
 	var g = parallel.New(ctx.MaxProcesses)
+
 	locListResp, _, err := c.client.TestFlight.ListBetaAppLocalizationsForApp(ctx, appID, nil)
 	if err != nil {
 		return err
 	}
 
 	found := make(map[string]bool)
+
 	for i := range locListResp.Data {
 		loc := locListResp.Data[i]
 		locale := *loc.Attributes.Locale
 		log.WithField("locale", locale).Debug("found beta app locale")
 		locConfig, ok := config[locale]
+
 		if !ok {
 			log.WithField("locale", locale).Debug("not in configuration. skipping...")
 			continue
 		}
+
 		found[locale] = true
+
 		g.Go(func() error {
 			_, _, err = c.client.TestFlight.UpdateBetaAppLocalization(ctx, loc.ID, betaAppLocalizationUpdateRequestAttributes(locConfig))
 			return err
@@ -37,6 +42,7 @@ func (c *ascClient) UpdateBetaAppLocalizations(ctx *context.Context, appID strin
 		if found[locale] {
 			continue
 		}
+
 		locConfig := config[locale]
 
 		g.Go(func() error {
@@ -50,21 +56,27 @@ func (c *ascClient) UpdateBetaAppLocalizations(ctx *context.Context, appID strin
 
 func betaAppLocalizationUpdateRequestAttributes(locConfig config.TestflightLocalization) *asc.BetaAppLocalizationUpdateRequestAttributes {
 	attrs := asc.BetaAppLocalizationUpdateRequestAttributes{}
+
 	if locConfig.Description != "" {
 		attrs.Description = &locConfig.Description
 	}
+
 	if locConfig.FeedbackEmail != "" {
 		attrs.FeedbackEmail = &locConfig.FeedbackEmail
 	}
+
 	if locConfig.MarketingURL != "" {
 		attrs.MarketingURL = &locConfig.MarketingURL
 	}
+
 	if locConfig.PrivacyPolicyURL != "" {
 		attrs.PrivacyPolicyURL = &locConfig.PrivacyPolicyURL
 	}
+
 	if locConfig.TVOSPrivacyPolicy != "" {
 		attrs.TVOSPrivacyPolicy = &locConfig.TVOSPrivacyPolicy
 	}
+
 	return &attrs
 }
 
@@ -72,21 +84,27 @@ func betaAppLocalizationCreateRequestAttributes(locale string, locConfig config.
 	attrs := asc.BetaAppLocalizationCreateRequestAttributes{
 		Locale: locale,
 	}
+
 	if locConfig.Description != "" {
 		attrs.Description = &locConfig.Description
 	}
+
 	if locConfig.FeedbackEmail != "" {
 		attrs.FeedbackEmail = &locConfig.FeedbackEmail
 	}
+
 	if locConfig.MarketingURL != "" {
 		attrs.MarketingURL = &locConfig.MarketingURL
 	}
+
 	if locConfig.PrivacyPolicyURL != "" {
 		attrs.PrivacyPolicyURL = &locConfig.PrivacyPolicyURL
 	}
+
 	if locConfig.TVOSPrivacyPolicy != "" {
 		attrs.TVOSPrivacyPolicy = &locConfig.TVOSPrivacyPolicy
 	}
+
 	return attrs
 }
 
@@ -97,17 +115,20 @@ func (c *ascClient) UpdateBetaBuildDetails(ctx *context.Context, buildID string,
 
 func (c *ascClient) UpdateBetaBuildLocalizations(ctx *context.Context, buildID string, config config.TestflightLocalizations) error {
 	var g = parallel.New(ctx.MaxProcesses)
+
 	locListResp, _, err := c.client.TestFlight.ListBetaBuildLocalizationsForBuild(ctx, buildID, nil)
 	if err != nil {
 		return err
 	}
 
 	found := make(map[string]bool)
+
 	for i := range locListResp.Data {
 		loc := locListResp.Data[i]
 		locale := *loc.Attributes.Locale
 		log.WithField("locale", locale).Debug("found beta build locale")
 		locConfig, ok := config[locale]
+
 		if !ok {
 			log.WithField("locale", locale).Debug("not in configuration. skipping...")
 			continue
@@ -115,6 +136,7 @@ func (c *ascClient) UpdateBetaBuildLocalizations(ctx *context.Context, buildID s
 			log.WithField("locale", locale).Warn("skipping updating beta build localization due to empty What's New text")
 			continue
 		}
+
 		found[locale] = true
 
 		g.Go(func() error {
@@ -128,7 +150,9 @@ func (c *ascClient) UpdateBetaBuildLocalizations(ctx *context.Context, buildID s
 		if found[locale] {
 			continue
 		}
+
 		locConfig := config[locale]
+
 		if locConfig.WhatsNew == "" {
 			log.WithField("locale", locale).Warn("skipping updating beta build localization due to empty What's New text")
 			continue
@@ -154,6 +178,7 @@ func (c *ascClient) UpdateBetaLicenseAgreement(ctx *context.Context, appID strin
 	}
 
 	_, _, err = c.client.TestFlight.UpdateBetaLicenseAgreement(ctx, resp.Data.ID, &config.LicenseAgreement)
+
 	return err
 }
 
@@ -164,32 +189,40 @@ func (c *ascClient) AssignBetaGroups(ctx *context.Context, appID string, buildID
 		log.Debug("no groups in configuration")
 		return nil
 	}
+
 	existingGroupsResp, _, err := c.client.TestFlight.ListBetaGroups(ctx, &asc.ListBetaGroupsQuery{
 		FilterApp: []string{appID},
 	})
 	if err != nil {
 		return err
 	}
+
 	// Map of group names -> config.BetaGroup
 	var groupConfigs = make(map[string]config.BetaGroup, len(groups))
+
 	for i := range groups {
 		group := groups[i]
 		groupConfigs[group.Name] = group
 	}
+
 	// Map of group names -> whether or not they exist in the configuration
 	var found = make(map[string]bool)
+
 	for i := range existingGroupsResp.Data {
 		group := existingGroupsResp.Data[i]
 		if group.Attributes == nil || group.Attributes.Name == nil {
 			continue
 		}
+
 		name := *group.Attributes.Name
 		found[name] = true
 		configGroup, ok := groupConfigs[name]
+
 		if !ok {
 			log.WithField("group", name).Debug("not in configuration. skipping...")
 			continue
 		}
+
 		g.Go(func() error {
 			log.WithField("group", name).Debug("update beta group")
 			return c.updateBetaGroup(ctx, g, appID, group.ID, buildID, configGroup)
@@ -204,6 +237,7 @@ func (c *ascClient) AssignBetaGroups(ctx *context.Context, appID string, buildID
 		} else if found[group.Name] {
 			continue
 		}
+
 		g.Go(func() error {
 			log.WithField("group", group.Name).Debug("create beta group")
 			return c.createBetaGroup(ctx, g, appID, buildID, group)
@@ -231,6 +265,7 @@ func (c *ascClient) updateBetaGroup(ctx *context.Context, g parallel.Group, appI
 	g.Go(func() error {
 		return c.updateBetaTestersForGroup(ctx, g, appID, groupID, group.Testers)
 	})
+
 	return nil
 }
 
@@ -245,9 +280,11 @@ func (c *ascClient) createBetaGroup(ctx *context.Context, g parallel.Group, appI
 	if err != nil {
 		return err
 	}
+
 	g.Go(func() error {
 		return c.updateBetaTestersForGroup(ctx, g, appID, newGroupResp.Data.ID, group.Testers)
 	})
+
 	return nil
 }
 
@@ -255,6 +292,7 @@ func (c *ascClient) updateBetaTestersForGroup(ctx *context.Context, g parallel.G
 	if len(testers) == 0 {
 		return nil
 	}
+
 	existingTesters, err := c.listBetaTesters(ctx, appID, testers)
 	if err != nil {
 		return err
@@ -275,6 +313,7 @@ func (c *ascClient) updateBetaTestersForGroup(ctx *context.Context, g parallel.G
 		} else if found[tester.Email] {
 			continue
 		}
+
 		g.Go(func() error {
 			return c.createBetaTester(ctx, tester, []string{groupID}, nil)
 		})
@@ -292,9 +331,11 @@ func filterTestersNotInBetaGroup(testers []asc.BetaTester, groupID string) (beta
 		if tester.Attributes == nil || tester.Attributes.Email == nil {
 			continue
 		}
+
 		email := string(*tester.Attributes.Email)
 		found[email] = true
 		inGroup := false
+
 		if tester.Relationships != nil &&
 			tester.Relationships.BetaGroups != nil &&
 			len(tester.Relationships.BetaGroups.Data) > 0 {
@@ -305,6 +346,7 @@ func filterTestersNotInBetaGroup(testers []asc.BetaTester, groupID string) (beta
 				}
 			}
 		}
+
 		if !inGroup {
 			betaTesterIDs = append(betaTesterIDs, tester.ID)
 		}
@@ -319,19 +361,23 @@ func (c *ascClient) AssignBetaTesters(ctx *context.Context, appID string, buildI
 	if len(testers) == 0 {
 		return nil
 	}
+
 	existingTesters, err := c.listBetaTesters(ctx, appID, testers)
 	if err != nil {
 		return err
 	}
 	// Map of tester emails -> whether or not they exist in the configuration
 	var found = make(map[string]bool)
+
 	for i := range existingTesters {
 		tester := existingTesters[i]
 		if tester.Attributes == nil || tester.Attributes.Email == nil {
 			continue
 		}
+
 		email := string(*tester.Attributes.Email)
 		found[email] = true
+
 		g.Go(func() error {
 			log.
 				WithFields(log.Fields{
@@ -352,6 +398,7 @@ func (c *ascClient) AssignBetaTesters(ctx *context.Context, appID string, buildI
 		} else if found[tester.Email] {
 			continue
 		}
+
 		g.Go(func() error {
 			log.WithField("email", tester.Email).Debug("create individual beta tester")
 			return c.createBetaTester(ctx, tester, nil, []string{buildID})
@@ -365,13 +412,16 @@ func (c *ascClient) listBetaTesters(ctx *context.Context, appID string, config [
 	emailFilters := make([]string, 0)
 	firstNameFilters := make([]string, 0)
 	lastNameFilters := make([]string, 0)
+
 	for _, tester := range config {
 		if tester.Email != "" {
 			emailFilters = append(emailFilters, tester.Email)
 		}
+
 		if tester.FirstName != "" {
 			firstNameFilters = append(firstNameFilters, tester.FirstName)
 		}
+
 		if tester.LastName != "" {
 			lastNameFilters = append(lastNameFilters, tester.LastName)
 		}
@@ -394,11 +444,13 @@ func (c *ascClient) createBetaTester(ctx *context.Context, tester config.BetaTes
 	if betaGroupIDs != nil && buildIDs != nil {
 		log.WithField("tester", tester).Warn("authors note: you can't define betaGroupIDs and buildIDs at the same time")
 	}
+
 	_, _, err := c.client.TestFlight.CreateBetaTester(ctx, asc.BetaTesterCreateRequestAttributes{
 		Email:     asc.Email(tester.Email),
 		FirstName: &tester.FirstName,
 		LastName:  &tester.LastName,
 	}, betaGroupIDs, buildIDs)
+
 	return err
 }
 
@@ -407,23 +459,30 @@ func (c *ascClient) UpdateBetaReviewDetails(ctx *context.Context, appID string, 
 	if err != nil {
 		return err
 	}
+
 	attrs := asc.BetaAppReviewDetailUpdateRequestAttributes{}
+
 	if config.Contact != nil {
 		attrs.ContactEmail = &config.Contact.Email
 		attrs.ContactFirstName = &config.Contact.FirstName
 		attrs.ContactLastName = &config.Contact.LastName
 		attrs.ContactPhone = &config.Contact.Phone
 	}
+
 	if config.DemoAccount != nil {
 		attrs.DemoAccountName = &config.DemoAccount.Name
 		attrs.DemoAccountPassword = &config.DemoAccount.Password
 		attrs.DemoAccountRequired = &config.DemoAccount.Required
 	}
+
 	attrs.Notes = &config.Notes
+
 	if len(config.Attachments) > 0 {
 		log.Warn("attachments are not supported for beta review details and will be ignored")
 	}
+
 	_, _, err = c.client.TestFlight.UpdateBetaAppReviewDetail(ctx, detailsResp.Data.ID, &attrs)
+
 	return err
 }
 

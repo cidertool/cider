@@ -40,6 +40,7 @@ func (c *Client) GetAppInfo(ctx *context.Context, appID string) (*asc.AppInfo, e
 	appStoreState := asc.AppStoreVersionStatePrepareForSubmission
 	brazilAgeRating := asc.BrazilAgeRatingL
 	kidsAgeBand := asc.KidsAgeBandFiveAndUnder
+
 	return &asc.AppInfo{
 		Attributes: &asc.AppInfoAttributes{
 			AppStoreAgeRating: &appStoreAgeRating,
@@ -53,13 +54,15 @@ func (c *Client) GetAppInfo(ctx *context.Context, appID string) (*asc.AppInfo, e
 
 // GetBuild mocks returning the latest valid build corresponding to an app.
 func (c *Client) GetBuild(ctx *context.Context, app *asc.App) (*asc.Build, error) {
+	var testImageSize = 140
+
 	return &asc.Build{
 		Attributes: &asc.BuildAttributes{
 			ExpirationDate: &asc.DateTime{Time: time.Now()},
 			Expired:        asc.Bool(false),
 			IconAssetToken: &asc.ImageAsset{
-				Height:      asc.Int(140),
-				Width:       asc.Int(140),
+				Height:      &testImageSize,
+				Width:       &testImageSize,
 				TemplateURL: asc.String(""),
 			},
 			MinOsVersion:            asc.String("9.0"),
@@ -131,6 +134,7 @@ func (c *Client) UpdateAppLocalizations(ctx *context.Context, appID string, conf
 func (c *Client) CreateVersionIfNeeded(ctx *context.Context, appID string, buildID string, config config.Version) (*asc.AppStoreVersion, error) {
 	appStoreState := asc.AppStoreVersionStatePrepareForSubmission
 	platform := asc.PlatformIOS
+
 	return &asc.AppStoreVersion{
 		Attributes: &asc.AppStoreVersionAttributes{
 			AppStoreState:       &appStoreState,
@@ -187,5 +191,6 @@ func (c *Credentials) Client() *http.Client {
 	if c.client == nil {
 		c.client = &http.Client{}
 	}
+
 	return c.client
 }

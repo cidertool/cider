@@ -11,8 +11,11 @@ import (
 
 func TestGroup(t *testing.T) {
 	var g = New(4)
+
 	var lock sync.Mutex
+
 	var counter int
+
 	for i := 0; i < 10; i++ {
 		g.Go(func() error {
 			time.Sleep(10 * time.Millisecond)
@@ -28,10 +31,14 @@ func TestGroup(t *testing.T) {
 
 func TestGroupOrder(t *testing.T) {
 	var num = 10
+
 	var g = New(1)
+
 	var output = []int{}
+
 	for i := 0; i < num; i++ {
 		i := i
+
 		g.Go(func() error {
 			output = append(output, i)
 			return nil
@@ -43,9 +50,12 @@ func TestGroupOrder(t *testing.T) {
 
 func TestGroupOrderError(t *testing.T) {
 	var g = New(1)
+
 	var output = []int{}
+
 	for i := 0; i < 10; i++ {
 		i := i
+
 		g.Go(func() error {
 			output = append(output, i)
 			return fmt.Errorf("fake err")

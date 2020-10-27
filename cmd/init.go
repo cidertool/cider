@@ -31,6 +31,7 @@ type initOpts struct {
 
 func newInitCmd() *initCmd {
 	var root = &initCmd{}
+
 	var cmd = &cobra.Command{
 		Use:   "init",
 		Short: "Generates a .cider.yml file",
@@ -48,6 +49,7 @@ func newInitCmd() *initCmd {
 	cmd.Flags().BoolVarP(&root.opts.skipPrompt, "skip-prompt", "y", false, `Skips onboarding prompts. This can result in an overwritten configuration file`)
 
 	root.cmd = cmd
+
 	return root
 }
 
@@ -56,6 +58,7 @@ func initProject(opts initOpts) (err error) {
 	if err != nil {
 		return err
 	}
+
 	defer func() {
 		closeErr := file.Close()
 		if closeErr != nil {
@@ -115,6 +118,7 @@ func createFileIfNeeded(path string, skipPrompt bool) (*os.File, error) {
 
 func newProject(skipPrompt bool) (*config.Project, error) {
 	var project *config.Project
+
 	var err error
 
 	if skipPrompt {
@@ -135,6 +139,7 @@ func newProjectFromPrompts() (*config.Project, error) {
 		if err != nil {
 			return nil, err
 		}
+
 		values[name] = *app
 
 		continuePrompt := promptui.Prompt{
@@ -146,11 +151,13 @@ func newProjectFromPrompts() (*config.Project, error) {
 	}
 
 	proj := newProjectFromValues(values)
+
 	return &proj, nil
 }
 
 func promptAppValues() (name string, app *projectInitAppValues, err error) {
 	var prompt promptui.Prompt
+
 	var selec promptui.Select
 
 	app = &projectInitAppValues{
@@ -164,17 +171,21 @@ func promptAppValues() (name string, app *projectInitAppValues, err error) {
 	log.Info("Let's set up an app in your project!")
 
 	prompt = promptui.Prompt{Label: "App Name"}
+
 	name, err = prompt.Run()
 	if err != nil {
 		return name, app, err
 	}
+
 	app.NameInPrimaryLocale = name
 
 	prompt = promptui.Prompt{Label: "Bundle ID"}
+
 	bundleID, err := prompt.Run()
 	if err != nil {
 		return name, app, err
 	}
+
 	app.BundleID = bundleID
 
 	selec = promptui.Select{
@@ -185,29 +196,35 @@ func promptAppValues() (name string, app *projectInitAppValues, err error) {
 			config.PlatformMacOS,
 		},
 	}
+
 	_, platform, err := selec.Run()
 	if err != nil {
 		return name, app, err
 	}
+
 	app.Platform = platform
 
 	prompt = promptui.Prompt{
 		Label:   "Primary Locale",
 		Default: "en-US",
 	}
+
 	primaryLocale, err := prompt.Run()
 	if err != nil {
 		return name, app, err
 	}
+
 	app.PrimaryLocale = primaryLocale
 
 	prompt = promptui.Prompt{
 		Label: "Price Tier",
 	}
+
 	tier, err := prompt.Run()
 	if err != nil {
 		return name, app, err
 	}
+
 	app.PricingTier = tier
 
 	return name, app, nil
@@ -228,6 +245,7 @@ func newProjectFromDefaults() *config.Project {
 			PhasedReleaseEnabled:         true,
 		},
 	})
+
 	return &proj
 }
 

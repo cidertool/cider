@@ -54,6 +54,7 @@ func newRenderer() (*docRenderer, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	r.Package = pkg
 
 	r.Types = make(map[string]*doc.Type, len(pkg.Types))
@@ -72,29 +73,36 @@ func newRenderer() (*docRenderer, error) {
 
 func openPackage() (*doc.Package, error) {
 	fset := token.NewFileSet()
+
 	files, err := parseFilesInConfigPackage(fset)
 	if err != nil {
 		return nil, err
 	}
+
 	return doc.NewFromFiles(fset, files, "github.com/cidertool/cider/pkg/config")
 }
 
 func parseFilesInConfigPackage(fset *token.FileSet) (files []*ast.File, err error) {
 	files = make([]*ast.File, 0)
+
 	inDir, err := ioutil.ReadDir("pkg/config")
 	if err != nil {
 		return files, err
 	}
+
 	for _, finfo := range inDir {
 		if finfo.IsDir() || filepath.Ext(finfo.Name()) != ".go" {
 			continue
 		}
+
 		f, err := parser.ParseFile(fset, filepath.Join("pkg/config", finfo.Name()), nil, parser.ParseComments)
 		if err != nil {
 			return files, err
 		}
+
 		files = append(files, f)
 	}
+
 	return files, err
 }
 
@@ -109,6 +117,7 @@ func (r *docRenderer) gatherTypes() error {
 			}
 		}
 	}
+
 	for _, cons := range r.Package.Consts {
 		name, values := r.gatherConsts(cons)
 		r.Values[name] = values
@@ -120,6 +129,7 @@ func (r *docRenderer) gatherTypes() error {
 		len(root.Decl.Specs) == 0 {
 		return ErrRootTypeNotFound
 	}
+
 	r.insertTypeTree(root, 0)
 
 	return nil
@@ -135,6 +145,7 @@ func (r *docRenderer) insertTypeTree(t *doc.Type, level int) {
 			for i, field := range t.Fields.List {
 				fields[i] = getTypeName(field.Type)
 			}
+
 			return fields
 		case *ast.MapType:
 			return []string{getTypeName(t.Key), getTypeName(t.Value)}
@@ -143,9 +154,11 @@ func (r *docRenderer) insertTypeTree(t *doc.Type, level int) {
 		case *ast.SelectorExpr:
 			return []string{getTypeName(t)}
 		}
+
 		return nil
 	}
 	decl := t.Decl
+
 	for _, s := range decl.Specs {
 		spec, ok := s.(*ast.TypeSpec)
 		if !ok {
@@ -153,6 +166,7 @@ func (r *docRenderer) insertTypeTree(t *doc.Type, level int) {
 		} else if r.Visited[spec.Name.Name] {
 			continue
 		}
+
 		r.Visited[spec.Name.Name] = true
 		r.TypesToRender = append(r.TypesToRender, renderTypeOptions{
 			Name:  spec.Name.Name,
@@ -160,11 +174,13 @@ func (r *docRenderer) insertTypeTree(t *doc.Type, level int) {
 			Doc:   formatDoc(t.Doc),
 			Type:  spec.Type,
 		})
+
 		for _, name := range getSubTypeNames(spec.Type) {
 			typ, ok := r.Types[name]
 			if !ok {
 				continue
 			}
+
 			r.insertTypeTree(typ, level+1)
 		}
 	}
@@ -172,12 +188,14 @@ func (r *docRenderer) insertTypeTree(t *doc.Type, level int) {
 
 func (*docRenderer) gatherConsts(cons *doc.Value) (name string, values []string) {
 	values = make([]string, len(cons.Decl.Specs))
+
 	for i, s := range cons.Decl.Specs {
 		if spec, ok := s.(*ast.ValueSpec); ok {
 			name = spec.Type.(*ast.Ident).Name
 			values[i] = spec.Values[0].(*ast.BasicLit).Value
 		}
 	}
+
 	return name, values
 }
 
@@ -198,13 +216,15 @@ func (r *docRenderer) Render(w io.Writer) error {
 	r.WriteString(docsConfigTableOfContents)
 	r.WriteString("## Specification\n\n")
 
+	var topHeaderLevel = 3
+
 	for _, opt := range r.TypesToRender {
 		switch typ := opt.Type.(type) {
 		case *ast.StructType:
-			r.renderTypePreamble(opt.Name, opt.Doc, 3+opt.Level)
+			r.renderTypePreamble(opt.Name, opt.Doc, topHeaderLevel+opt.Level)
 			r.renderStruct(typ)
 		case *ast.MapType:
-			r.renderTypePreamble(opt.Name, opt.Doc, 3+opt.Level)
+			r.renderTypePreamble(opt.Name, opt.Doc, topHeaderLevel+opt.Level)
 			r.renderMap(typ)
 		default:
 			continue
@@ -216,6 +236,7 @@ func (r *docRenderer) Render(w io.Writer) error {
 	if err != nil {
 		return err
 	}
+
 	r.WriteString(fmt.Sprintf("## Full Example\n\n```yaml\n%s```\n\n", string(proj)))
 
 	if r.Footer != nil {
@@ -223,14 +244,18 @@ func (r *docRenderer) Render(w io.Writer) error {
 	}
 
 	_, err = r.buffer.WriteTo(w)
+
 	return err
 }
 
 func (r *docRenderer) renderTypePreamble(name string, doc string, level int) {
-	if level > 6 {
-		level = 6
+	var maxHeaderLevel = 6
+	if level > maxHeaderLevel {
+		level = maxHeaderLevel
 	}
+
 	r.WriteString(fmt.Sprintf("%s %s\n\n", strings.Repeat("#", level), name))
+
 	if doc != "" {
 		r.WriteString(doc + "\n\n")
 	}
@@ -241,27 +266,33 @@ func (r *docRenderer) renderStruct(typ *ast.StructType) {
 		typeName := getTypeName(field.Type)
 		typeNameFormatted := formatTypeName(field.Type)
 		tag, required := getTagValue(field.Tag)
+
 		var requiredStr = " "
 		if required && !strings.HasPrefix(typeNameFormatted, "[") {
 			requiredStr = "x"
 		}
+
 		var options []string
+
 		if values, ok := r.Values[typeName]; ok {
 			if identName := r.asIdentName(typeName); identName != "" {
 				typeNameFormatted = identName
 			} else {
 				typeNameFormatted = "string"
 			}
+
 			options = values
 		}
 
 		if len(field.Names) == 0 {
 			// embedded struct field
 			typeName := getTypeName(field.Type)
+
 			t, ok := r.Types[typeName]
 			if !ok {
 				continue
 			}
+
 			for _, s := range t.Decl.Specs {
 				if spec, ok := s.(*ast.TypeSpec); ok {
 					if f, ok := spec.Type.(*ast.StructType); ok {
@@ -269,6 +300,7 @@ func (r *docRenderer) renderStruct(typ *ast.StructType) {
 					}
 				}
 			}
+
 			continue
 		}
 
@@ -281,6 +313,7 @@ func (r *docRenderer) renderStruct(typ *ast.StructType) {
 			formatOptions(options, "", true),
 		)
 		r.WriteString(line)
+
 		if !strings.HasSuffix(line, "\n") {
 			r.WriteString("\n")
 		}
@@ -289,10 +322,12 @@ func (r *docRenderer) renderStruct(typ *ast.StructType) {
 
 func (r *docRenderer) renderMap(typ *ast.MapType) {
 	keyName := getTypeName(typ.Key)
+
 	var options []string
 	if values, ok := r.Values[keyName]; ok {
 		options = values
 	}
+
 	r.WriteString(formatOptions(options, keyName, false) + "\n")
 }
 
@@ -300,13 +335,16 @@ func getTagValue(tag *ast.BasicLit) (val string, required bool) {
 	val = strings.TrimSpace(tag.Value)
 	quote := strings.Index(val, `"`)
 	comma := strings.Index(val[quote:], ",")
+
 	if comma == -1 {
 		required = true
 		comma = strings.LastIndex(val, `"`)
 	} else {
 		comma += quote
 	}
+
 	val = val[quote+1 : comma]
+
 	return val, required
 }
 
@@ -314,9 +352,11 @@ func (r *docRenderer) renderItemType(name, formatted string) string {
 	if ident := r.asIdentName(name); ident != "" {
 		return ident
 	}
+
 	if _, ok := r.Types[name]; ok {
 		return fmt.Sprintf("[%s](#%s)", formatted, strings.ToLower(name))
 	}
+
 	return formatted
 }
 
@@ -331,6 +371,7 @@ func getTypeName(expr ast.Expr) string {
 	case *ast.Ident:
 		return t.Name
 	}
+
 	return ""
 }
 
@@ -363,6 +404,7 @@ func (r *docRenderer) asIdentName(typeName string) string {
 	}
 
 	s := typ.Decl.Specs[0]
+
 	spec, ok := s.(*ast.TypeSpec)
 	if !ok {
 		return ""
@@ -381,21 +423,24 @@ func formatDoc(s string) string {
 		log.Warnf("NO DOCS")
 		return "NO_DOCS :shamebells:."
 	}
+
 	doc := strings.Builder{}
 	lines := strings.Split(s, "\n")
-	var inBlock bool
+
+	var inYamlBlock bool
+
 	for i, line := range lines {
 		switch {
 		case line == "" && i < len(lines)-1:
 			doc.WriteString("\n\n")
-		case line == "```yaml" && !inBlock:
-			// TODO: make work for other block types
-			inBlock = true
+		case line == "```yaml" && !inYamlBlock:
+			inYamlBlock = true
 			fallthrough
-		case inBlock:
+		case inYamlBlock:
 			if line == "```" {
-				inBlock = false
+				inYamlBlock = false
 			}
+
 			doc.WriteString(line + "\n")
 		case line == ".":
 			continue
@@ -403,6 +448,7 @@ func formatDoc(s string) string {
 			doc.WriteString(strings.TrimSpace(line) + " ")
 		}
 	}
+
 	return doc.String()
 }
 
@@ -410,14 +456,18 @@ func formatOptions(o []string, kind string, inline bool) string {
 	if len(o) == 0 {
 		return ""
 	}
+
 	if kind == "" {
 		kind = "option"
 	}
+
 	var options string
+
 	if inline {
 		options = fmt.Sprintf(" `%s`.", strings.Join(o, "`, `"))
 	} else {
 		options = fmt.Sprintf("\n\n- `%s`", strings.Join(o, "`\n- `"))
 	}
+
 	return fmt.Sprintf(" Valid %ss:%s", kind, options)
 }

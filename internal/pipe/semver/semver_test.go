@@ -11,6 +11,7 @@ import (
 func TestSemver(t *testing.T) {
 	ctx := context.New(config.Project{})
 	pipe := Pipe{}
+
 	var err error
 
 	assert.Equal(t, "parsing version", pipe.String())

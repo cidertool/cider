@@ -47,6 +47,7 @@ func newTestContext(resp ...response) (*testContext, Client) {
 	ctx.Responses = resp
 	ctx.server = server
 	client := New(ctx.Context)
+
 	return &ctx, client
 }
 
@@ -68,15 +69,18 @@ func (c *testContext) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if resp.StatusCode == 0 {
 		resp.StatusCode = http.StatusOK
 	}
+
 	w.WriteHeader(resp.StatusCode)
 
 	var body = resp.RawResponse
+
 	if resp.Response != nil {
 		b, err := json.Marshal(resp.Response)
 		if err == nil {
 			body = string(b)
 		}
 	}
+
 	if body == "" {
 		body = `{}`
 	}
@@ -93,6 +97,7 @@ func (c *testContext) SetResponses(resp ...response) {
 func (c *mockCredentials) Client() *http.Client {
 	url, _ := url.Parse(c.url)
 	c.client.Transport = &mockTransport{URL: url, Transport: c.client.Transport}
+
 	return c.client
 }
 

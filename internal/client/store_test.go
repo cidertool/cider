@@ -98,6 +98,7 @@ func TestUpdateAppLocalizations_Happy(t *testing.T) {
 			RawResponse: `{}`,
 		},
 	)
+
 	defer ctx.Close()
 
 	err := client.UpdateAppLocalizations(ctx.Context, testID, config.AppLocalizations{
@@ -123,6 +124,7 @@ func TestCreateVersionIfNeeded_Happy(t *testing.T) {
 			RawResponse: `{}`,
 		},
 	)
+
 	defer ctx.Close()
 
 	version, err := client.CreateVersionIfNeeded(ctx.Context, testID, testID, config.Version{

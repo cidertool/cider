@@ -27,6 +27,7 @@ func ErrMissingApp(name string) error {
 func IsSkip(err error) bool {
 	var serr ErrSkip
 	ok := errors.As(err, &serr)
+
 	return ok
 }
 

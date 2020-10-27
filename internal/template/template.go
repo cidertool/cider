@@ -44,6 +44,7 @@ func (t *Template) WithFields(fields Fields) *Template {
 	for key, value := range fields {
 		t.fields[key] = value
 	}
+
 	return t
 }
 
@@ -53,19 +54,23 @@ func (t *Template) WithEnv(env map[string]string) *Template {
 	return t
 }
 
-// WithShellEnv replaces the configured env of the template with the given sequence of shell-style, e.g. "KEY=VALUE", strings.
+// WithShellEnv replaces the configured env of the template with the given sequence of shell-style, e.g. "KEY=VALUE",
+// strings.
 func (t *Template) WithShellEnv(envs ...string) *Template {
 	env := make(map[string]string)
+
 	for _, e := range envs {
 		parts := strings.SplitN(e, "=", 2)
 		env[parts[0]] = parts[1]
 	}
+
 	return t.WithEnv(env)
 }
 
 // Apply takes the template string and processes it into its product string.
 func (t *Template) Apply(s string) (string, error) {
 	var out bytes.Buffer
+
 	tmpl, err := template.New("tmpl").
 		Option("missingkey=error").
 		Funcs(template.FuncMap{
@@ -81,6 +86,8 @@ func (t *Template) Apply(s string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	err = tmpl.Execute(&out, t.fields)
+
 	return out.String(), err
 }

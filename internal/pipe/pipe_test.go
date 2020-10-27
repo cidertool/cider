@@ -8,7 +8,9 @@ import (
 
 func TestPipeSkip(t *testing.T) {
 	skip := Skip("TEST")
+
 	var err error = ErrSkip{reason: "TEST"}
+
 	assert.Error(t, skip)
 	assert.Error(t, err)
 	assert.True(t, IsSkip(err))

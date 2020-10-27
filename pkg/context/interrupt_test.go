@@ -16,6 +16,7 @@ func TestInterruptOK(t *testing.T) {
 
 func TestInterruptErrors(t *testing.T) {
 	var err = errors.New("some error")
+
 	assert.EqualError(t, NewInterrupt().Run(context.Background(), func() error {
 		return err
 	}), err.Error())

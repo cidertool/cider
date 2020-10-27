@@ -15,6 +15,7 @@ func loadConfig(path string, wd string) (config.Project, error) {
 	if path != "" {
 		return config.Load(path)
 	}
+
 	for _, f := range [4]string{
 		".cider.yml",
 		".cider.yaml",
@@ -25,7 +26,9 @@ func loadConfig(path string, wd string) (config.Project, error) {
 		if err != nil && os.IsNotExist(err) {
 			continue
 		}
+
 		return proj, err
 	}
+
 	return config.Project{}, ErrConfigNotFound
 }

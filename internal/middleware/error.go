@@ -14,10 +14,12 @@ func ErrHandler(action Action) Action {
 		if err == nil {
 			return nil
 		}
+
 		if pipe.IsSkip(err) {
 			log.WithError(err).Warn("pipe skipped")
 			return nil
 		}
+
 		return err
 	}
 }

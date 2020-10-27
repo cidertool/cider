@@ -27,9 +27,13 @@ func Logging(title string, next Action, padding Padding) Action {
 		defer func() {
 			cli.Default.Padding = int(DefaultInitialPadding)
 		}()
+
 		cli.Default.Padding = int(padding)
+
 		log.Info(color.New(color.Bold).Sprint(title))
+
 		cli.Default.Padding = int(padding + DefaultInitialPadding)
+
 		return next(ctx)
 	}
 }

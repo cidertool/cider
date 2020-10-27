@@ -17,6 +17,7 @@ type checkCmd struct {
 
 func newCheckCmd() *checkCmd {
 	var root = &checkCmd{}
+
 	var cmd = &cobra.Command{
 		Use:           "check",
 		Short:         "Checks if the configuration is valid",
@@ -47,5 +48,6 @@ func newCheckCmd() *checkCmd {
 	cmd.Flags().StringVarP(&root.config, "config", "f", "", "Configuration file to check")
 
 	root.cmd = cmd
+
 	return root
 }

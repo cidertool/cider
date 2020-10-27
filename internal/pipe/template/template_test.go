@@ -48,7 +48,9 @@ func TestTemplateFullyDefinedProjectWithGoodTemplatesPasses(t *testing.T) {
 			assert.Equal(t, expected, loc.PrivacyPolicyText)
 			assert.Equal(t, expected, loc.PrivacyPolicyURL)
 		}
+
 		assert.Equal(t, expected, app.Testflight.LicenseAgreement)
+
 		for _, loc := range app.Testflight.Localizations {
 			assert.Equal(t, expected, loc.Description)
 			assert.Equal(t, expected, loc.FeedbackEmail)
@@ -57,6 +59,7 @@ func TestTemplateFullyDefinedProjectWithGoodTemplatesPasses(t *testing.T) {
 			assert.Equal(t, expected, loc.TVOSPrivacyPolicy)
 			assert.Equal(t, expected, loc.WhatsNew)
 		}
+
 		assert.Equal(t, expected, app.Testflight.ReviewDetails.Contact.Email)
 		assert.Equal(t, expected, app.Testflight.ReviewDetails.Contact.FirstName)
 		assert.Equal(t, expected, app.Testflight.ReviewDetails.Contact.LastName)
@@ -64,10 +67,13 @@ func TestTemplateFullyDefinedProjectWithGoodTemplatesPasses(t *testing.T) {
 		assert.Equal(t, expected, app.Testflight.ReviewDetails.DemoAccount.Name)
 		assert.Equal(t, expected, app.Testflight.ReviewDetails.DemoAccount.Password)
 		assert.Equal(t, expected, app.Testflight.ReviewDetails.Notes)
+
 		for _, file := range app.Testflight.ReviewDetails.Attachments {
 			assert.Equal(t, expected, file.Path)
 		}
+
 		assert.Equal(t, expected, app.Versions.Copyright)
+
 		for _, loc := range app.Versions.Localizations {
 			assert.Equal(t, expected, loc.Description)
 			assert.Equal(t, expected, loc.Keywords)
@@ -75,17 +81,20 @@ func TestTemplateFullyDefinedProjectWithGoodTemplatesPasses(t *testing.T) {
 			assert.Equal(t, expected, loc.PromotionalText)
 			assert.Equal(t, expected, loc.SupportURL)
 			assert.Equal(t, expected, loc.WhatsNewText)
+
 			for _, set := range loc.PreviewSets {
 				for _, file := range set {
 					assert.Equal(t, expected, file.Path)
 				}
 			}
+
 			for _, set := range loc.ScreenshotSets {
 				for _, file := range set {
 					assert.Equal(t, expected, file.Path)
 				}
 			}
 		}
+
 		assert.Equal(t, expected, app.Versions.ReviewDetails.Contact.Email)
 		assert.Equal(t, expected, app.Versions.ReviewDetails.Contact.FirstName)
 		assert.Equal(t, expected, app.Versions.ReviewDetails.Contact.LastName)
@@ -93,9 +102,11 @@ func TestTemplateFullyDefinedProjectWithGoodTemplatesPasses(t *testing.T) {
 		assert.Equal(t, expected, app.Versions.ReviewDetails.DemoAccount.Name)
 		assert.Equal(t, expected, app.Versions.ReviewDetails.DemoAccount.Password)
 		assert.Equal(t, expected, app.Versions.ReviewDetails.Notes)
+
 		for _, file := range app.Versions.ReviewDetails.Attachments {
 			assert.Equal(t, expected, file.Path)
 		}
+
 		assert.Equal(t, expected, app.Versions.RoutingCoverage.Path)
 	}
 }
@@ -106,6 +117,7 @@ func TestTemplateWithBadPatterns(t *testing.T) {
 	pipe := Pipe{}
 	err := pipe.Run(ctx)
 	assert.Error(t, err)
+
 	var merr *multierror.Error
 	ok := errors.As(err, &merr)
 	assert.True(t, ok)
@@ -120,6 +132,7 @@ func fullyPopulatedProject(good bool) config.Project {
 	} else {
 		pattern = badTemplatePattern
 	}
+
 	return config.Project{
 		"First": {
 			BundleID:              "com.app.bundleid",

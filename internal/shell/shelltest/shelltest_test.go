@@ -33,6 +33,7 @@ func TestShell(t *testing.T) {
 
 	exists := sh.Exists("echo")
 	assert.True(t, exists)
+
 	sh.SupportedPrograms = map[string]bool{
 		"echo": false,
 	}

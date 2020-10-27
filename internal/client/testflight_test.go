@@ -407,6 +407,7 @@ func TestAssignBetaGroups_Happy(t *testing.T) {
 			RawResponse: `{}`,
 		},
 	)
+
 	defer ctx.Close()
 
 	err := client.AssignBetaGroups(ctx.Context, testID, testID, []config.BetaGroup{
@@ -614,6 +615,7 @@ func TestAssignBetaTesters_ErrAssign(t *testing.T) {
 			RawResponse: `{}`,
 		},
 	)
+
 	defer ctx.Close()
 
 	err := client.AssignBetaTesters(ctx.Context, testID, testID, []config.BetaTester{{}})

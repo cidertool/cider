@@ -26,12 +26,14 @@ type pageNavField struct {
 }
 
 func runDocsMdCmd(cmd *cobra.Command, args []string) error {
+	var orderRoot, orderInit, orderRelease, orderCheck, orderCompletions = 0, 1, 2, 3, 4
+
 	var pageNavFields = map[string]pageNavField{
-		"cider.md":             {order: 0},
-		"cider_init.md":        {order: 1},
-		"cider_release.md":     {order: 2},
-		"cider_check.md":       {order: 3},
-		"cider_completions.md": {order: 4},
+		"cider.md":             {order: orderRoot},
+		"cider_init.md":        {order: orderInit},
+		"cider_release.md":     {order: orderRelease},
+		"cider_check.md":       {order: orderCheck},
+		"cider_completions.md": {order: orderCompletions},
 		"cider_docs.md":        {exclude: true},
 		"cider_docs_config.md": {exclude: true},
 		"cider_docs_man.md":    {exclude: true},
@@ -44,6 +46,7 @@ func runDocsMdCmd(cmd *cobra.Command, args []string) error {
 	} else {
 		dir = args[0]
 	}
+
 	dir = filepath.Join(dir, "commands")
 
 	prepender := func(filename string) string {
@@ -57,12 +60,14 @@ func runDocsMdCmd(cmd *cobra.Command, args []string) error {
 	}
 
 	log.WithField("path", dir).Info("generating Markdown documentation")
+
 	err := doc.GenMarkdownTreeCustom(cmd.Root(), dir, prepender, linkHandler)
 	if err != nil {
 		log.Error("generation failed")
 	} else {
 		log.Info("generation completed successfully")
 	}
+
 	return err
 }
 
@@ -71,7 +76,9 @@ func pageTitle(s string) string {
 	if s != "cider" {
 		s = strings.ReplaceAll(s, "cider", "")
 	}
+
 	s = strings.ReplaceAll(s, "_", " ")
 	s = strings.TrimSpace(s)
+
 	return s
 }

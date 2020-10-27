@@ -97,6 +97,7 @@ func (e Env) Copy() Env {
 	for k, v := range e {
 		out[k] = v
 	}
+
 	return out
 }
 
@@ -107,15 +108,18 @@ func (e Env) Strings() []string {
 	for k, v := range e {
 		result = append(result, k+"="+v)
 	}
+
 	return result
 }
 
 func splitEnv(env []string) map[string]string {
 	r := map[string]string{}
+
 	for _, e := range env {
 		p := strings.SplitN(e, "=", 2)
 		r[p[0]] = p[1]
 	}
+
 	return r
 }
 
@@ -134,6 +138,7 @@ func (m *PublishMode) Set(value string) error {
 		*m = PublishModeTestflight
 		return nil
 	}
+
 	return fmt.Errorf("invalid value %s for publish mode", value)
 }
 

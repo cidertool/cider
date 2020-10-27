@@ -41,6 +41,7 @@ func (p Pipe) Run(ctx *context.Context) error {
 	}
 
 	var publisher Publisher
+
 	switch ctx.PublishMode {
 	case context.PublishModeTestflight:
 		publisher = &testflight.Pipe{Client: p.client}

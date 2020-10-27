@@ -26,7 +26,8 @@ func New(ctx *context.Context) Shell {
 	return &loginShell{ctx}
 }
 
-// CompletedProcess represents a subshell execution that finished, and includes its arguments, return code, and standard buffers as strings.
+// CompletedProcess represents a subshell execution that finished, and includes its arguments, return code, and
+// standard buffers as strings.
 type CompletedProcess struct {
 	Name       string
 	Args       []string
@@ -38,13 +39,17 @@ type CompletedProcess struct {
 func newCompletedProcess(cmd *exec.Cmd) CompletedProcess {
 	stdout := cmd.Stdout.(*bytes.Buffer)
 	stderr := cmd.Stderr.(*bytes.Buffer)
+
 	var stdoutString, stderrString string
+
 	if stdout != nil {
 		stdoutString = strings.TrimSpace(stdout.String())
 	}
+
 	if stderr != nil {
 		stderrString = strings.TrimSpace(stderr.String())
 	}
+
 	return CompletedProcess{
 		Name:       cmd.Path,
 		Args:       cmd.Args,
@@ -93,6 +98,7 @@ func escapeArgs(args []string) []string {
 	for i, arg := range args {
 		copy[i] = shellescape.Quote(arg)
 	}
+
 	return copy
 }
 
@@ -127,6 +133,7 @@ func (sh *loginShell) Exists(program string) bool {
 	if err != nil {
 		return false
 	}
+
 	return path != ""
 }
 

@@ -39,6 +39,7 @@ func (sh *Shell) Exec(cmd *exec.Cmd) (*shell.CompletedProcess, error) {
 			"command": cmd.String(),
 		}).Fatal("index out of bounds")
 	}
+
 	currentCommand := sh.Commands[sh.index]
 	ps := shell.CompletedProcess{
 		Name:       cmd.Path,
@@ -48,12 +49,14 @@ func (sh *Shell) Exec(cmd *exec.Cmd) (*shell.CompletedProcess, error) {
 		Stderr:     currentCommand.Stderr,
 	}
 	sh.index++
+
 	var err error
 	if currentCommand.ReturnCode != 0 {
 		err = &shellError{
 			Process: ps,
 		}
 	}
+
 	return &ps, err
 }
 
@@ -66,6 +69,7 @@ func (sh *Shell) Exists(program string) bool {
 	if len(sh.SupportedPrograms) == 0 {
 		return true
 	}
+
 	return sh.SupportedPrograms[program]
 }
 

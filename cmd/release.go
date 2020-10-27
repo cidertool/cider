@@ -13,6 +13,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const defaultTimeout = time.Minute * 30
+
 // ErrSkipGitWithoutSetVersionFlag indicates an error when the --skip-git flag is set without also setting
 // the --set-version flag.
 var ErrSkipGitWithoutSetVersionFlag = errors.New("if --skip-git is set, --set-version must also be set")
@@ -42,6 +44,7 @@ type releaseOpts struct {
 
 func newReleaseCmd() *releaseCmd {
 	var root = &releaseCmd{}
+
 	var cmd = &cobra.Command{
 		Use:   "release [path]",
 		Args:  cobra.MaximumNArgs(1),
@@ -138,7 +141,7 @@ the maximum allowable concurrency.`,
 	cmd.Flags().DurationVar(
 		&root.opts.timeout,
 		"timeout",
-		30*time.Minute,
+		defaultTimeout,
 		`Timeout for the entire release process.
 		
 If the command takes longer than this amount of time to run, Cider will abort.`,
@@ -213,16 +216,19 @@ using the configuration file.`,
 	)
 
 	root.cmd = cmd
+
 	return root
 }
 
 func releaseProject(options releaseOpts) (*context.Context, error) {
 	var forceAllSkips bool
+
 	cfg, err := loadConfig(options.config, options.currentDirectory)
 	if err != nil {
 		if errors.Is(err, ErrConfigNotFound) {
 			log.Warn(err.Error())
 			log.Warn("using defaults and enabling all skips to avoid dangerous consequences...")
+
 			forceAllSkips = true
 		} else {
 			return nil, err
@@ -254,6 +260,7 @@ func setupReleaseContext(ctx *context.Context, options releaseOpts, forceAllSkip
 	} else {
 		ctx.PublishMode = options.publishMode
 	}
+
 	ctx.MaxProcesses = options.maxProcesses
 	ctx.SkipGit = options.skipGit || forceAllSkips
 	ctx.SkipUpdatePricing = options.skipUpdatePricing || forceAllSkips
@@ -264,6 +271,7 @@ func setupReleaseContext(ctx *context.Context, options releaseOpts, forceAllSkip
 
 	if !forceAllSkips && len(options.betaGroupsOverride) > 0 || len(options.betaTestersOverride) > 0 {
 		var betaGroups = make([]config.BetaGroup, len(options.betaGroupsOverride))
+
 		var betaTesters = make([]config.BetaTester, len(options.betaTestersOverride))
 
 		for i, groupName := range options.betaGroupsOverride {
@@ -280,9 +288,11 @@ func setupReleaseContext(ctx *context.Context, options releaseOpts, forceAllSkip
 			if len(options.betaGroupsOverride) > 0 {
 				app.Testflight.BetaGroups = betaGroups
 			}
+
 			if len(betaTesters) > 0 {
 				app.Testflight.BetaTesters = betaTesters
 			}
+
 			ctx.Config[appName] = app
 		}
 	}

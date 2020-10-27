@@ -50,18 +50,22 @@ func newRootCmd(version string, exit func(int)) *rootCmd {
 			}
 		},
 	}
+
 	cmd.PersistentFlags().BoolVar(&root.debug, "debug", false, "Enable debug mode")
+
 	cmd.AddCommand(
 		newInitCmd().cmd,
 		newCheckCmd().cmd,
 		newReleaseCmd().cmd,
 		newCompletionsCmd().cmd,
 	)
+
 	if version == "dev" {
 		cmd.AddCommand(newDocsCmd().cmd)
 	}
 
 	root.cmd = cmd
+
 	return root
 }
 
@@ -70,15 +74,21 @@ func (cmd *rootCmd) Execute(args []string) {
 
 	if err := cmd.cmd.Execute(); err != nil {
 		var code = 1
+
 		var msg = "command failed"
+
 		var eerr *exitError
+
 		if ok := errors.As(err, &eerr); ok {
 			code = eerr.code
+
 			if eerr.details != "" {
 				msg = eerr.details
 			}
 		}
+
 		log.WithError(err).Error(msg)
+
 		cmd.exit(code)
 	}
 }

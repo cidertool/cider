@@ -11,6 +11,7 @@ import (
 
 func TestNew(t *testing.T) {
 	assert.NoError(t, os.Setenv("TEST", "DOG"))
+
 	ctx := New(config.Project{})
 	assert.Equal(t, "DOG", ctx.Env["TEST"])
 }

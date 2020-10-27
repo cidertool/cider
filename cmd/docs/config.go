@@ -114,15 +114,17 @@ func runDocsConfigCmd(cmd *cobra.Command, args []string) error {
 	} else {
 		path = args[0]
 	}
-	path = filepath.Join(path, "configuration.md")
 
+	path = filepath.Join(path, "configuration.md")
 	log.WithField("path", path).Info("generating configuration documentation")
+
 	err := genConfigMarkdown(path)
 	if err != nil {
 		log.Error("generation failed")
 	} else {
 		log.Info("generation completed successfully")
 	}
+
 	return err
 }
 
@@ -131,6 +133,7 @@ func genConfigMarkdown(path string) error {
 	if err != nil {
 		return err
 	}
+
 	defer func() {
 		closeErr := f.Close()
 		if closeErr != nil {
@@ -146,15 +149,18 @@ func genConfigMarkdown(path string) error {
 	if err != nil {
 		return err
 	}
+
 	r.Header = func() string {
 		return fmt.Sprintf(docsConfigFrontmatterTemplate, 4)
 	}
+
 	r.Footer = func() string {
 		contents, err := ioutil.ReadFile(filepath.Join(filepath.Dir(path), "configuration-footer.md"))
 		if err != nil {
 			log.Error(err.Error())
 			return ""
 		}
+
 		return string(contents)
 	}
 

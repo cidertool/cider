@@ -15,9 +15,11 @@ func runDocsManCmd(cmd *cobra.Command, args []string) error {
 	} else {
 		path = args[0]
 	}
+
 	path = filepath.Join(path, "man")
 
 	log.WithField("path", path).Info("generating man documentation")
+
 	err := doc.GenManTreeFromOpts(cmd.Root(), doc.GenManTreeOptions{
 		Path: path,
 	})
@@ -26,5 +28,6 @@ func runDocsManCmd(cmd *cobra.Command, args []string) error {
 	} else {
 		log.Info("generation completed successfully")
 	}
+
 	return err
 }

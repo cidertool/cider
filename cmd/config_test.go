@@ -11,7 +11,9 @@ import (
 
 func TestConfig_Happy_CustomPath(t *testing.T) {
 	var path = filepath.Join(t.TempDir(), "foo.yaml")
+
 	var proj config.Project
+
 	s, err := proj.String()
 	assert.NoError(t, err)
 	err = ioutil.WriteFile(path, []byte(s), 0600)
@@ -23,8 +25,11 @@ func TestConfig_Happy_CustomPath(t *testing.T) {
 
 func TestConfig_Happy_DefaultPath(t *testing.T) {
 	var folder = t.TempDir()
+
 	var path = filepath.Join(folder, "cider.yaml")
+
 	var proj config.Project
+
 	s, err := proj.String()
 	assert.NoError(t, err)
 	err = ioutil.WriteFile(path, []byte(s), 0600)

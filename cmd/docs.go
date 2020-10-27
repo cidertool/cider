@@ -25,6 +25,7 @@ func newDocsCmd() *docsCmd {
 			return nil
 		},
 	}
+
 	cmd.AddCommand(
 		docs.CmdConfig(),
 		docs.CmdMan(),
@@ -32,5 +33,6 @@ func newDocsCmd() *docsCmd {
 	)
 
 	root.cmd = cmd
+
 	return root
 }

@@ -24,6 +24,7 @@ func TestGetApp_Happy(t *testing.T) {
 			},
 		},
 	})
+
 	defer ctx.Close()
 
 	app, err := client.GetAppForBundleID(ctx.Context, expectedBundleID)
@@ -75,6 +76,7 @@ func TestGetAppInfo_Happy(t *testing.T) {
 			},
 		},
 	})
+
 	defer ctx.Close()
 
 	info, err := client.GetAppInfo(ctx.Context, app.ID)
@@ -89,6 +91,7 @@ func TestGetAppInfo_Err(t *testing.T) {
 		StatusCode:  http.StatusNotFound,
 		RawResponse: `{}`,
 	})
+
 	defer ctx.Close()
 
 	info, err := client.GetAppInfo(ctx.Context, app.ID)
@@ -101,6 +104,7 @@ func TestGetAppInfo_ErrNoData(t *testing.T) {
 	ctx, client := newTestContext(response{
 		RawResponse: `{}`,
 	})
+
 	defer ctx.Close()
 
 	info, err := client.GetAppInfo(ctx.Context, app.ID)
@@ -296,6 +300,7 @@ func TestReleaseForAppIsInitial_HappyInitial(t *testing.T) {
 			},
 		},
 	})
+
 	defer ctx.Close()
 
 	initial, err := client.ReleaseForAppIsInitial(ctx.Context, app.ID)
@@ -309,6 +314,7 @@ func TestReleaseForAppIsInitial_Err(t *testing.T) {
 		StatusCode:  http.StatusNotFound,
 		RawResponse: `{}`,
 	})
+
 	defer ctx.Close()
 
 	initial, err := client.ReleaseForAppIsInitial(ctx.Context, app.ID)
@@ -327,6 +333,7 @@ func TestReleaseForAppIsInitial_HappyNotInitial(t *testing.T) {
 			},
 		},
 	})
+
 	defer ctx.Close()
 
 	initial, err := client.ReleaseForAppIsInitial(ctx.Context, app.ID)

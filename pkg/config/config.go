@@ -639,6 +639,7 @@ func Load(file string) (config Project, err error) {
 	if err != nil {
 		return
 	}
+
 	defer func() {
 		closeErr := f.Close()
 		if closeErr != nil {
@@ -649,6 +650,7 @@ func Load(file string) (config Project, err error) {
 			}
 		}
 	}()
+
 	return LoadReader(f)
 }
 
@@ -658,7 +660,9 @@ func LoadReader(fd io.Reader) (config Project, err error) {
 	if err != nil {
 		return config, err
 	}
+
 	err = yaml.UnmarshalStrict(data, &config)
+
 	return config, err
 }
 
@@ -673,7 +677,9 @@ func (p *Project) Copy() (copy Project, err error) {
 	if err != nil {
 		return copy, err
 	}
+
 	err = json.Unmarshal(bytes, &copy)
+
 	return copy, err
 }
 
@@ -682,22 +688,29 @@ func (p *Project) AppsMatching(keys []string, shouldIncludeAll bool) []string {
 	if p == nil {
 		return []string{}
 	}
+
 	apps := *p
+
 	if shouldIncludeAll || len(apps) == 1 {
 		appNamesMatching := make([]string, len(apps))
 		i := 0
+
 		for key := range apps {
 			appNamesMatching[i] = key
 			i++
 		}
+
 		return appNamesMatching
 	}
+
 	appNamesMatching := make([]string, 0, len(keys))
+
 	for _, key := range keys {
 		if _, ok := apps[key]; ok {
 			appNamesMatching = append(appNamesMatching, key)
 		}
 	}
+
 	return appNamesMatching
 }
 
@@ -706,7 +719,9 @@ func (p *Platform) APIValue() *asc.Platform {
 	if p == nil {
 		return nil
 	}
+
 	var value asc.Platform
+
 	switch *p {
 	case PlatformiOS:
 		value = asc.PlatformIOS
@@ -717,6 +732,7 @@ func (p *Platform) APIValue() *asc.Platform {
 	default:
 		return nil
 	}
+
 	return &value
 }
 
@@ -724,7 +740,9 @@ func (c *contentIntensity) APIValue() *string {
 	if c == nil {
 		return nil
 	}
+
 	var value string
+
 	switch *c {
 	case ContentIntensityNone:
 		value = "NONE"
@@ -735,6 +753,7 @@ func (c *contentIntensity) APIValue() *string {
 	default:
 		return nil
 	}
+
 	return &value
 }
 
@@ -742,7 +761,9 @@ func (b *kidsAgeBand) APIValue() *asc.KidsAgeBand {
 	if b == nil {
 		return nil
 	}
+
 	var value asc.KidsAgeBand
+
 	switch *b {
 	case KidsAgeBandFiveAndUnder:
 		value = asc.KidsAgeBandFiveAndUnder
@@ -753,6 +774,7 @@ func (b *kidsAgeBand) APIValue() *asc.KidsAgeBand {
 	default:
 		return nil
 	}
+
 	return &value
 }
 
@@ -760,7 +782,9 @@ func (t *releaseType) APIValue() *string {
 	if t == nil {
 		return nil
 	}
+
 	var value string
+
 	switch *t {
 	case ReleaseTypeManual:
 		value = "MANUAL"
@@ -771,6 +795,7 @@ func (t *releaseType) APIValue() *string {
 	default:
 		return nil
 	}
+
 	return &value
 }
 
@@ -778,7 +803,9 @@ func (t *previewType) APIValue() *asc.PreviewType {
 	if t == nil {
 		return nil
 	}
+
 	var value asc.PreviewType
+
 	switch *t {
 	case PreviewTypeAppleTV:
 		value = asc.PreviewTypeAppleTV
@@ -813,6 +840,7 @@ func (t *previewType) APIValue() *asc.PreviewType {
 	default:
 		return nil
 	}
+
 	return &value
 }
 
@@ -820,7 +848,9 @@ func (t *screenshotType) APIValue() *asc.ScreenshotDisplayType {
 	if t == nil {
 		return nil
 	}
+
 	var value asc.ScreenshotDisplayType
+
 	switch *t {
 	case ScreenshotTypeAppleTV:
 		value = asc.ScreenshotDisplayTypeAppAppleTV
@@ -875,6 +905,7 @@ func (t *screenshotType) APIValue() *asc.ScreenshotDisplayType {
 	default:
 		return nil
 	}
+
 	return &value
 }
 
@@ -912,6 +943,7 @@ func (s PreviewSets) GetPreviews(previewType asc.PreviewType) []Preview {
 	case asc.PreviewTypeWatchSeries4:
 		return s[PreviewTypeWatchSeries4]
 	}
+
 	return []Preview{}
 }
 
@@ -969,5 +1001,6 @@ func (s ScreenshotSets) GetScreenshots(screenshotType asc.ScreenshotDisplayType)
 	case asc.ScreenshotDisplayTypeiMessageAppIPhone65:
 		return s[ScreenshotTypeiMessageiPhone65]
 	}
+
 	return []File{}
 }

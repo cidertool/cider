@@ -7,12 +7,9 @@ issues:
 linters:
   enable-all: true
   disable:
-    - wsl
     - lll
     - dupl
     - funlen
-    - godox
-    - gomnd
     - goerr113
     - gofumpt
     - gci

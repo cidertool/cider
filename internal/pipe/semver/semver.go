@@ -22,6 +22,7 @@ func (p Pipe) Run(ctx *context.Context) error {
 	if err != nil {
 		return fmt.Errorf("failed to parse tag %s as semver: %w", ctx.Version, err)
 	}
+
 	ctx.Semver = context.Semver{
 		Major:      sv.Major(),
 		Minor:      sv.Minor(),
@@ -29,5 +30,6 @@ func (p Pipe) Run(ctx *context.Context) error {
 		Prerelease: sv.Prerelease(),
 		RawVersion: sv.Original(),
 	}
+
 	return nil
 }

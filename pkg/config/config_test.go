@@ -75,6 +75,7 @@ func TestAppsMatching(t *testing.T) {
 		"App2": {},
 		"App3": {},
 	}
+
 	var matches []string
 	matches = p.AppsMatching([]string{"App1", "App2", "App3"}, false)
 	assert.ElementsMatch(t, matches, []string{"App1", "App2", "App3"})

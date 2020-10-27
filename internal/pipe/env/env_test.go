@@ -14,6 +14,7 @@ import (
 func TestEnv(t *testing.T) {
 	ctx := context.New(config.Project{})
 	pipe := Pipe{}
+
 	var err error
 
 	assert.Equal(t, "loading environment variables", pipe.String())
@@ -50,6 +51,7 @@ func TestEnv(t *testing.T) {
 	if err != nil {
 		assert.FailNow(t, "temp file creation produced an error", err)
 	}
+
 	defer rmFile(file)
 
 	// Check ASC_PRIVATE_KEY_PATH but fail because the contents of the file do not contain a real key

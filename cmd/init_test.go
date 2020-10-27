@@ -9,8 +9,11 @@ import (
 
 func TestInitCmd(t *testing.T) {
 	var folder = t.TempDir()
+
 	var cmd = newInitCmd().cmd
+
 	var path = filepath.Join(folder, "foo.yaml")
+
 	cmd.SetArgs([]string{"-f", path, "--skip-prompt"})
 	assert.NoError(t, cmd.Execute())
 	assert.FileExists(t, path)

@@ -17,6 +17,7 @@ type completionsCmd struct {
 
 func newCompletionsCmd() *completionsCmd {
 	var root = &completionsCmd{}
+
 	var cmd = &cobra.Command{
 		Use:       "completions [bash|zsh|fish|powershell]",
 		Short:     "Generate shell completions",
@@ -38,5 +39,6 @@ func newCompletionsCmd() *completionsCmd {
 	}
 
 	root.cmd = cmd
+
 	return root
 }

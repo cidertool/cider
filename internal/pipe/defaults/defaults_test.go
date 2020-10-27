@@ -13,6 +13,7 @@ import (
 func TestDefaults(t *testing.T) {
 	ctx := context.New(config.Project{})
 	pipe := Pipe{}
+
 	var err error
 
 	assert.Equal(t, "setting defaults", pipe.String())

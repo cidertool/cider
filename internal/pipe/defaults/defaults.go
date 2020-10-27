@@ -21,6 +21,7 @@ func (p Pipe) Run(ctx *context.Context) error {
 	if len(p.defaulters) == 0 {
 		p.defaulters = defaults.Defaulters
 	}
+
 	for _, defaulter := range p.defaulters {
 		if err := middleware.Logging(
 			defaulter.String(),
@@ -30,5 +31,6 @@ func (p Pipe) Run(ctx *context.Context) error {
 			return err
 		}
 	}
+
 	return nil
 }

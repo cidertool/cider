@@ -18,6 +18,7 @@ FSEpv2QUFs0+dXz04SWVmmzFErM0/iQyCYom0V1IMOWgV/8xvFN6+AeX
 	assert.NoError(t, err)
 	assert.NotNil(t, cred)
 	assert.NotNil(t, cred.Client())
+
 	_, err = NewCredentials("kid", "iss", []byte("nothing"))
 	assert.Error(t, err)
 }

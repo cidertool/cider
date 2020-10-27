@@ -15,9 +15,12 @@ func TestPlatformAPIValue(t *testing.T) {
 	assert.Equal(t, *plat.APIValue(), asc.PlatformMACOS)
 	plat = PlatformTvOS
 	assert.Equal(t, *plat.APIValue(), asc.PlatformTVOS)
+
 	bad := Platform("watchOS")
 	assert.Empty(t, bad.APIValue())
+
 	var empty *Platform
+
 	assert.Empty(t, empty.APIValue())
 }
 
@@ -29,9 +32,12 @@ func TestReleaseTypeAPIValue(t *testing.T) {
 	assert.Equal(t, *release.APIValue(), "AFTER_APPROVAL")
 	release = ReleaseTypeScheduled
 	assert.Equal(t, *release.APIValue(), "SCHEDULED")
+
 	bad := releaseType("never")
 	assert.Empty(t, bad.APIValue())
+
 	var empty *releaseType
+
 	assert.Empty(t, empty.APIValue())
 }
 
@@ -43,9 +49,12 @@ func TestContentIntensityAPIValue(t *testing.T) {
 	assert.Equal(t, *intensity.APIValue(), "INFREQUENT_OR_MILD")
 	intensity = ContentIntensityFrequentOrIntense
 	assert.Equal(t, *intensity.APIValue(), "FREQUENT_OR_INTENSE")
+
 	bad := contentIntensity("nothing but violence")
 	assert.Empty(t, bad.APIValue())
+
 	var empty *contentIntensity
+
 	assert.Empty(t, empty.APIValue())
 }
 
@@ -57,9 +66,12 @@ func TestKidsAgeBandAPIValue(t *testing.T) {
 	assert.Equal(t, *band.APIValue(), asc.KidsAgeBandSixToEight)
 	band = KidsAgeBandNineToEleven
 	assert.Equal(t, *band.APIValue(), asc.KidsAgeBandNineToEleven)
+
 	bad := kidsAgeBand("18+")
 	assert.Empty(t, bad.APIValue())
+
 	var empty *kidsAgeBand
+
 	assert.Empty(t, empty.APIValue())
 }
 
@@ -95,9 +107,12 @@ func TestPreviewTypeAPIValue(t *testing.T) {
 	assert.Equal(t, *preview.APIValue(), asc.PreviewTypeWatchSeries3)
 	preview = PreviewTypeWatchSeries4
 	assert.Equal(t, *preview.APIValue(), asc.PreviewTypeWatchSeries4)
+
 	bad := previewType("Google Pixel")
 	assert.Empty(t, bad.APIValue())
+
 	var empty *previewType
+
 	assert.Empty(t, empty.APIValue())
 }
 
@@ -153,9 +168,12 @@ func TestScreenshotTypeAPIValue(t *testing.T) {
 	assert.Equal(t, *screenshot.APIValue(), asc.ScreenshotDisplayTypeiMessageAppIPhone58)
 	screenshot = ScreenshotTypeiMessageiPhone65
 	assert.Equal(t, *screenshot.APIValue(), asc.ScreenshotDisplayTypeiMessageAppIPhone65)
+
 	bad := screenshotType("Google Pixel")
 	assert.Empty(t, bad.APIValue())
+
 	var empty *screenshotType
+
 	assert.Empty(t, empty.APIValue())
 }
 

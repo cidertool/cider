@@ -109,6 +109,7 @@ func TestExtractRemoteFromConfig_ErrNoRemoteNamedOrigin(t *testing.T) {
 
 func TestExtractRepoFromURL(t *testing.T) {
 	var repo Repo
+
 	expected := Repo{
 		Name:  "cider",
 		Owner: "cidertool",

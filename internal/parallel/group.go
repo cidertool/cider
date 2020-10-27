@@ -19,6 +19,7 @@ func New(size int) Group {
 	if size <= 1 {
 		return &serialGroup{}
 	}
+
 	return &parallelGroup{
 		ch: make(chan bool, size),
 		g:  errgroup.Group{},
@@ -56,6 +57,7 @@ func (s *serialGroup) Go(fn func() error) {
 	if s.err != nil {
 		return
 	}
+
 	if err := fn(); err != nil {
 		s.errOnce.Do(func() {
 			s.err = err

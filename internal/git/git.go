@@ -41,10 +41,12 @@ func (git *Git) RunInEnv(env map[string]string, args ...string) (*shell.Complete
 	var extraArgs = []string{
 		"-c", "log.showSignature=false",
 	}
+
 	cd := git.CurrentDirectory()
 	if cd != "" && cd != "." {
 		extraArgs = append(extraArgs, "-C", filepath.Clean(cd))
 	}
+
 	args = append(extraArgs, args...)
 
 	var cmd = git.Shell.NewCommand("git", args...)
@@ -68,13 +70,16 @@ func (git *Git) IsRepo() bool {
 // SanitizeProcess cleans up the output.
 func (git *Git) SanitizeProcess(proc *shell.CompletedProcess, err error) (string, error) {
 	var out string
+
 	if proc != nil {
 		firstline := strings.Split(proc.Stdout, "\n")[0]
 		out = strings.ReplaceAll(firstline, "'", "")
+
 		if err != nil {
 			err = errors.New(strings.TrimSuffix(proc.Stderr, "\n"))
 		}
 	}
+
 	return out, err
 }
 
@@ -95,10 +100,12 @@ func (git *Git) ExtractRepoFromConfig() (result Repo, err error) {
 	if !git.IsRepo() {
 		return result, ErrNotRepository{git.CurrentDirectory()}
 	}
+
 	proc, err := git.Run("config", "--get", "remote.origin.url")
 	if err != nil {
 		return result, errors.New("repository doesn't have an `origin` remote")
 	}
+
 	return ExtractRepoFromURL(proc.Stdout), nil
 }
 
@@ -117,6 +124,7 @@ func ExtractRepoFromURL(s string) Repo {
 	s = s[strings.LastIndex(s, ":")+1:]
 	// split by /, the last to parts should be the owner and name
 	ss := strings.Split(s, "/")
+
 	return Repo{
 		Owner: ss[len(ss)-2],
 		Name:  ss[len(ss)-1],

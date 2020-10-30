@@ -107,7 +107,7 @@ brews:
 scoop:
   description: Submit your builds to the Apple App Store in seconds
   homepage: https://cidertool.github.io/cider
-  license: MIT
+  license: GPL-3.0-or-later
   bucket:
     owner: cidertool
     name: scoop-bucket

@@ -10,10 +10,6 @@ nav_exclude: true
 
 Generate Markdown documentation for Cider.
 
-### Synopsis
-
-Generate Markdown documentation for Cider.
-
 ```
 cider docs md [flags]
 ```

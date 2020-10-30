@@ -10,10 +10,6 @@ nav_exclude: false
 
 Generate shell completions
 
-### Synopsis
-
-Generate shell completions
-
 ```
 cider completions [bash|zsh|fish|powershell] [flags]
 ```

@@ -10,10 +10,6 @@ nav_exclude: true
 
 Generate configuration file documentation for Cider.
 
-### Synopsis
-
-Generate configuration file documentation for Cider.
-
 ```
 cider docs config [flags]
 ```

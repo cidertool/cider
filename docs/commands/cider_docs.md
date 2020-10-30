@@ -10,10 +10,6 @@ nav_exclude: true
 
 Generate documentation for Cider
 
-### Synopsis
-
-Generate documentation for Cider
-
 ```
 cider docs [flags]
 ```

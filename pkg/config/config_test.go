@@ -8,6 +8,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var errTestError = errors.New("test error")
+
 func TestValidConfiguration(t *testing.T) {
 	f, err := Load("testdata/valid.yml")
 	assert.NoError(t, err)
@@ -41,8 +43,8 @@ func TestBrokenFile(t *testing.T) {
 
 type errReader int
 
-func (errReader) Read(p []byte) (n int, err error) {
-	return 0, errors.New("test error")
+func (errReader) Read(p []byte) (int, error) {
+	return 0, errTestError
 }
 
 func TestCopy(t *testing.T) {

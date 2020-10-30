@@ -19,8 +19,12 @@ var ErrSkipNoAppsToPublish = Skip("no apps selected to publish")
 var ErrSkipSubmitEnabled = Skip("submission is disabled")
 
 // ErrMissingApp happens when an app is selected in the interface that is not defined in the configuration.
-func ErrMissingApp(name string) error {
-	return fmt.Errorf("no app defined in configuration matching the name %s", name)
+type ErrMissingApp struct {
+	Name string
+}
+
+func (e ErrMissingApp) Error() string {
+	return fmt.Sprintf("no app defined in configuration matching the name %s", e.Name)
 }
 
 // IsSkip returns true if the error is an ErrSkip.

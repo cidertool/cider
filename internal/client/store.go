@@ -10,10 +10,12 @@ import (
 	"github.com/cidertool/cider/pkg/context"
 )
 
-// errPlatformNotFound happens when the platform string in the configuration file does not match a supported App Store
-// platform.
-func errPlatformNotFound(plat config.Platform) error {
-	return fmt.Errorf(`platform %s could not be matched up with a supported App Store platform. supported values are "iOS", "macOS", or "tvOS"`, plat)
+type errPlatformNotFound struct {
+	Platform config.Platform
+}
+
+func (e errPlatformNotFound) Error() string {
+	return fmt.Sprintf(`platform %s could not be matched up with a supported App Store platform. supported values are "iOS", "macOS", or "tvOS"`, e.Platform)
 }
 
 func (c *ascClient) UpdateApp(ctx *context.Context, appID string, appInfoID string, versionID string, config config.App) error {
@@ -256,7 +258,7 @@ func (c *ascClient) UpdateAppLocalizations(ctx *context.Context, appID string, c
 func (c *ascClient) CreateVersionIfNeeded(ctx *context.Context, appID string, buildID string, config config.Version) (*asc.AppStoreVersion, error) {
 	platform := config.Platform.APIValue()
 	if platform == nil {
-		return nil, errPlatformNotFound(config.Platform)
+		return nil, errPlatformNotFound{Platform: config.Platform}
 	}
 
 	releaseType := config.ReleaseType.APIValue()

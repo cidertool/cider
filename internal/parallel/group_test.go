@@ -1,13 +1,15 @@
 package parallel
 
 import (
-	"fmt"
+	"errors"
 	"sync"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
 )
+
+var errTestError = errors.New("TEST")
 
 func TestGroup(t *testing.T) {
 	var g = New(4)
@@ -58,9 +60,9 @@ func TestGroupOrderError(t *testing.T) {
 
 		g.Go(func() error {
 			output = append(output, i)
-			return fmt.Errorf("fake err")
+			return errTestError
 		})
 	}
-	assert.EqualError(t, g.Wait(), "fake err")
+	assert.EqualError(t, g.Wait(), errTestError.Error())
 	assert.Equal(t, []int{0}, output)
 }

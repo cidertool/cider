@@ -12,9 +12,13 @@ import (
 	"github.com/cidertool/cider/pkg/context"
 )
 
-// ErrUnsupportedPublishMode happens when an unsupported publish mode is provided to the pipe.
-func ErrUnsupportedPublishMode(mode string) error {
-	return fmt.Errorf("failed to publish: unsupported publish mode %s", mode)
+// errUnsupportedPublishMode happens when an unsupported publish mode is provided to the pipe.
+type errUnsupportedPublishMode struct {
+	mode context.PublishMode
+}
+
+func (e errUnsupportedPublishMode) Error() string {
+	return fmt.Sprintf("failed to publish: unsupported publish mode %s", e.mode)
 }
 
 // Pipe that publishes artifacts.
@@ -48,7 +52,7 @@ func (p Pipe) Run(ctx *context.Context) error {
 	case context.PublishModeAppStore:
 		publisher = &store.Pipe{Client: p.client}
 	default:
-		return ErrUnsupportedPublishMode(ctx.PublishMode.String())
+		return errUnsupportedPublishMode{ctx.PublishMode}
 	}
 
 	if err := middleware.Logging(

@@ -2,7 +2,6 @@
 package git
 
 import (
-	"errors"
 	"fmt"
 	"path/filepath"
 	"strings"
@@ -67,6 +66,15 @@ func (git *Git) IsRepo() bool {
 	return err == nil && strings.TrimSpace(proc.Stdout) == "true"
 }
 
+// SanitizedError wraps the contents of a sanitized Git error.
+type SanitizedError struct {
+	stderr string
+}
+
+func (e SanitizedError) Error() string {
+	return e.stderr
+}
+
 // SanitizeProcess cleans up the output.
 func (git *Git) SanitizeProcess(proc *shell.CompletedProcess, err error) (string, error) {
 	var out string
@@ -76,7 +84,7 @@ func (git *Git) SanitizeProcess(proc *shell.CompletedProcess, err error) (string
 		out = strings.ReplaceAll(firstline, "'", "")
 
 		if err != nil {
-			err = errors.New(strings.TrimSuffix(proc.Stderr, "\n"))
+			err = SanitizedError{strings.TrimSuffix(proc.Stderr, "\n")}
 		}
 	}
 
@@ -103,7 +111,7 @@ func (git *Git) ExtractRepoFromConfig() (result Repo, err error) {
 
 	proc, err := git.Run("config", "--get", "remote.origin.url")
 	if err != nil {
-		return result, errors.New("repository doesn't have an `origin` remote")
+		return result, ErrNoRemoteOrigin
 	}
 
 	return ExtractRepoFromURL(proc.Stdout), nil

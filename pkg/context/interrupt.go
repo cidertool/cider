@@ -8,6 +8,14 @@ import (
 	"syscall"
 )
 
+type errReceivedSignal struct {
+	Signal os.Signal
+}
+
+func (e errReceivedSignal) Error() string {
+	return fmt.Sprintf("received: %s", e.Signal)
+}
+
 // Task is function that can be executed by an interrupt.
 type Task func() error
 
@@ -40,6 +48,6 @@ func (i *Interrupt) Run(ctx context.Context, task Task) error {
 	case <-ctx.Done():
 		return ctx.Err()
 	case sig := <-i.signals:
-		return fmt.Errorf("received: %s", sig)
+		return errReceivedSignal{Signal: sig}
 	}
 }

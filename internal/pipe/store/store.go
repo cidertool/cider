@@ -29,7 +29,7 @@ func (p *Pipe) Publish(ctx *context.Context) error {
 	for _, name := range ctx.AppsToRelease {
 		app, ok := ctx.Config[name]
 		if !ok {
-			return pipe.ErrMissingApp(name)
+			return pipe.ErrMissingApp{Name: name}
 		}
 
 		log.WithField("app", name).Info("updating metadata")

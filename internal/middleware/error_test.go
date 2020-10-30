@@ -10,10 +10,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var errTestError = errors.New("TEST")
+
 func TestErrHandler_WrapsError(t *testing.T) {
 	ctx := context.New(config.Project{})
 	wrapped := ErrHandler(func(ctx *context.Context) error {
-		return errors.New("TEST")
+		return errTestError
 	})
 	err := wrapped(ctx)
 	assert.Error(t, err)

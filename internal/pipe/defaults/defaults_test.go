@@ -10,6 +10,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var errTestError = errors.New("TEST")
+
 func TestDefaults(t *testing.T) {
 	ctx := context.New(config.Project{})
 	pipe := Pipe{}
@@ -35,5 +37,5 @@ func (d mockDefaulter) String() string {
 }
 
 func (d mockDefaulter) Default(ctx *context.Context) error {
-	return errors.New("TEST")
+	return errTestError
 }

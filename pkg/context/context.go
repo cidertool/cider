@@ -21,6 +21,14 @@ const (
 	PublishModeAppStore PublishMode = "appstore"
 )
 
+type errInvalidPublishMode struct {
+	Value string
+}
+
+func (e errInvalidPublishMode) Error() string {
+	return fmt.Sprintf("invalid value %s for publish mode", e.Value)
+}
+
 // Context carries along some data through the pipes.
 type Context struct {
 	ctx.Context
@@ -139,7 +147,7 @@ func (m *PublishMode) Set(value string) error {
 		return nil
 	}
 
-	return fmt.Errorf("invalid value %s for publish mode", value)
+	return errInvalidPublishMode{Value: value}
 }
 
 // Type returns a representation of permissible values.

@@ -2,6 +2,7 @@
 package client
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -13,6 +14,101 @@ import (
 const (
 	validProcessingState = "VALID"
 )
+
+var errNoVersionProvided = errors.New("no version provided to lookup build with")
+
+type errNoAppFound struct {
+	BundleID string
+}
+
+func (e errNoAppFound) Error() string {
+	return fmt.Sprintf("app not found matching %s", e.BundleID)
+}
+
+type errNoAppInfoFound struct {
+	AppID string
+}
+
+func (e errNoAppInfoFound) Error() string {
+	return fmt.Sprintf("app info not found matching %s", e.AppID)
+}
+
+type errBuildNotFound struct {
+	AppID         string
+	BuildVersion  string
+	VersionString string
+	InnerErr      error
+}
+
+func (e errBuildNotFound) Error() string {
+	str := strings.Builder{}
+	str.WriteString("build not found")
+
+	listingFields := false
+
+	if e.AppID != "" {
+		if !listingFields {
+			str.WriteString(" matching ")
+		}
+
+		str.WriteString(fmt.Sprintf("app=%s", e.AppID))
+
+		listingFields = true
+	}
+
+	if e.VersionString != "" {
+		if listingFields {
+			str.WriteString(", ")
+		} else {
+			str.WriteString(" matching ")
+		}
+
+		str.WriteString(fmt.Sprintf("version=%s", e.VersionString))
+
+		listingFields = true
+	}
+
+	if e.BuildVersion != "" {
+		if listingFields {
+			str.WriteString(", ")
+		} else {
+			str.WriteString(" matching ")
+		}
+
+		str.WriteString(fmt.Sprintf("build=%s", e.BuildVersion))
+	}
+
+	if e.InnerErr != nil {
+		str.WriteString(fmt.Errorf(": %w", e.InnerErr).Error())
+	}
+
+	return str.String()
+}
+
+type errBuildNoAttributes struct {
+	id string
+}
+
+func (e errBuildNoAttributes) Error() string {
+	return fmt.Sprintf("build %s has no attributes", e.id)
+}
+
+type errBuildNoProcessingState struct {
+	id string
+}
+
+func (e errBuildNoProcessingState) Error() string {
+	return fmt.Sprintf("build %s has no processing state", e.id)
+}
+
+type errBuildInvalidProcessingState struct {
+	id              string
+	processingState *string
+}
+
+func (e errBuildInvalidProcessingState) Error() string {
+	return fmt.Sprintf("latest build %s has a processing state of %s. it would be dangerous to proceed", e.id, *e.processingState)
+}
 
 // Client is an abstraction of an App Store Connect API client's functionality.
 type Client interface {
@@ -79,7 +175,7 @@ func (c *ascClient) GetAppForBundleID(ctx *context.Context, bundleID string) (*a
 	if err != nil {
 		return nil, fmt.Errorf("app not found matching %s: %w", bundleID, err)
 	} else if len(resp.Data) == 0 {
-		return nil, fmt.Errorf("app not found matching %s", bundleID)
+		return nil, errNoAppFound{BundleID: bundleID}
 	}
 
 	return &resp.Data[0], nil
@@ -104,64 +200,12 @@ func (c *ascClient) GetAppInfo(ctx *context.Context, appID string) (*asc.AppInfo
 		}
 	}
 
-	return nil, fmt.Errorf("app info not found matching %s", appID)
-}
-
-type errBuildNotFound struct {
-	AppID         string
-	BuildVersion  string
-	VersionString string
-	InnerErr      error
-}
-
-func (e errBuildNotFound) Error() string {
-	str := strings.Builder{}
-	str.WriteString("build not found")
-
-	listingFields := false
-
-	if e.AppID != "" {
-		if !listingFields {
-			str.WriteString(" matching ")
-		}
-
-		str.WriteString(fmt.Sprintf("app=%s", e.AppID))
-
-		listingFields = true
-	}
-
-	if e.VersionString != "" {
-		if listingFields {
-			str.WriteString(", ")
-		} else {
-			str.WriteString(" matching ")
-		}
-
-		str.WriteString(fmt.Sprintf("version=%s", e.VersionString))
-
-		listingFields = true
-	}
-
-	if e.BuildVersion != "" {
-		if listingFields {
-			str.WriteString(", ")
-		} else {
-			str.WriteString(" matching ")
-		}
-
-		str.WriteString(fmt.Sprintf("build=%s", e.BuildVersion))
-	}
-
-	if e.InnerErr != nil {
-		str.WriteString(fmt.Errorf(": %w", e.InnerErr).Error())
-	}
-
-	return str.String()
+	return nil, errNoAppInfoFound{AppID: appID}
 }
 
 func (c *ascClient) GetBuild(ctx *context.Context, app *asc.App) (*asc.Build, error) {
 	if ctx.Version == "" {
-		return nil, fmt.Errorf("no version provided to lookup build with")
+		return nil, errNoVersionProvided
 	}
 
 	query := asc.ListBuildsQuery{
@@ -186,15 +230,15 @@ func (c *ascClient) GetBuild(ctx *context.Context, app *asc.App) (*asc.Build, er
 	build := resp.Data[0]
 
 	if build.Attributes == nil {
-		return nil, fmt.Errorf("build %s has no attributes", build.ID)
+		return nil, errBuildNoAttributes{build.ID}
 	}
 
 	if build.Attributes.ProcessingState == nil {
-		return nil, fmt.Errorf("build %s has no processing state", build.ID)
+		return nil, errBuildNoProcessingState{build.ID}
 	}
 
 	if *build.Attributes.ProcessingState != validProcessingState {
-		return nil, fmt.Errorf("latest build %s has a processing state of %s. it would be dangerous to proceed", build.ID, *build.Attributes.ProcessingState)
+		return nil, errBuildInvalidProcessingState{build.ID, build.Attributes.ProcessingState}
 	}
 
 	return &build, nil

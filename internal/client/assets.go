@@ -79,6 +79,7 @@ func (c *ascClient) UploadRoutingCoverage(ctx *context.Context, versionID string
 	return c.uploadFile(ctx, config.Path, prepare, create, commit)
 }
 
+//nolint:dupl // This is a false positive identified by dupl against UpdateScreenshotSets
 func (c *ascClient) UpdatePreviewSets(ctx *context.Context, g parallel.Group, previewSets []asc.AppPreviewSet, appStoreVersionLocalizationID string, config config.PreviewSets) error {
 	found := make(map[asc.PreviewType]bool)
 
@@ -190,6 +191,7 @@ func (c *ascClient) UploadPreviews(ctx *context.Context, g parallel.Group, previ
 	return nil
 }
 
+//nolint:dupl // This is a false positive identified by dupl against UpdatePreviewSets
 func (c *ascClient) UpdateScreenshotSets(ctx *context.Context, g parallel.Group, screenshotSets []asc.AppScreenshotSet, appStoreVersionLocalizationID string, config config.ScreenshotSets) error {
 	found := make(map[asc.ScreenshotDisplayType]bool)
 

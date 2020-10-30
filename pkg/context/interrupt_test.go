@@ -8,6 +8,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var errTestError = errors.New("TEST")
+
 func TestInterruptOK(t *testing.T) {
 	assert.NoError(t, NewInterrupt().Run(context.Background(), func() error {
 		return nil
@@ -15,9 +17,7 @@ func TestInterruptOK(t *testing.T) {
 }
 
 func TestInterruptErrors(t *testing.T) {
-	var err = errors.New("some error")
-
 	assert.EqualError(t, NewInterrupt().Run(context.Background(), func() error {
-		return err
-	}), err.Error())
+		return errTestError
+	}), errTestError.Error())
 }

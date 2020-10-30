@@ -41,3 +41,6 @@ func (e ErrNotRepository) Error() string {
 
 // ErrNoGit happens when git is not present in PATH.
 var ErrNoGit = errors.New("git not present in PATH")
+
+// ErrNoRemoteOrigin happens when the repository has no remote named "origin".
+var ErrNoRemoteOrigin = errors.New("repository doesn't have an `origin` remote")

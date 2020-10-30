@@ -57,7 +57,7 @@ func TestPublish_Err_NoPublishMode(t *testing.T) {
 	p := Pipe{}
 
 	err := p.Run(ctx)
-	assert.EqualError(t, err, ErrUnsupportedPublishMode("").Error())
+	assert.EqualError(t, err, errUnsupportedPublishMode{context.PublishMode("")}.Error())
 }
 
 func TestPublish_Err_AppMismatchTestflight(t *testing.T) {

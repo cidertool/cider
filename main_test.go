@@ -60,7 +60,7 @@ func TestVersion(t *testing.T) {
 		tt := tt
 
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tt.out, buildVersion(tt.version, tt.commit, tt.date, tt.builtBy))
+			assert.Equal(t, tt.out+licenseDisclaimer, buildVersion(tt.version, tt.commit, tt.date, tt.builtBy))
 		})
 	}
 }

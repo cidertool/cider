@@ -38,6 +38,7 @@ var (
 func main() {
 	cmd.Execute(
 		buildVersion(version, commit, date, builtBy),
+		version == "dev",
 		os.Exit,
 		os.Args[1:],
 	)
@@ -58,5 +59,10 @@ func buildVersion(version, commit, date, builtBy string) string {
 		result = fmt.Sprintf("%s\nbuilt by: %s", result, builtBy)
 	}
 
-	return result
+	return result + `
+Copyright (C) 2020 Aaron Sky
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+
+This is free software; you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.`
 }

@@ -33,7 +33,7 @@ import (
 )
 
 // Execute is the primary function to initiate the command line interface for Cider.
-func Execute(version string, exit func(int), args []string) {
+func Execute(version string, isDev bool, exit func(int), args []string) {
 	if os.Getenv("CI") != "" {
 		color.NoColor = false
 	}
@@ -42,7 +42,7 @@ func Execute(version string, exit func(int), args []string) {
 
 	fmt.Println()
 	defer fmt.Println()
-	newRootCmd(version, exit).Execute(args)
+	newRootCmd(version, isDev, exit).Execute(args)
 }
 
 type rootCmd struct {
@@ -51,19 +51,14 @@ type rootCmd struct {
 	exit  func(int)
 }
 
-func newRootCmd(version string, exit func(int)) *rootCmd {
+func newRootCmd(version string, isDev bool, exit func(int)) *rootCmd {
 	var root = &rootCmd{
 		exit: exit,
 	}
 
 	var cmd = &cobra.Command{
-		Use:   "cider",
-		Short: "Submit your builds to the Apple App Store in seconds",
-		Long: `Cider  Copyright (C) 2020  Aaron Sky
-
-This program comes with ABSOLUTELY NO WARRANTY; for details type ` + "`help'" + `. 
-This is free software, and you are welcome to redistribute it under certain conditions; 
-type ` + "`help'" + ` for details.`,
+		Use:               "cider",
+		Short:             "Submit your builds to the Apple App Store in seconds",
 		Version:           version,
 		SilenceUsage:      true,
 		SilenceErrors:     true,
@@ -85,7 +80,7 @@ type ` + "`help'" + ` for details.`,
 		newCompletionsCmd().cmd,
 	)
 
-	if version == "dev" {
+	if isDev {
 		cmd.AddCommand(newDocsCmd().cmd)
 	}
 

@@ -10,14 +10,6 @@ nav_exclude: false
 
 Submit your builds to the Apple App Store in seconds
 
-### Synopsis
-
-Cider  Copyright (C) 2020  Aaron Sky
-
-This program comes with ABSOLUTELY NO WARRANTY; for details type `help'. 
-This is free software, and you are welcome to redistribute it under certain conditions; 
-type `help' for details.
-
 ### Options
 
 ```

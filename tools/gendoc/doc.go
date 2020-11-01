@@ -18,6 +18,6 @@ You should have received a copy of the GNU General Public License
 along with Cider.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// Package docs handles the automatic generation of documentation for the command line interface
+// Package main handles the automatic generation of documentation for the command line interface
 // and configuration format.
-package docs
+package main

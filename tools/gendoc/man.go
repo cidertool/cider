@@ -18,12 +18,14 @@ You should have received a copy of the GNU General Public License
 along with Cider.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package docs
+package main
 
 import (
+	"os"
 	"path/filepath"
 
 	"github.com/apex/log"
+	commands "github.com/cidertool/cider/pkg/cmd"
 	"github.com/spf13/cobra"
 	"github.com/spf13/cobra/doc"
 )
@@ -40,7 +42,7 @@ func runDocsManCmd(cmd *cobra.Command, args []string) error {
 
 	log.WithField("path", path).Info("generating man documentation")
 
-	err := doc.GenManTreeFromOpts(cmd.Root(), doc.GenManTreeOptions{
+	err := doc.GenManTreeFromOpts(commands.NewRoot("dev", os.Exit).Cmd, doc.GenManTreeOptions{
 		Path: path,
 	})
 	if err != nil {

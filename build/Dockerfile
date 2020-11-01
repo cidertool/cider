@@ -9,7 +9,7 @@ RUN apk --no-cache add \
 ENTRYPOINT [ "/entrypoint.sh" ]
 CMD [ "help" ]
 
-COPY docker/entrypoint.sh /entrypoint.sh
+COPY build/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 COPY cider /bin/cider

@@ -3,7 +3,8 @@ before:
     - go mod download
 
 builds:
-  - env:
+  - main: ./cmd/cider
+    env:
       - CGO_ENABLED=0
     goos:
       - darwin
@@ -37,7 +38,7 @@ changelog:
       - go mod tidy
 
 dockers:
-  - dockerfile: docker/Dockerfile
+  - dockerfile: build/Dockerfile
     image_templates:
       - cidertool/cider:{{ .Tag }}
       - cidertool/cider:v{{ .Major }}
@@ -46,7 +47,7 @@ dockers:
     binaries:
       - cider
     extra_files:
-      - docker/entrypoint.sh
+      - build/entrypoint.sh
     build_flag_templates:
       - --pull
       - --label=org.opencontainers.image.created={{ .Date }}

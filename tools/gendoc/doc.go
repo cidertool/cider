@@ -18,36 +18,6 @@ You should have received a copy of the GNU General Public License
 along with Cider.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package docs
-
-import (
-	"path/filepath"
-
-	"github.com/apex/log"
-	"github.com/spf13/cobra"
-	"github.com/spf13/cobra/doc"
-)
-
-func runDocsManCmd(cmd *cobra.Command, args []string) error {
-	var path string
-	if len(args) == 0 {
-		path = defaultDocsPath
-	} else {
-		path = args[0]
-	}
-
-	path = filepath.Join(path, "man")
-
-	log.WithField("path", path).Info("generating man documentation")
-
-	err := doc.GenManTreeFromOpts(cmd.Root(), doc.GenManTreeOptions{
-		Path: path,
-	})
-	if err != nil {
-		log.Error("generation failed")
-	} else {
-		log.Info("generation completed successfully")
-	}
-
-	return err
-}
+// Package main handles the automatic generation of documentation for the command line interface
+// and configuration format.
+package main

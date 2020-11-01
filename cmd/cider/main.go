@@ -45,7 +45,6 @@ var (
 func main() {
 	cmd.Execute(
 		buildVersion(version, commit, date, builtBy),
-		version == "dev",
 		os.Exit,
 		os.Args[1:],
 	)

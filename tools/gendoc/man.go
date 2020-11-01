@@ -18,41 +18,38 @@ You should have received a copy of the GNU General Public License
 along with Cider.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package cmd
+package main
 
 import (
-	"github.com/cidertool/cider/pkg/cmd/docs"
+	"os"
+	"path/filepath"
+
+	"github.com/apex/log"
+	commands "github.com/cidertool/cider/pkg/cmd"
 	"github.com/spf13/cobra"
+	"github.com/spf13/cobra/doc"
 )
 
-type docsCmd struct {
-	cmd *cobra.Command
-}
-
-func newDocsCmd() *docsCmd {
-	var root = &docsCmd{}
-
-	var cmd = &cobra.Command{
-		Use:   "docs",
-		Short: "Generate documentation for Cider",
-		Args:  cobra.MaximumNArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			for _, sub := range cmd.Commands() {
-				if err := sub.RunE(sub, args); err != nil {
-					return err
-				}
-			}
-			return nil
-		},
+func runDocsManCmd(cmd *cobra.Command, args []string) error {
+	var path string
+	if len(args) == 0 {
+		path = defaultDocsPath
+	} else {
+		path = args[0]
 	}
 
-	cmd.AddCommand(
-		docs.CmdConfig(),
-		docs.CmdMan(),
-		docs.CmdMarkdown(),
-	)
+	path = filepath.Join(path, "man")
 
-	root.cmd = cmd
+	log.WithField("path", path).Info("generating man documentation")
 
-	return root
+	err := doc.GenManTreeFromOpts(commands.NewRoot("dev", os.Exit).Cmd, doc.GenManTreeOptions{
+		Path: path,
+	})
+	if err != nil {
+		log.Error("generation failed")
+	} else {
+		log.Info("generation completed successfully")
+	}
+
+	return err
 }

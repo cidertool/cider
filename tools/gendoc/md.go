@@ -18,14 +18,16 @@ You should have received a copy of the GNU General Public License
 along with Cider.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package docs
+package main
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/apex/log"
+	commands "github.com/cidertool/cider/pkg/cmd"
 	"github.com/spf13/cobra"
 	"github.com/spf13/cobra/doc"
 )
@@ -54,10 +56,6 @@ func runDocsMdCmd(cmd *cobra.Command, args []string) error {
 		"cider_release.md":     {order: orderRelease},
 		"cider_check.md":       {order: orderCheck},
 		"cider_completions.md": {order: orderCompletions},
-		"cider_docs.md":        {exclude: true},
-		"cider_docs_config.md": {exclude: true},
-		"cider_docs_man.md":    {exclude: true},
-		"cider_docs_md.md":     {exclude: true},
 	}
 
 	var dir string
@@ -81,7 +79,7 @@ func runDocsMdCmd(cmd *cobra.Command, args []string) error {
 
 	log.WithField("path", dir).Info("generating Markdown documentation")
 
-	err := doc.GenMarkdownTreeCustom(cmd.Root(), dir, prepender, linkHandler)
+	err := doc.GenMarkdownTreeCustom(commands.NewRoot("dev", os.Exit).Cmd, dir, prepender, linkHandler)
 	if err != nil {
 		log.Error("generation failed")
 	} else {

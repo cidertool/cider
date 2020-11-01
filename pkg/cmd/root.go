@@ -33,7 +33,7 @@ import (
 )
 
 // Execute is the primary function to initiate the command line interface for Cider.
-func Execute(version string, isDev bool, exit func(int), args []string) {
+func Execute(version string, exit func(int), args []string) {
 	if os.Getenv("CI") != "" {
 		color.NoColor = false
 	}
@@ -42,17 +42,19 @@ func Execute(version string, isDev bool, exit func(int), args []string) {
 
 	fmt.Println()
 	defer fmt.Println()
-	newRootCmd(version, isDev, exit).Execute(args)
+	NewRoot(version, exit).Execute(args)
 }
 
-type rootCmd struct {
-	cmd   *cobra.Command
+// Root defines a rough structure for a root command type.
+type Root struct {
+	Cmd   *cobra.Command
 	debug bool
 	exit  func(int)
 }
 
-func newRootCmd(version string, isDev bool, exit func(int)) *rootCmd {
-	var root = &rootCmd{
+// NewRoot creates a new instance of the root command for the cider executable.
+func NewRoot(version string, exit func(int)) *Root {
+	var root = &Root{
 		exit: exit,
 	}
 
@@ -63,12 +65,7 @@ func newRootCmd(version string, isDev bool, exit func(int)) *rootCmd {
 		SilenceUsage:      true,
 		SilenceErrors:     true,
 		DisableAutoGenTag: true,
-		PersistentPreRun: func(cmd *cobra.Command, args []string) {
-			if root.debug {
-				log.SetLevel(log.DebugLevel)
-				log.Debug("debug logs enabled")
-			}
-		},
+		PersistentPreRun:  root.setDebug,
 	}
 
 	cmd.PersistentFlags().BoolVar(&root.debug, "debug", false, "Enable debug mode")
@@ -80,19 +77,16 @@ func newRootCmd(version string, isDev bool, exit func(int)) *rootCmd {
 		newCompletionsCmd().cmd,
 	)
 
-	if isDev {
-		cmd.AddCommand(newDocsCmd().cmd)
-	}
-
-	root.cmd = cmd
+	root.Cmd = cmd
 
 	return root
 }
 
-func (cmd *rootCmd) Execute(args []string) {
-	cmd.cmd.SetArgs(args)
+// Execute executes the root command.
+func (cmd *Root) Execute(args []string) {
+	cmd.Cmd.SetArgs(args)
 
-	if err := cmd.cmd.Execute(); err != nil {
+	if err := cmd.Cmd.Execute(); err != nil {
 		var code = 1
 
 		var msg = "command failed"
@@ -110,5 +104,12 @@ func (cmd *rootCmd) Execute(args []string) {
 		log.WithError(err).Error(msg)
 
 		cmd.exit(code)
+	}
+}
+
+func (cmd *Root) setDebug(c *cobra.Command, args []string) {
+	if cmd.debug {
+		log.SetLevel(log.DebugLevel)
+		log.Debug("debug logs enabled")
 	}
 }

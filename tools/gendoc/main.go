@@ -18,16 +18,74 @@ You should have received a copy of the GNU General Public License
 along with Cider.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package docs
+package main
 
 import (
+	"os"
+
+	"github.com/apex/log"
 	"github.com/spf13/cobra"
 )
 
 const defaultDocsPath = "docs"
 
+type rootCmd struct {
+	cmd  *cobra.Command
+	exit func(int)
+}
+
+func main() {
+	var root = &rootCmd{
+		exit: os.Exit,
+	}
+
+	var cmd = &cobra.Command{
+		Use:               "gendoc",
+		Short:             "Generate documentation for Cider",
+		Args:              cobra.MaximumNArgs(1),
+		SilenceUsage:      true,
+		SilenceErrors:     true,
+		DisableAutoGenTag: true,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			for _, sub := range cmd.Commands() {
+				if sub.Name() == "help" {
+					continue
+				}
+				if err := sub.RunE(sub, args); err != nil {
+					return err
+				}
+			}
+			return nil
+		},
+	}
+
+	cmd.AddCommand(
+		cmdConfig(),
+		cmdMan(),
+		cmdMarkdown(),
+	)
+
+	root.cmd = cmd
+
+	root.Execute(os.Args[1:])
+}
+
+func (cmd *rootCmd) Execute(args []string) {
+	cmd.cmd.SetArgs(args)
+
+	if err := cmd.cmd.Execute(); err != nil {
+		var code = 1
+
+		var msg = "command failed"
+
+		log.WithError(err).Error(msg)
+
+		cmd.exit(code)
+	}
+}
+
 // CmdConfig returns the cobra.Command for the man subcommand.
-func CmdConfig() *cobra.Command {
+func cmdConfig() *cobra.Command {
 	return &cobra.Command{
 		Use:   "config",
 		Short: "Generate configuration file documentation for Cider.",
@@ -37,7 +95,7 @@ func CmdConfig() *cobra.Command {
 }
 
 // CmdMan returns the cobra.Command for the man subcommand.
-func CmdMan() *cobra.Command {
+func cmdMan() *cobra.Command {
 	return &cobra.Command{
 		Use:   "man",
 		Short: "Generate man documentation for Cider.",
@@ -47,7 +105,7 @@ func CmdMan() *cobra.Command {
 }
 
 // CmdMarkdown returns the cobra.Command for the man subcommand.
-func CmdMarkdown() *cobra.Command {
+func cmdMarkdown() *cobra.Command {
 	return &cobra.Command{
 		Use:   "md",
 		Short: "Generate Markdown documentation for Cider.",

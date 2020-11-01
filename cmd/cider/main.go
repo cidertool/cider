@@ -24,7 +24,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/cidertool/cider/cmd"
+	"github.com/cidertool/cider/pkg/cmd"
 )
 
 const licenseDisclaimer = `

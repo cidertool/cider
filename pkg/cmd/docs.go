@@ -21,7 +21,7 @@ along with Cider.  If not, see <http://www.gnu.org/licenses/>.
 package cmd
 
 import (
-	"github.com/cidertool/cider/cmd/docs"
+	"github.com/cidertool/cider/pkg/cmd/docs"
 	"github.com/spf13/cobra"
 )
 

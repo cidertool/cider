@@ -18,12 +18,11 @@ You should have received a copy of the GNU General Public License
 along with Cider.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package shelltest_test
+package shelltest
 
 import (
 	"testing"
 
-	"github.com/cidertool/cider/internal/shell/shelltest"
 	"github.com/cidertool/cider/pkg/config"
 	"github.com/cidertool/cider/pkg/context"
 	"github.com/stretchr/testify/assert"
@@ -32,9 +31,9 @@ import (
 func TestShell(t *testing.T) {
 	ctx := context.New(config.Project{})
 	ctx.CurrentDirectory = "TEST"
-	sh := shelltest.Shell{
+	sh := Shell{
 		Context: ctx,
-		Commands: []shelltest.Command{
+		Commands: []Command{
 			{
 				ReturnCode: 0,
 				Stdout:     "TEST",
@@ -62,10 +61,21 @@ func TestShell(t *testing.T) {
 
 	cmd := sh.NewCommand("echo", "true")
 	assert.NotNil(t, cmd)
+
 	proc, err := sh.Exec(cmd)
 	assert.NoError(t, err)
 	assert.NotNil(t, proc)
+
 	proc, err = sh.Exec(cmd)
 	assert.EqualError(t, err, "128")
 	assert.NotNil(t, proc)
+
+	sh.expectOverflowError = true
+	expectedErr := ErrCommandOverflow{
+		Index:   2,
+		Len:     2,
+		Command: cmd.String(),
+	}
+	_, err = sh.Exec(cmd)
+	assert.EqualError(t, err, expectedErr.Error())
 }

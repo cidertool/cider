@@ -22,20 +22,36 @@ along with Cider.  If not, see <http://www.gnu.org/licenses/>.
 package shelltest
 
 import (
+	"fmt"
 	"os/exec"
 	"strconv"
+	"testing"
 
-	"github.com/apex/log"
 	"github.com/cidertool/cider/internal/shell"
 	"github.com/cidertool/cider/pkg/context"
+	"github.com/stretchr/testify/assert"
 )
+
+// ErrCommandOverflow happens when the command that is trying to be run would result in a
+// buffer overflow in the Shell mock.
+type ErrCommandOverflow struct {
+	Index   int
+	Len     int
+	Command string
+}
+
+func (e ErrCommandOverflow) Error() string {
+	return fmt.Sprintf("command out of bounds: i=%d,len=%d (command: `%s`)", e.Index, e.Len, e.Command)
+}
 
 // Shell is a type that conforms to shell.Shell.
 type Shell struct {
-	Context           *context.Context
-	SupportedPrograms map[string]bool
-	Commands          []Command
-	index             int
+	T                   *testing.T
+	Context             *context.Context
+	SupportedPrograms   map[string]bool
+	Commands            []Command
+	index               int
+	expectOverflowError bool
 }
 
 // Command represents the result of some executed command.
@@ -53,11 +69,17 @@ func (sh *Shell) NewCommand(name string, arg ...string) *exec.Cmd {
 // Exec executes the command.
 func (sh *Shell) Exec(cmd *exec.Cmd) (*shell.CompletedProcess, error) {
 	if sh.index >= len(sh.Commands) {
-		log.WithFields(log.Fields{
-			"index":   sh.index,
-			"count":   len(sh.Commands),
-			"command": cmd.String(),
-		}).Fatal("index out of bounds")
+		err := ErrCommandOverflow{
+			Index:   sh.index,
+			Len:     len(sh.Commands),
+			Command: cmd.String(),
+		}
+
+		if !sh.expectOverflowError {
+			assert.FailNow(sh.T, err.Error())
+		}
+
+		return nil, err
 	}
 
 	currentCommand := sh.Commands[sh.index]

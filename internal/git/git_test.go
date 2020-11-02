@@ -30,14 +30,15 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func newMockGit(commands ...shelltest.Command) *Git {
+func newMockGit(t *testing.T, commands ...shelltest.Command) *Git {
 	ctx := context.New(config.Project{})
-	return newMockGitWithContext(ctx, commands...)
+	return newMockGitWithContext(ctx, t, commands...)
 }
 
-func newMockGitWithContext(ctx *context.Context, commands ...shelltest.Command) *Git {
+func newMockGitWithContext(ctx *context.Context, t *testing.T, commands ...shelltest.Command) *Git {
 	return &Git{
 		Shell: &shelltest.Shell{
+			T:        t,
 			Context:  ctx,
 			Commands: commands,
 		},
@@ -62,6 +63,7 @@ func TestSanitizeProcess(t *testing.T) {
 	ctx.CurrentDirectory = "test"
 	client := newMockGitWithContext(
 		ctx,
+		t,
 		shelltest.Command{Stdout: "true", Stderr: "false"},
 		shelltest.Command{ReturnCode: 1, Stdout: "true", Stderr: "false"},
 	)
@@ -86,6 +88,7 @@ func TestShowRef(t *testing.T) {
 	// Selected the initial commit of this repo, because I needed a sha1 hash.
 	expected := "eac16d260ebf8af83873c9704169cf40a5501f84"
 	client := newMockGit(
+		t,
 		shelltest.Command{Stdout: expected},
 	)
 	got, err := client.Show("%H")
@@ -100,6 +103,7 @@ func TestExtractRemoteFromConfig_Happy(t *testing.T) {
 	}
 
 	client := newMockGit(
+		t,
 		shelltest.Command{Stdout: "true"},
 		shelltest.Command{Stdout: "git@github.com:cidertool/cider.git"},
 	)
@@ -110,6 +114,7 @@ func TestExtractRemoteFromConfig_Happy(t *testing.T) {
 
 func TestExtractRemoteFromConfig_ErrIsNotRepo(t *testing.T) {
 	client := newMockGit(
+		t,
 		shelltest.Command{Stdout: "false"},
 	)
 	repo, err := client.ExtractRepoFromConfig()
@@ -119,6 +124,7 @@ func TestExtractRemoteFromConfig_ErrIsNotRepo(t *testing.T) {
 
 func TestExtractRemoteFromConfig_ErrNoRemoteNamedOrigin(t *testing.T) {
 	client := newMockGit(
+		t,
 		shelltest.Command{Stdout: "true"},
 		shelltest.Command{ReturnCode: 1, Stderr: "no repo"},
 	)

@@ -28,8 +28,8 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/apex/log"
 	"github.com/cidertool/asc-go/asc"
+	"github.com/cidertool/cider/internal/closer"
 	"gopkg.in/yaml.v2"
 )
 
@@ -660,16 +660,7 @@ func Load(file string) (config Project, err error) {
 		return
 	}
 
-	defer func() {
-		closeErr := f.Close()
-		if closeErr != nil {
-			if err == nil {
-				err = closeErr
-			} else {
-				log.Fatal(closeErr.Error())
-			}
-		}
-	}()
+	defer closer.Close(f)
 
 	return LoadReader(f)
 }

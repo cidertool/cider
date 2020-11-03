@@ -29,6 +29,7 @@ import (
 
 	"github.com/apex/log"
 	"github.com/cidertool/asc-go/asc"
+	"github.com/cidertool/cider/internal/closer"
 	"github.com/cidertool/cider/internal/parallel"
 	"github.com/cidertool/cider/pkg/config"
 	"github.com/cidertool/cider/pkg/context"
@@ -419,16 +420,7 @@ func (c *ascClient) uploadFile(ctx *context.Context, path string, prepare prepar
 		return err
 	}
 
-	defer func() {
-		closeErr := f.Close()
-		if closeErr != nil {
-			if err == nil {
-				err = closeErr
-			} else {
-				log.Fatal(closeErr.Error())
-			}
-		}
-	}()
+	defer closer.Close(f)
 
 	fstat, err := os.Stat(path)
 	if err != nil {

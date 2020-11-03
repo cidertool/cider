@@ -28,6 +28,7 @@ import (
 
 	"github.com/apex/log"
 	"github.com/cidertool/asc-go/asc"
+	"github.com/cidertool/cider/internal/closer"
 	"github.com/cidertool/cider/pkg/config"
 	"github.com/spf13/cobra"
 )
@@ -154,16 +155,7 @@ func genConfigMarkdown(path string) error {
 		return err
 	}
 
-	defer func() {
-		closeErr := f.Close()
-		if closeErr != nil {
-			if err == nil {
-				err = closeErr
-			} else {
-				log.Fatal(closeErr.Error())
-			}
-		}
-	}()
+	defer closer.Close(f)
 
 	r, err := newRenderer()
 	if err != nil {

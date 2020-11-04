@@ -82,6 +82,7 @@ func TestSanitizeProcess(t *testing.T) {
 	out, err = client.SanitizeProcess(proc, err)
 	assert.Equal(t, "true", out)
 	assert.Error(t, err)
+	assert.EqualError(t, err, "false")
 }
 
 func TestShowRef(t *testing.T) {

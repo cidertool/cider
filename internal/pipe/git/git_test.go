@@ -63,6 +63,14 @@ func TestGit_Happy(t *testing.T) {
 	assert.Equal(t, expected, ctx.Git)
 }
 
+func TestGit_RealGitClient(t *testing.T) {
+	ctx := context.New(config.Project{})
+	ctx.CurrentDirectory = "TEST"
+	p := Pipe{}
+	err := p.Run(ctx)
+	assert.EqualError(t, err, "the directory at TEST is not a git repository")
+}
+
 func TestGit_SkipGit(t *testing.T) {
 	ctx := context.New(config.Project{})
 	ctx.Version = "1.0"
@@ -119,6 +127,7 @@ func TestGit_Err_NoGit(t *testing.T) {
 
 	err := p.Run(ctx)
 	assert.Error(t, err)
+	assert.EqualError(t, err, git.ErrNoGit.Error())
 }
 
 func TestGit_Err_NotInRepo(t *testing.T) {

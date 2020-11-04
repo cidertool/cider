@@ -41,20 +41,7 @@ func TestExec_Error(t *testing.T) {
 	cmd := sh.NewCommand("exit", "1")
 	ps, err := sh.Exec(cmd)
 	assert.Error(t, err)
-	assert.Nil(t, ps)
-}
-
-func TestShellError_Error(t *testing.T) {
-	err := shellError{
-		process: CompletedProcess{
-			Name:       "dan",
-			Args:       []string{"went", "home"},
-			ReturnCode: 2,
-			Stdout:     "home is missing",
-			Stderr:     "failed to go home",
-		},
-	}
-	assert.EqualError(t, &err, "`dan went home` returned a 2 code: \nstdout: home is missing\nstderr: failed to go home")
+	assert.NotNil(t, ps)
 }
 
 func TestEscapeArgs(t *testing.T) {
@@ -68,4 +55,11 @@ func TestExists(t *testing.T) {
 	sh := New(context.New(config.Project{}))
 	assert.True(t, sh.Exists("git"))
 	assert.False(t, sh.Exists("nonexistent_program.exe"))
+}
+
+func TestCurrentDirectory(t *testing.T) {
+	ctx := context.New(config.Project{})
+	ctx.CurrentDirectory = "TEST"
+	sh := New(ctx)
+	assert.Equal(t, ctx.CurrentDirectory, sh.CurrentDirectory())
 }

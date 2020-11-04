@@ -35,5 +35,11 @@ func TestPipeSkip(t *testing.T) {
 	assert.Error(t, err)
 	assert.True(t, IsSkip(err))
 	assert.Equal(t, err, skip)
-	assert.Equal(t, err.Error(), skip.Error())
+	assert.EqualError(t, err, skip.Error())
+}
+
+func TestErrMissingApp(t *testing.T) {
+	err := ErrMissingApp{Name: "TEST"}
+	assert.Error(t, err)
+	assert.EqualError(t, err, "no app defined in configuration matching the name TEST")
 }

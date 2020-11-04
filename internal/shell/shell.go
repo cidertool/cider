@@ -23,7 +23,6 @@ package shell
 
 import (
 	"bytes"
-	"fmt"
 	"os/exec"
 	"strings"
 
@@ -56,7 +55,7 @@ type CompletedProcess struct {
 	Stderr     string
 }
 
-func newCompletedProcess(cmd *exec.Cmd) CompletedProcess {
+func newCompletedProcess(cmd *exec.Cmd) *CompletedProcess {
 	stdout := cmd.Stdout.(*bytes.Buffer)
 	stderr := cmd.Stderr.(*bytes.Buffer)
 
@@ -70,28 +69,13 @@ func newCompletedProcess(cmd *exec.Cmd) CompletedProcess {
 		stderrString = strings.TrimSpace(stderr.String())
 	}
 
-	return CompletedProcess{
+	return &CompletedProcess{
 		Name:       cmd.Path,
 		Args:       cmd.Args,
 		ReturnCode: cmd.ProcessState.ExitCode(),
 		Stdout:     stdoutString,
 		Stderr:     stderrString,
 	}
-}
-
-type shellError struct {
-	process CompletedProcess
-}
-
-func (e *shellError) Error() string {
-	return fmt.Sprintf(
-		"`%s %s` returned a %d code: \nstdout: %s\nstderr: %s",
-		e.process.Name,
-		strings.Join(e.process.Args, " "),
-		e.process.ReturnCode,
-		e.process.Stdout,
-		e.process.Stderr,
-	)
 }
 
 // loginShell is an empty struct that implements shell.Shell with default
@@ -123,28 +107,19 @@ func escapeArgs(args []string) []string {
 }
 
 // Exec executes a command.
-func (sh *loginShell) Exec(cmd *exec.Cmd) (*CompletedProcess, error) {
+func (sh *loginShell) Exec(cmd *exec.Cmd) (proc *CompletedProcess, err error) {
 	log.WithField("args", cmd.Args).Debug(cmd.Path)
 
-	err := cmd.Run()
-	if err != nil {
-		return nil, err
-	}
-
-	process := newCompletedProcess(cmd)
+	err = cmd.Run()
+	proc = newCompletedProcess(cmd)
 
 	log.WithFields(log.Fields{
-		"code":   process.ReturnCode,
-		"stdout": strings.TrimSpace(process.Stdout),
-		"stderr": strings.TrimSpace(process.Stderr),
-	}).Debugf("%s result", process.Name)
+		"code":   proc.ReturnCode,
+		"stdout": strings.TrimSpace(proc.Stdout),
+		"stderr": strings.TrimSpace(proc.Stderr),
+	}).Debugf("%s result", proc.Name)
 
-	var shellErr error
-	if process.ReturnCode != 0 {
-		shellErr = &shellError{process: process}
-	}
-
-	return &process, shellErr
+	return proc, err
 }
 
 // Exists returns whether or not a given program is installed.

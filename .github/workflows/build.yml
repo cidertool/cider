@@ -68,11 +68,14 @@ jobs:
         with:
           go-version: 1.15.x
 
-      - name: Build Site
-        run: |
-          go run ./tools/gendoc
-          go run ./tools/licensing
-          git diff-index --quiet HEAD || git status --short
+      - name: Run gendoc tool
+        run: go run ./tools/gendoc
+      
+      - name: Run licensing tool
+        run: go run ./tools/licensing
+
+      - name: Check working copy state
+        run: git diff-index --quiet HEAD || git status --short
 
   release:
     name: release

@@ -30,3 +30,19 @@ jobs:
           cd docs/
           curl https://htmltest.wjdp.uk | bash
           ./bin/htmltest -c htmltest.yml
+
+  unclean:
+    name: unclean docs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-go@v1
+        with:
+          go-version: 1.15.x
+
+      - name: Build Site
+        run: |
+          go run ./tools/gendoc
+          go run ./tools/licensing
+          git diff-index --quiet HEAD || git status --short

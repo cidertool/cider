@@ -58,6 +58,22 @@ jobs:
         with:
           version: v1.32
 
+  verify_doc_tools:
+    name: verify doc tools
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-go@v1
+        with:
+          go-version: 1.15.x
+
+      - name: Build Site
+        run: |
+          go run ./tools/gendoc
+          go run ./tools/licensing
+          git diff-index --quiet HEAD || git status --short
+
   release:
     name: release
     if: startsWith(github.ref, 'refs/tags/')

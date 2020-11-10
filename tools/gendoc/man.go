@@ -25,7 +25,7 @@ import (
 	"path/filepath"
 
 	"github.com/apex/log"
-	commands "github.com/cidertool/cider/pkg/cmd"
+	"github.com/cidertool/cider/internal/clicommand"
 	"github.com/spf13/cobra"
 	"github.com/spf13/cobra/doc"
 )
@@ -42,7 +42,7 @@ func runDocsManCmd(cmd *cobra.Command, args []string) error {
 
 	log.WithField("path", path).Info("generating man documentation")
 
-	err := doc.GenManTreeFromOpts(commands.NewRoot("dev", os.Exit).Cmd, doc.GenManTreeOptions{
+	err := doc.GenManTreeFromOpts(clicommand.NewRoot("dev", os.Exit).Cmd, doc.GenManTreeOptions{
 		Path: path,
 	})
 	if err != nil {

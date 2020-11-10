@@ -18,8 +18,8 @@ You should have received a copy of the GNU General Public License
 along with Cider.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// Package cmd declares the command line interface for Cider
-package cmd
+// Package clicommand declares the command line interface for Cider.
+package clicommand
 
 import (
 	"errors"

@@ -27,7 +27,7 @@ import (
 	"strings"
 
 	"github.com/apex/log"
-	commands "github.com/cidertool/cider/pkg/cmd"
+	"github.com/cidertool/cider/internal/clicommand"
 	"github.com/spf13/cobra"
 	"github.com/spf13/cobra/doc"
 )
@@ -79,7 +79,7 @@ func runDocsMdCmd(cmd *cobra.Command, args []string) error {
 
 	log.WithField("path", dir).Info("generating Markdown documentation")
 
-	err := doc.GenMarkdownTreeCustom(commands.NewRoot("dev", os.Exit).Cmd, dir, prepender, linkHandler)
+	err := doc.GenMarkdownTreeCustom(clicommand.NewRoot("dev", os.Exit).Cmd, dir, prepender, linkHandler)
 	if err != nil {
 		log.Error("generation failed")
 	} else {

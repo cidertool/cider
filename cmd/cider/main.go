@@ -24,7 +24,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/cidertool/cider/pkg/cmd"
+	"github.com/cidertool/cider/internal/clicommand"
 )
 
 const licenseDisclaimer = `
@@ -43,7 +43,7 @@ var (
 )
 
 func main() {
-	cmd.Execute(
+	clicommand.Execute(
 		buildVersion(version, commit, date, builtBy),
 		os.Exit,
 		os.Args[1:],

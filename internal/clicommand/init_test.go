@@ -18,4 +18,23 @@ You should have received a copy of the GNU General Public License
 along with Cider.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package cmd
+package clicommand
+
+import (
+	"path/filepath"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
+
+func TestInitCmd(t *testing.T) {
+	var folder = t.TempDir()
+
+	var cmd = newInitCmd().cmd
+
+	var path = filepath.Join(folder, "foo.yaml")
+
+	cmd.SetArgs([]string{"-f", path, "--skip-prompt"})
+	assert.NoError(t, cmd.Execute())
+	assert.FileExists(t, path)
+}

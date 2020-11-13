@@ -28,7 +28,7 @@ import (
 
 type closeErrFunc func(error)
 
-// nolint:gocheckglobals
+// nolint:gochecknoglobals
 var onCloseErr closeErrFunc = func(err error) { log.Fatal(err) }
 
 // Close closes an io.Closer and handles the possible Close error.

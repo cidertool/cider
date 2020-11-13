@@ -52,7 +52,7 @@ along with Cider.  If not, see <http://www.gnu.org/licenses/>.
 
 type exitFunc func(int)
 
-// nolint: gocheckglobals
+// nolint:gochecknoglobals
 var exit exitFunc = os.Exit
 
 func main() {

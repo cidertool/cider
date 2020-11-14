@@ -38,12 +38,20 @@ const (
 func TestUpdateBetaAppLocalizations_Happy(t *testing.T) {
 	localizations := config.TestflightLocalizations{
 		"en-US": {
-			Description: "TEST",
-			WhatsNew:    "Going away",
+			Description:       "TEST",
+			FeedbackEmail:     "TEST",
+			MarketingURL:      "TEST",
+			PrivacyPolicyURL:  "TEST",
+			TVOSPrivacyPolicy: "TEST",
+			WhatsNew:          "Going away",
 		},
 		"ja": {
-			Description: "TEST",
-			WhatsNew:    "Going away",
+			Description:       "TEST",
+			FeedbackEmail:     "TEST",
+			MarketingURL:      "TEST",
+			PrivacyPolicyURL:  "TEST",
+			TVOSPrivacyPolicy: "TEST",
+			WhatsNew:          "Going away",
 		},
 	}
 
@@ -412,7 +420,25 @@ func TestAssignBetaGroups_Happy(t *testing.T) {
 			},
 		},
 		response{
-			RawResponse: `{}`,
+			Response: asc.BetaTestersResponse{
+				Data: []asc.BetaTester{
+					{
+						ID: testID,
+						Attributes: &asc.BetaTesterAttributes{
+							Email: &testEmail,
+						},
+						Relationships: &asc.BetaTesterRelationships{
+							BetaGroups: &asc.PagedRelationship{
+								Data: []asc.RelationshipData{
+									{
+										ID: testID + "1",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 		},
 		response{
 			RawResponse: `{}`,

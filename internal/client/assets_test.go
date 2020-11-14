@@ -21,8 +21,6 @@ along with Cider.  If not, see <http://www.gnu.org/licenses/>.
 package client
 
 import (
-	"io/ioutil"
-	"path/filepath"
 	"testing"
 
 	"github.com/cidertool/asc-go/asc"
@@ -33,6 +31,7 @@ import (
 // Test UploadRoutingCoverage
 
 func TestUploadRoutingCoverage_Happy(t *testing.T) {
+	asset := newTestAsset(t, "TEST")
 	ctx, client := newTestContext(
 		response{
 			Response: asc.RoutingAppCoverageResponse{
@@ -71,14 +70,11 @@ func TestUploadRoutingCoverage_Happy(t *testing.T) {
 			},
 		},
 	)
+
 	defer ctx.Close()
 
-	var path = filepath.Join(t.TempDir(), "TEST")
-	err := ioutil.WriteFile(path, []byte("TEST"), 0600)
-	assert.NoError(t, err)
-
-	err = client.UploadRoutingCoverage(ctx.Context, "TEST", config.File{
-		Path: path,
+	err := client.UploadRoutingCoverage(ctx.Context, "TEST", config.File{
+		Path: asset.Name,
 	})
 	assert.NoError(t, err)
 }

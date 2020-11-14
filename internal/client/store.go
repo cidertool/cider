@@ -55,9 +55,11 @@ func (c *ascClient) UpdateApp(ctx *context.Context, appID string, appInfoID stri
 			if err != nil {
 				return err
 			}
+
 			prices = priceSchedules(config.Availability.Pricing)
 			attrs.AvailableInNewTerritories = config.Availability.AvailableInNewTerritories
 		}
+
 		if config.PrimaryLocale != "" {
 			attrs.PrimaryLocale = &config.PrimaryLocale
 		}
@@ -86,6 +88,7 @@ func (c *ascClient) UpdateApp(ctx *context.Context, appID string, appInfoID stri
 		if err != nil {
 			return err
 		}
+
 		_, _, err = c.client.Apps.UpdateAgeRatingDeclaration(ctx, ageRatingResp.Data.ID, ageRatingDeclaration(*config.AgeRatingDeclaration))
 		return err
 	})

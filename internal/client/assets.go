@@ -36,6 +36,10 @@ import (
 )
 
 func (c *ascClient) UpdatePreviewsAndScreenshotsIfNeeded(ctx *context.Context, g parallel.Group, loc *asc.AppStoreVersionLocalization, config config.VersionLocalization) error {
+	if loc.Relationships == nil {
+		return nil
+	}
+
 	if loc.Relationships.AppPreviewSets != nil {
 		var previewSets asc.AppPreviewSetsResponse
 

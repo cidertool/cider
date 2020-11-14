@@ -23,14 +23,19 @@ package client
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"os"
 	"path"
+	"path/filepath"
+	"testing"
 
 	"github.com/apex/log"
 	"github.com/cidertool/cider/pkg/config"
 	"github.com/cidertool/cider/pkg/context"
+	"github.com/stretchr/testify/assert"
 )
 
 type response struct {
@@ -54,6 +59,11 @@ type mockCredentials struct {
 type mockTransport struct {
 	URL       *url.URL
 	Transport http.RoundTripper
+}
+
+type testAsset struct {
+	Name string
+	Size int64
 }
 
 func newTestContext(resp ...response) (*testContext, Client) {
@@ -80,9 +90,15 @@ func (c *testContext) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(log.Fields{
 			"currentResponseIndex": c.CurrentResponseIndex,
 			"responsesCount":       len(c.Responses),
-			"route":                r.URL.Path,
+			"url":                  r.URL,
 		}).Fatal("index out of bounds")
 	}
+
+	log.WithFields(log.Fields{
+		"progress":   fmt.Sprintf("(%d/%d)", c.CurrentResponseIndex, len(c.Responses)),
+		"req_method": r.Method,
+		"req_url":    r.URL,
+	}).Info("responding")
 
 	resp := c.Responses[c.CurrentResponseIndex]
 
@@ -114,6 +130,14 @@ func (c *testContext) SetResponses(resp ...response) {
 	c.CurrentResponseIndex = 0
 }
 
+func (c *testContext) URL(rawpath string) (*url.URL, error) {
+	return url.Parse(c.server.URL + "/" + rawpath)
+}
+
+func (c *testAsset) URL(ctx *testContext, id string) (*url.URL, error) {
+	return ctx.URL(id)
+}
+
 func (c *mockCredentials) Client() *http.Client {
 	url, _ := url.Parse(c.url)
 	c.client.Transport = &mockTransport{URL: url, Transport: c.client.Transport}
@@ -134,4 +158,19 @@ func (t *mockTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	}
 
 	return transport.RoundTrip(req)
+}
+
+func newTestAsset(t *testing.T, name string) *testAsset {
+	var path = filepath.Join(t.TempDir(), name)
+
+	err := ioutil.WriteFile(path, []byte("TEST"), 0600)
+	assert.NoError(t, err)
+
+	info, err := os.Stat(path)
+	assert.NoError(t, err)
+
+	return &testAsset{
+		Name: path,
+		Size: info.Size(),
+	}
 }

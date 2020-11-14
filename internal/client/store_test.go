@@ -33,9 +33,17 @@ import (
 // Test UpdateApp
 
 func TestUpdateApp_Happy(t *testing.T) {
+	now := time.Now()
+
 	ctx, client := newTestContext(
 		response{
-			RawResponse: `{}`,
+			Response: asc.TerritoriesResponse{
+				Data: []asc.Territory{
+					{ID: "USA"},
+					{ID: "GBP"},
+					{ID: "JPN"},
+				},
+			},
 		},
 		response{
 			RawResponse: `{}`,
@@ -50,16 +58,22 @@ func TestUpdateApp_Happy(t *testing.T) {
 			RawResponse: `{}`,
 		},
 	)
+
 	defer ctx.Close()
 
 	err := client.UpdateApp(ctx.Context, testID, testID, testID, config.App{
-		AgeRatingDeclaration:  &config.AgeRatingDeclaration{},
-		Categories:            &config.Categories{},
+		AgeRatingDeclaration: &config.AgeRatingDeclaration{},
+		Categories: &config.Categories{
+			Primary:                "TEST",
+			PrimarySubcategories:   [2]string{"TEST", "TEST"},
+			Secondary:              "TEST",
+			SecondarySubcategories: [2]string{"TEST", "TEST"},
+		},
 		UsesThirdPartyContent: asc.Bool(true),
 		Availability: &config.Availability{
 			AvailableInNewTerritories: asc.Bool(true),
 			Pricing: []config.PriceSchedule{
-				{Tier: "0"},
+				{Tier: "0", StartDate: &now},
 			},
 			Territories: []string{"USA", "JPN"},
 		},
@@ -159,7 +173,231 @@ func TestCreateVersionIfNeeded_Happy(t *testing.T) {
 // Test UpdateVersionLocalizations
 
 func TestUpdateVersionLocalizations_Happy(t *testing.T) {
+	asset := newTestAsset(t, "TEST")
+	previewID := "TEST-Preview-en_US"
+	screenshotID := "TEST-Screenshot-en_US"
 
+	localizations := config.VersionLocalizations{
+		"en-US": {
+			Description: "TEST",
+			Keywords:    "TEST,TEST",
+			PreviewSets: config.PreviewSets{
+				config.PreviewTypeWatchSeries3: []config.Preview{
+					{
+						File: config.File{
+							Path: asset.Name,
+						},
+					},
+				},
+			},
+			ScreenshotSets: config.ScreenshotSets{
+				config.ScreenshotTypeWatchSeries3: []config.File{
+					{Path: asset.Name},
+				},
+			},
+			MarketingURL:    "TEST",
+			PromotionalText: "TEST",
+			SupportURL:      "TEST",
+			WhatsNewText:    "Going away",
+		},
+		"ja": {
+			Description:     "TEST",
+			Keywords:        "TEST,TEST",
+			PreviewSets:     config.PreviewSets{},
+			ScreenshotSets:  config.ScreenshotSets{},
+			MarketingURL:    "TEST",
+			PromotionalText: "TEST",
+			SupportURL:      "TEST",
+			WhatsNewText:    "Going away",
+		},
+	}
+
+	ctx, client := newTestContext()
+
+	previewSetsURL, err := ctx.URL(previewID)
+	assert.NoError(t, err)
+
+	screenshotSetsURL, err := ctx.URL(screenshotID)
+	assert.NoError(t, err)
+
+	previewURL, err := asset.URL(ctx, previewID)
+	assert.NoError(t, err)
+
+	screenshotURL, err := asset.URL(ctx, screenshotID)
+	assert.NoError(t, err)
+
+	ctx.SetResponses(
+		// List app store version localizations
+		response{
+			Response: asc.AppStoreVersionLocalizationsResponse{
+				Data: []asc.AppStoreVersionLocalization{
+					{
+						Attributes: &asc.AppStoreVersionLocalizationAttributes{
+							Locale: asc.String("en-US"),
+						},
+						ID: "TEST",
+						Relationships: &asc.AppStoreVersionLocalizationRelationships{
+							AppPreviewSets: &asc.PagedRelationship{
+								Links: &asc.RelationshipLinks{
+									Related: &asc.Reference{
+										URL: *previewSetsURL,
+									},
+								},
+							},
+							AppScreenshotSets: &asc.PagedRelationship{
+								Links: &asc.RelationshipLinks{
+									Related: &asc.Reference{
+										URL: *screenshotSetsURL,
+									},
+								},
+							},
+						},
+					},
+					{
+						Attributes: &asc.AppStoreVersionLocalizationAttributes{
+							Locale: asc.String("en-GB"),
+						},
+						ID: "TEST",
+					},
+				},
+			},
+		},
+		// Update app store version localization - #1
+		response{
+			Response: asc.AppStoreVersionLocalizationResponse{
+				Data: asc.AppStoreVersionLocalization{
+					Attributes: &asc.AppStoreVersionLocalizationAttributes{
+						Locale: asc.String("en-US"),
+					},
+					ID: "TEST",
+					Relationships: &asc.AppStoreVersionLocalizationRelationships{
+						AppPreviewSets: &asc.PagedRelationship{
+							Links: &asc.RelationshipLinks{
+								Related: &asc.Reference{
+									URL: *previewSetsURL,
+								},
+							},
+						},
+						AppScreenshotSets: &asc.PagedRelationship{
+							Links: &asc.RelationshipLinks{
+								Related: &asc.Reference{
+									URL: *screenshotSetsURL,
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		// Follow app preview sets relationship reference
+		response{
+			Response: asc.AppPreviewSetsResponse{},
+		},
+		// Create missing app preview set
+		response{
+			Response: asc.AppPreviewSetResponse{
+				Data: asc.AppPreviewSet{
+					ID: "TEST",
+				},
+			},
+		},
+		// List app previews for preview set
+		response{
+			Response: asc.AppPreviewsResponse{
+				Data: []asc.AppPreview{},
+			},
+		},
+		// Create app preview
+		response{
+			Response: asc.AppPreviewResponse{
+				Data: asc.AppPreview{
+					Attributes: &asc.AppPreviewAttributes{
+						AssetDeliveryState: nil,
+						FileName:           &asset.Name,
+						FileSize:           &asset.Size,
+						MimeType:           asc.String("text/plain"),
+						UploadOperations: []asc.UploadOperation{
+							{
+								Length: asc.Int(int(asset.Size)),
+								Method: asc.String("PATCH"),
+								Offset: asc.Int(0),
+								URL:    asc.String(previewURL.String()),
+							},
+						},
+					},
+					ID: screenshotID,
+				},
+			},
+		},
+		// Upload operation #1 response
+		response{
+			RawResponse: `{}`,
+		},
+		// Commit app preview
+		response{
+			Response: asc.AppPreviewResponse{},
+		},
+		// Follow app screenshot sets relationship reference
+		response{
+			Response: asc.AppScreenshotSetsResponse{},
+		},
+		// Create missing app screenshot set
+		response{
+			Response: asc.AppScreenshotSetResponse{},
+		},
+		// Get app screenshots for app screenshot set
+		response{
+			Response: asc.AppScreenshotsResponse{},
+		},
+		// Create app screenshot
+		response{
+			Response: asc.AppScreenshotResponse{
+				Data: asc.AppScreenshot{
+					Attributes: &asc.AppScreenshotAttributes{
+						AssetDeliveryState: nil,
+						FileName:           &asset.Name,
+						FileSize:           &asset.Size,
+						UploadOperations: []asc.UploadOperation{
+							{
+								Length: asc.Int(int(asset.Size)),
+								Method: asc.String("PATCH"),
+								Offset: asc.Int(0),
+								URL:    asc.String(screenshotURL.String()),
+							},
+						},
+					},
+					ID: screenshotID,
+				},
+			},
+		},
+		// Upload operation #1 response
+		response{
+			RawResponse: `{}`,
+		},
+		// Commit app screenshot
+		response{
+			Response: asc.AppScreenshotResponse{},
+		},
+		// Update app store version localization - #2
+		response{
+			Response: asc.AppStoreVersionLocalizationResponse{
+				Data: asc.AppStoreVersionLocalization{
+					Attributes: &asc.AppStoreVersionLocalizationAttributes{
+						Locale: asc.String("en-GB"),
+					},
+					ID: "TEST",
+				},
+			},
+		},
+	)
+
+	defer ctx.Close()
+
+	ctx.Context.MaxProcesses = 1
+
+	err = client.UpdateVersionLocalizations(ctx.Context, testID, localizations)
+
+	assert.NoError(t, err)
 }
 
 // Test UpdateIDFADeclaration
@@ -167,7 +405,11 @@ func TestUpdateVersionLocalizations_Happy(t *testing.T) {
 func TestUpdateIDFADeclaration_Happy(t *testing.T) {
 	ctx, client := newTestContext(
 		response{
-			RawResponse: `{"data":{"id":"TEST"}}`,
+			Response: asc.IDFADeclarationResponse{
+				Data: asc.IDFADeclaration{
+					ID: testID,
+				},
+			},
 		},
 		response{
 			RawResponse: `{}`,
@@ -215,19 +457,75 @@ func TestUpdateIDFADeclaration_ErrCreate(t *testing.T) {
 // Test UpdateReviewDetails
 
 func TestUpdateReviewDetails_Happy(t *testing.T) {
-	ctx, client := newTestContext(
+	asset := newTestAsset(t, "TEST")
+	attachmentID := "TEST-Attachment-1"
+
+	ctx, client := newTestContext()
+
+	defer ctx.Close()
+
+	attachmentURL, err := asset.URL(ctx, attachmentID)
+	assert.NoError(t, err)
+
+	ctx.SetResponses(
+		// GetReviewDetailsForAppStoreVersion
 		response{
-			RawResponse: `{"data":{"id":"TEST"}}`,
+			Response: asc.AppStoreReviewDetailResponse{
+				Data: asc.AppStoreReviewDetail{
+					ID: "TEST",
+				},
+			},
 		},
+		// UpdateReviewDetail
+		response{
+			Response: asc.AppStoreReviewDetailResponse{
+				Data: asc.AppStoreReviewDetail{
+					ID: "TEST",
+				},
+			},
+		},
+		// ListAttachmentsForReviewDetail
+		response{
+			Response: asc.AppStoreReviewAttachmentsResponse{
+				Data: []asc.AppStoreReviewAttachment{},
+			},
+		},
+		// CreateAttachment
+		response{
+			Response: asc.AppStoreReviewAttachmentResponse{
+				Data: asc.AppStoreReviewAttachment{
+					Attributes: &asc.AppStoreReviewAttachmentAttributes{
+						FileName: &asset.Name,
+						FileSize: &asset.Size,
+						UploadOperations: []asc.UploadOperation{
+							{
+								Length: asc.Int(int(asset.Size)),
+								Method: asc.String("PATCH"),
+								Offset: asc.Int(0),
+								URL:    asc.String(attachmentURL.String()),
+							},
+						},
+					},
+					ID: attachmentID,
+				},
+			},
+		},
+		// UploadOperation #1
 		response{
 			RawResponse: `{}`,
 		},
+		// CommitAttachment
+		response{
+			Response: asc.AppStoreReviewAttachmentResponse{},
+		},
 	)
-	defer ctx.Close()
 
-	err := client.UpdateReviewDetails(ctx.Context, testID, config.ReviewDetails{
+	err = client.UpdateReviewDetails(ctx.Context, testID, config.ReviewDetails{
 		Contact:     &config.ContactPerson{},
 		DemoAccount: &config.DemoAccount{},
+		Attachments: []config.File{
+			{Path: asset.Name},
+		},
 	})
 	assert.NoError(t, err)
 }
@@ -266,6 +564,42 @@ func TestUpdateReviewDetails_ErrCreate(t *testing.T) {
 		DemoAccount: &config.DemoAccount{},
 	})
 	assert.Error(t, err)
+}
+
+// Test EnablePhasedRelease
+
+func TestEnablePhasedRelease_Update(t *testing.T) {
+	ctx, client := newTestContext(
+		response{
+			Response: asc.AppStoreVersionPhasedReleaseResponse{
+				Data: asc.AppStoreVersionPhasedRelease{
+					ID: testID,
+				},
+			},
+		},
+		response{
+			RawResponse: `{}`,
+		},
+	)
+	defer ctx.Close()
+
+	err := client.EnablePhasedRelease(ctx.Context, testID)
+	assert.NoError(t, err)
+}
+
+func TestEnablePhasedRelease_Create(t *testing.T) {
+	ctx, client := newTestContext(
+		response{
+			RawResponse: `{}`,
+		},
+		response{
+			RawResponse: `{}`,
+		},
+	)
+	defer ctx.Close()
+
+	err := client.EnablePhasedRelease(ctx.Context, testID)
+	assert.NoError(t, err)
 }
 
 // Test SubmitApp

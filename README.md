@@ -31,7 +31,7 @@ Documentation is hosted at <https://cidertool.github.io/cider>. Check out our in
 
 ## Contributing
 
-This project's primary goal is to simplify the process to release on the App Store, and enable the entire build + test + release process to be executable in the command line. Until the package's version stabilizes with v1, there isn't a strong roadmap beyond those stated goals. However, contributions are always welcome. If you want to get involved or you just want to offer feedback, please see [`CONTRIBUTING.md`](./.github/CONTRIBUTING.md) for details.
+This project's primary goal is to simplify the process to release on the App Store, and enable the entire build + test + release process to be executable in the command line. Until the package's version stabilizes with v1, there isn't a strong roadmap beyond those stated goals. However, contributions are always welcome. If you want to get involved or you just want to offer feedback, please see [`CONTRIBUTING.md`](https://github.com/cidertool/.github/blob/main/CONTRIBUTING.md) for details.
 
 ## Credits
 

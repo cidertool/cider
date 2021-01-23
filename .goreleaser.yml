@@ -44,7 +44,7 @@ dockers:
       - cidertool/cider:v{{ .Major }}
       - cidertool/cider:v{{ .Major }}.{{ .Minor }}
       - cidertool/cider:latest
-    binaries:
+    ids:
       - cider
     extra_files:
       - build/entrypoint.sh

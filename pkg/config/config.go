@@ -683,15 +683,15 @@ func (p Project) String() (string, error) {
 }
 
 // Copy performs a costly deep-copy of the entire project structure.
-func (p *Project) Copy() (copy Project, err error) {
+func (p *Project) Copy() (cp Project, err error) {
 	bytes, err := json.Marshal(p)
 	if err != nil {
-		return copy, err
+		return cp, err
 	}
 
-	err = json.Unmarshal(bytes, &copy)
+	err = json.Unmarshal(bytes, &cp)
 
-	return copy, err
+	return cp, err
 }
 
 // AppsMatching returns an array of keys in the Project matching the app names, or all names if the flag is set.

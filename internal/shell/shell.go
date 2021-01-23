@@ -98,12 +98,13 @@ func (sh *loginShell) NewCommand(program string, arg ...string) *exec.Cmd {
 }
 
 func escapeArgs(args []string) []string {
-	copy := make([]string, len(args))
+	cp := make([]string, len(args))
+
 	for i, arg := range args {
-		copy[i] = shellescape.Quote(arg)
+		cp[i] = shellescape.Quote(arg)
 	}
 
-	return copy
+	return cp
 }
 
 // Exec executes a command.

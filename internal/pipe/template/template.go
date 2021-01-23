@@ -297,12 +297,12 @@ func updateReviewDetails(details *config.ReviewDetails, tmpl *template.Template)
 }
 
 func applyTemplateVar(v *string, s string, tmpl *template.Template) error {
-	new, err := tmpl.Apply(s)
+	applied, err := tmpl.Apply(s)
 	if err != nil {
 		return err
 	}
 
-	*v = new
+	*v = applied
 
 	return nil
 }

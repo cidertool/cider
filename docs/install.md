@@ -41,10 +41,10 @@ Download the specific version for your platform on Cider's [releases page](https
 ```shell
 git clone git@github.com:cidertool/cider.git
 cd cider
-go build -o cider .
+go build -o cider ./cmd/cider
 ```
 
-From there, you can use your locally-built Cider binary for whatever purposes you need.
+From there, you can use your locally-built Cider binary for whatever purposes you need. Cider requires **Go 1.16 or higher** to be installed.
 
 ## Missing your favorite?
 

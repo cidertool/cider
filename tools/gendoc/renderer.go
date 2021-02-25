@@ -29,7 +29,7 @@ import (
 	"go/parser"
 	"go/token"
 	"io"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -105,7 +105,7 @@ func openPackage() (*doc.Package, error) {
 func parseFilesInConfigPackage(fset *token.FileSet) (files []*ast.File, err error) {
 	files = make([]*ast.File, 0)
 
-	inDir, err := ioutil.ReadDir("pkg/config")
+	inDir, err := os.ReadDir("pkg/config")
 	if err != nil {
 		return files, err
 	}

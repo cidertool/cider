@@ -23,7 +23,6 @@ package client
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -163,7 +162,7 @@ func (t *mockTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 func newTestAsset(t *testing.T, name string) *testAsset {
 	var path = filepath.Join(t.TempDir(), name)
 
-	err := ioutil.WriteFile(path, []byte("TEST"), 0600)
+	err := os.WriteFile(path, []byte("TEST"), 0600)
 	assert.NoError(t, err)
 
 	info, err := os.Stat(path)

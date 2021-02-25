@@ -21,7 +21,6 @@ along with Cider.  If not, see <http://www.gnu.org/licenses/>.
 package main
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -90,7 +89,7 @@ func checkFile(path string, info os.FileInfo, err error) error {
 		return nil
 	}
 
-	f, err := ioutil.ReadFile(path) // #nosec
+	f, err := os.ReadFile(path) // #nosec
 	if err != nil {
 		return err
 	}
@@ -100,7 +99,7 @@ func checkFile(path string, info os.FileInfo, err error) error {
 	if !strings.HasPrefix(source, licenseHeader) {
 		source = licenseHeader + "\n\n" + source
 
-		err := ioutil.WriteFile(path, []byte(source), info.Mode())
+		err := os.WriteFile(path, []byte(source), info.Mode())
 		if err != nil {
 			return err
 		}

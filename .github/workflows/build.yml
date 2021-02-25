@@ -28,7 +28,7 @@ jobs:
 
       - uses: actions/setup-go@v1
         with:
-          go-version: 1.15.x
+          go-version: '1.16'
 
       - name: Cache Go Modules
         uses: actions/cache@v2
@@ -56,7 +56,7 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v2
         with:
-          version: v1.35
+          version: v1.37
 
   verify_doc_tools:
     name: verify doc tools
@@ -66,7 +66,7 @@ jobs:
 
       - uses: actions/setup-go@v1
         with:
-          go-version: 1.15.x
+          go-version: '1.16'
 
       - name: Run gendoc tool
         run: go run ./tools/gendoc
@@ -91,7 +91,7 @@ jobs:
 
       - uses: actions/setup-go@v1
         with:
-          go-version: 1.15.x
+          go-version: '1.16'
 
       - name: Login to Docker Hub
         run: |

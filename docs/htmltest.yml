@@ -1,2 +1,3 @@
 DirectoryPath: _site
 IgnoreInternalEmptyHash: true
+IgnoreSSLVerify: true

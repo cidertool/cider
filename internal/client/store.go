@@ -473,11 +473,7 @@ func (c *ascClient) UpdateReviewDetails(ctx *context.Context, versionID string, 
 		return err
 	}
 
-	if err := c.UploadReviewAttachments(ctx, reviewDetails.ID, config.Attachments); err != nil {
-		return err
-	}
-
-	return nil
+	return c.UploadReviewAttachments(ctx, reviewDetails.ID, config.Attachments)
 }
 
 func (c *ascClient) CreateReviewDetail(ctx *context.Context, versionID string, config config.ReviewDetails) (*asc.AppStoreReviewDetail, error) {

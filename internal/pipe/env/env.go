@@ -24,7 +24,7 @@ package env
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"path/filepath"
 
@@ -98,7 +98,7 @@ func loadEnvFromPath(env string, required bool) (string, error) {
 		return "", nil
 	}
 
-	bytes, err := ioutil.ReadAll(f)
+	bytes, err := io.ReadAll(f)
 
 	return string(bytes), err
 }

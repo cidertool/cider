@@ -21,7 +21,7 @@ along with Cider.  If not, see <http://www.gnu.org/licenses/>.
 package clicommand
 
 import (
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -36,7 +36,7 @@ func TestConfig_Happy_CustomPath(t *testing.T) {
 
 	s, err := proj.String()
 	assert.NoError(t, err)
-	err = ioutil.WriteFile(path, []byte(s), 0600)
+	err = os.WriteFile(path, []byte(s), 0600)
 	assert.NoError(t, err)
 	cfg, err := loadConfig(path, "")
 	assert.NoError(t, err)
@@ -52,7 +52,7 @@ func TestConfig_Happy_DefaultPath(t *testing.T) {
 
 	s, err := proj.String()
 	assert.NoError(t, err)
-	err = ioutil.WriteFile(path, []byte(s), 0600)
+	err = os.WriteFile(path, []byte(s), 0600)
 	assert.NoError(t, err)
 	cfg, err := loadConfig("", folder)
 	assert.NoError(t, err)

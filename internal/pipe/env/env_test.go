@@ -22,7 +22,6 @@ package env
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"testing"
 
@@ -67,7 +66,7 @@ func TestEnv(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Empty(t, env)
 
-	file, err := ioutil.TempFile("", "fake_key")
+	file, err := os.CreateTemp("", "fake_key")
 	if err != nil {
 		assert.FailNow(t, "temp file creation produced an error", err)
 	}

@@ -22,7 +22,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -167,7 +166,7 @@ func genConfigMarkdown(path string) error {
 	}
 
 	r.Footer = func() string {
-		contents, err := ioutil.ReadFile(filepath.Join(filepath.Dir(path), "configuration-footer.md"))
+		contents, err := os.ReadFile(filepath.Join(filepath.Dir(path), "configuration-footer.md"))
 		if err != nil {
 			log.Error(err.Error())
 			return ""

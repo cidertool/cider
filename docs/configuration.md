@@ -480,7 +480,8 @@ My App:
       en-US:
         description: My App for cool people
         keywords: Apps, Cool, Mine
-        whatsNew: Thank you for using My App! I bring you updates every week so this continues to be my app.
+        whatsNew: Thank you for using My App! I bring you updates every week so this
+          continues to be my app.
         previewSets:
           iphone65:
           - path: assets/store/iphone65/preview.mp4

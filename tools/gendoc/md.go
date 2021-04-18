@@ -69,11 +69,13 @@ func runDocsMdCmd(cmd *cobra.Command, args []string) error {
 
 	prepender := func(filename string) string {
 		base := filepath.Base(filename)
+
 		return fmt.Sprintf(docsMdFrontmatterTemplate, pageTitle(base), pageNavFields[base].order, pageNavFields[base].exclude)
 	}
 
 	linkHandler := func(name string) string {
 		base := strings.TrimSuffix(name, filepath.Ext(name))
+
 		return "/commands/" + strings.ToLower(base) + "/"
 	}
 

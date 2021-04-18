@@ -65,6 +65,7 @@ func (c *ascClient) UpdateApp(ctx *context.Context, appID string, appInfoID stri
 		}
 
 		_, _, err := c.client.Apps.UpdateApp(ctx, appID, &attrs, availableTerritoryIDs, prices)
+
 		return err
 	})
 
@@ -76,6 +77,7 @@ func (c *ascClient) UpdateApp(ctx *context.Context, appID string, appInfoID stri
 		if _, _, err := c.client.Apps.UpdateAppInfo(ctx, appInfoID, categoriesUpdate(*config.Categories)); err != nil {
 			return err
 		}
+
 		return nil
 	})
 
@@ -90,6 +92,7 @@ func (c *ascClient) UpdateApp(ctx *context.Context, appID string, appInfoID stri
 		}
 
 		_, _, err = c.client.Apps.UpdateAgeRatingDeclaration(ctx, ageRatingResp.Data.ID, ageRatingDeclaration(*config.AgeRatingDeclaration))
+
 		return err
 	})
 
@@ -238,6 +241,7 @@ func (c *ascClient) UpdateAppLocalizations(ctx *context.Context, appID string, c
 
 			if !ok {
 				log.WithField("locale", locale).Debug("not in configuration. skipping...")
+
 				continue
 			}
 
@@ -250,6 +254,7 @@ func (c *ascClient) UpdateAppLocalizations(ctx *context.Context, appID string, c
 					PrivacyPolicyText: &locConfig.PrivacyPolicyText,
 					PrivacyPolicyURL:  &locConfig.PrivacyPolicyURL,
 				})
+
 				return err
 			})
 		}
@@ -270,6 +275,7 @@ func (c *ascClient) UpdateAppLocalizations(ctx *context.Context, appID string, c
 					PrivacyPolicyText: &locConfig.PrivacyPolicyText,
 					PrivacyPolicyURL:  &locConfig.PrivacyPolicyURL,
 				}, appInfo.ID)
+
 				return err
 			})
 		}
@@ -338,6 +344,7 @@ func (c *ascClient) UpdateVersionLocalizations(ctx *context.Context, versionID s
 
 		if !ok {
 			log.WithField("locale", locale).Debug("not in configuration. skipping...")
+
 			continue
 		}
 
@@ -349,6 +356,7 @@ func (c *ascClient) UpdateVersionLocalizations(ctx *context.Context, versionID s
 			if err != nil {
 				return err
 			}
+
 			return c.UpdatePreviewsAndScreenshotsIfNeeded(ctx, g, &updatedLocResp.Data, locConfig)
 		})
 	}
@@ -367,6 +375,7 @@ func (c *ascClient) UpdateVersionLocalizations(ctx *context.Context, versionID s
 			if err != nil {
 				return err
 			}
+
 			return c.UpdatePreviewsAndScreenshotsIfNeeded(ctx, g, &locResp.Data, locConfig)
 		})
 	}
@@ -543,5 +552,6 @@ func (c *ascClient) EnablePhasedRelease(ctx *context.Context, versionID string) 
 
 func (c *ascClient) SubmitApp(ctx *context.Context, versionID string) error {
 	_, _, err := c.client.Submission.CreateSubmission(ctx, versionID)
+
 	return err
 }

@@ -181,6 +181,7 @@ type Client interface {
 // New returns a new Client.
 func New(ctx *context.Context) Client {
 	client := asc.NewClient(ctx.Credentials.Client())
+
 	return &ascClient{client: client}
 }
 

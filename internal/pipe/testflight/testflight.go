@@ -153,10 +153,12 @@ func (p *Pipe) updateBetaDetails(ctx *context.Context, config config.App, app *a
 
 func (p *Pipe) updateBetaGroups(ctx *context.Context, config config.App, app *asc.App, build *asc.Build) error {
 	log.Info("updating build beta groups")
+
 	return p.Client.AssignBetaGroups(ctx, app.ID, build.ID, config.Testflight.BetaGroups)
 }
 
 func (p *Pipe) updateBetaTesters(ctx *context.Context, config config.App, app *asc.App, build *asc.Build) error {
 	log.Info("updating build beta testers")
+
 	return p.Client.AssignBetaTesters(ctx, app.ID, build.ID, config.Testflight.BetaTesters)
 }

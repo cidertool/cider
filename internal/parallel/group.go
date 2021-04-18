@@ -58,6 +58,7 @@ func (s *parallelGroup) Go(fn func() error) {
 		defer func() {
 			<-s.ch
 		}()
+
 		return fn()
 	})
 }

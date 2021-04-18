@@ -32,6 +32,7 @@ import (
 
 func newMockGit(t *testing.T, commands ...shelltest.Command) *Git {
 	ctx := context.New(config.Project{})
+
 	return newMockGitWithContext(ctx, t, commands...)
 }
 

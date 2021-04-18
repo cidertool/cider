@@ -83,6 +83,7 @@ func (git *Git) RunInEnv(env map[string]string, args ...string) (*shell.Complete
 // IsRepo returns true if current folder is a Git repository.
 func (git *Git) IsRepo() bool {
 	proc, err := git.Run("rev-parse", "--is-inside-work-tree")
+
 	return err == nil && strings.TrimSpace(proc.Stdout) == "true"
 }
 

@@ -220,8 +220,7 @@ func (*docRenderer) gatherConsts(cons *doc.Value) (name string, values []string)
 }
 
 func (r *docRenderer) WriteString(s string) {
-	_, err := r.buffer.WriteString(s)
-	if err != nil {
+	if _, err := r.buffer.WriteString(s); err != nil {
 		log.Error(err.Error())
 	}
 }
@@ -409,6 +408,7 @@ func formatTypeName(expr ast.Expr) string {
 		return t.String()
 	default:
 		log.Warnf("%s", t)
+
 		return "INVALID_EXPR"
 	}
 }
@@ -441,6 +441,7 @@ func (r *docRenderer) asIdentName(typeName string) string {
 func formatDoc(s string) string {
 	if s == "" {
 		log.Warnf("NO DOCS")
+
 		return "NO_DOCS :shamebells:."
 	}
 
@@ -455,6 +456,7 @@ func formatDoc(s string) string {
 			doc.WriteString("\n\n")
 		case line == "```yaml" && !inYamlBlock:
 			inYamlBlock = true
+
 			fallthrough
 		case inYamlBlock:
 			if line == "```" {

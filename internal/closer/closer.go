@@ -33,8 +33,7 @@ var onCloseErr closeErrFunc = func(err error) { log.Fatal(err) }
 
 // Close closes an io.Closer and handles the possible Close error.
 func Close(c io.Closer) {
-	err := c.Close()
-	if err != nil {
+	if err := c.Close(); err != nil {
 		onCloseErr(err)
 	}
 }

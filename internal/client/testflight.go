@@ -46,6 +46,7 @@ func (c *ascClient) UpdateBetaAppLocalizations(ctx *context.Context, appID strin
 
 		if !ok {
 			log.WithField("locale", locale).Debug("not in configuration. skipping...")
+
 			continue
 		}
 
@@ -53,6 +54,7 @@ func (c *ascClient) UpdateBetaAppLocalizations(ctx *context.Context, appID strin
 
 		g.Go(func() error {
 			_, _, err = c.client.TestFlight.UpdateBetaAppLocalization(ctx, loc.ID, betaAppLocalizationUpdateRequestAttributes(locConfig))
+
 			return err
 		})
 	}
@@ -67,6 +69,7 @@ func (c *ascClient) UpdateBetaAppLocalizations(ctx *context.Context, appID strin
 
 		g.Go(func() error {
 			_, _, err = c.client.TestFlight.CreateBetaAppLocalization(ctx.Context, betaAppLocalizationCreateRequestAttributes(locale, locConfig), appID)
+
 			return err
 		})
 	}
@@ -130,6 +133,7 @@ func betaAppLocalizationCreateRequestAttributes(locale string, locConfig config.
 
 func (c *ascClient) UpdateBetaBuildDetails(ctx *context.Context, buildID string, config config.Testflight) error {
 	_, _, err := c.client.TestFlight.UpdateBuildBetaDetail(ctx, buildID, &config.EnableAutoNotify)
+
 	return err
 }
 
@@ -151,9 +155,11 @@ func (c *ascClient) UpdateBetaBuildLocalizations(ctx *context.Context, buildID s
 
 		if !ok {
 			log.WithField("locale", locale).Debug("not in configuration. skipping...")
+
 			continue
 		} else if locConfig.WhatsNew == "" {
 			log.WithField("locale", locale).Warn("skipping updating beta build localization due to empty What's New text")
+
 			continue
 		}
 
@@ -161,6 +167,7 @@ func (c *ascClient) UpdateBetaBuildLocalizations(ctx *context.Context, buildID s
 
 		g.Go(func() error {
 			_, _, err := c.client.TestFlight.UpdateBetaBuildLocalization(ctx, loc.ID, &locConfig.WhatsNew)
+
 			return err
 		})
 	}
@@ -175,11 +182,13 @@ func (c *ascClient) UpdateBetaBuildLocalizations(ctx *context.Context, buildID s
 
 		if locConfig.WhatsNew == "" {
 			log.WithField("locale", locale).Warn("skipping updating beta build localization due to empty What's New text")
+
 			continue
 		}
 
 		g.Go(func() error {
 			_, _, err := c.client.TestFlight.CreateBetaBuildLocalization(ctx.Context, locale, &locConfig.WhatsNew, buildID)
+
 			return err
 		})
 	}
@@ -207,6 +216,7 @@ func (c *ascClient) AssignBetaGroups(ctx *context.Context, appID string, buildID
 
 	if len(groups) == 0 {
 		log.Debug("no groups in configuration")
+
 		return nil
 	}
 
@@ -240,11 +250,13 @@ func (c *ascClient) AssignBetaGroups(ctx *context.Context, appID string, buildID
 
 		if !ok {
 			log.WithField("group", name).Debug("not in configuration. skipping...")
+
 			continue
 		}
 
 		g.Go(func() error {
 			log.WithField("group", name).Debug("update beta group")
+
 			return c.updateBetaGroup(ctx, g, appID, group.ID, buildID, configGroup)
 		})
 	}
@@ -253,6 +265,7 @@ func (c *ascClient) AssignBetaGroups(ctx *context.Context, appID string, buildID
 		group := groups[i]
 		if group.Name == "" {
 			log.Warn("skipping a beta group with a missing name")
+
 			continue
 		} else if found[group.Name] {
 			continue
@@ -260,6 +273,7 @@ func (c *ascClient) AssignBetaGroups(ctx *context.Context, appID string, buildID
 
 		g.Go(func() error {
 			log.WithField("group", group.Name).Debug("create beta group")
+
 			return c.createBetaGroup(ctx, g, appID, buildID, group)
 		})
 	}
@@ -276,10 +290,12 @@ func (c *ascClient) updateBetaGroup(ctx *context.Context, g parallel.Group, appI
 			PublicLinkLimit:        &group.PublicLinkLimit,
 			PublicLinkLimitEnabled: &group.EnablePublicLinkLimit,
 		})
+
 		return err
 	})
 	g.Go(func() error {
 		_, err := c.client.TestFlight.AddBuildsToBetaGroup(ctx, groupID, []string{buildID})
+
 		return err
 	})
 	g.Go(func() error {
@@ -322,6 +338,7 @@ func (c *ascClient) updateBetaTestersForGroup(ctx *context.Context, g parallel.G
 
 	g.Go(func() error {
 		_, err = c.client.TestFlight.AddBetaTestersToBetaGroup(ctx, groupID, betaTesterIDs)
+
 		return err
 	})
 
@@ -329,6 +346,7 @@ func (c *ascClient) updateBetaTestersForGroup(ctx *context.Context, g parallel.G
 		tester := testers[i]
 		if tester.Email == "" {
 			log.Warnf("skipping a beta tester in beta group %s with a missing email", groupID)
+
 			continue
 		} else if found[tester.Email] {
 			continue
@@ -362,6 +380,7 @@ func filterTestersNotInBetaGroup(testers []asc.BetaTester, groupID string) (beta
 			for _, rel := range tester.Relationships.BetaGroups.Data {
 				if rel.ID == groupID {
 					inGroup = true
+
 					break
 				}
 			}
@@ -406,6 +425,7 @@ func (c *ascClient) AssignBetaTesters(ctx *context.Context, appID string, buildI
 				}).
 				Debug("assign individual beta tester")
 			_, err := c.client.TestFlight.AssignSingleBetaTesterToBuilds(ctx, tester.ID, []string{buildID})
+
 			return err
 		})
 	}
@@ -414,6 +434,7 @@ func (c *ascClient) AssignBetaTesters(ctx *context.Context, appID string, buildI
 		tester := testers[i]
 		if tester.Email == "" {
 			log.Warn("beta tester email missing")
+
 			continue
 		} else if found[tester.Email] {
 			continue
@@ -421,6 +442,7 @@ func (c *ascClient) AssignBetaTesters(ctx *context.Context, appID string, buildI
 
 		g.Go(func() error {
 			log.WithField("email", tester.Email).Debug("create individual beta tester")
+
 			return c.createBetaTester(ctx, tester, nil, []string{buildID})
 		})
 	}
@@ -508,5 +530,6 @@ func (c *ascClient) UpdateBetaReviewDetails(ctx *context.Context, appID string, 
 
 func (c *ascClient) SubmitBetaApp(ctx *context.Context, buildID string) error {
 	_, _, err := c.client.TestFlight.CreateBetaAppReviewSubmission(ctx, buildID)
+
 	return err
 }

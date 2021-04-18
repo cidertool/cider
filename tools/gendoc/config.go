@@ -169,6 +169,7 @@ func genConfigMarkdown(path string) error {
 		contents, err := os.ReadFile(filepath.Join(filepath.Dir(path), "configuration-footer.md"))
 		if err != nil {
 			log.Error(err.Error())
+
 			return ""
 		}
 

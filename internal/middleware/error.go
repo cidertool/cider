@@ -37,6 +37,7 @@ func ErrHandler(action Action) Action {
 
 		if pipe.IsSkip(err) {
 			log.WithError(err).Warn("pipe skipped")
+
 			return nil
 		}
 

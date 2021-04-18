@@ -44,6 +44,7 @@ func TestGroup(t *testing.T) {
 			lock.Lock()
 			counter++
 			lock.Unlock()
+
 			return nil
 		})
 	}
@@ -63,6 +64,7 @@ func TestGroupOrder(t *testing.T) {
 
 		g.Go(func() error {
 			output = append(output, i)
+
 			return nil
 		})
 	}
@@ -80,6 +82,7 @@ func TestGroupOrderError(t *testing.T) {
 
 		g.Go(func() error {
 			output = append(output, i)
+
 			return errTestError
 		})
 	}

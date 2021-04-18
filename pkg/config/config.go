@@ -678,6 +678,7 @@ func LoadReader(fd io.Reader) (config Project, err error) {
 
 func (p Project) String() (string, error) {
 	b, err := yaml.Marshal(p)
+
 	return string(b), err
 }
 

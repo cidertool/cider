@@ -104,6 +104,7 @@ func New(config config.Project) *Context {
 // NewWithTimeout new context with the given timeout.
 func NewWithTimeout(config config.Project, timeout time.Duration) (*Context, ctx.CancelFunc) {
 	ctx, cancel := ctx.WithTimeout(ctx.Background(), timeout)
+
 	return Wrap(ctx, config), cancel
 }
 
@@ -161,9 +162,11 @@ func (m *PublishMode) Set(value string) error {
 	switch value {
 	case "appstore":
 		*m = PublishModeAppStore
+
 		return nil
 	case "testflight":
 		*m = PublishModeTestflight
+
 		return nil
 	}
 

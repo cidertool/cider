@@ -40,8 +40,11 @@ func Execute(version string, exit func(int), args []string) {
 
 	log.SetHandler(cli.Default)
 
+	// nolint: forbidigo
 	fmt.Println()
+	// nolint: forbidigo
 	defer fmt.Println()
+
 	NewRoot(version, exit).Execute(args)
 }
 

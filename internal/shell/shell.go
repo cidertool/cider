@@ -56,8 +56,15 @@ type CompletedProcess struct {
 }
 
 func newCompletedProcess(cmd *exec.Cmd) *CompletedProcess {
-	stdout := cmd.Stdout.(*bytes.Buffer)
-	stderr := cmd.Stderr.(*bytes.Buffer)
+	stdout, ok := cmd.Stdout.(*bytes.Buffer)
+	if !ok {
+		return nil
+	}
+
+	stderr, ok := cmd.Stderr.(*bytes.Buffer)
+	if !ok {
+		return nil
+	}
 
 	var stdoutString, stderrString string
 
@@ -114,11 +121,15 @@ func (sh *loginShell) Exec(cmd *exec.Cmd) (proc *CompletedProcess, err error) {
 	err = cmd.Run()
 	proc = newCompletedProcess(cmd)
 
-	log.WithFields(log.Fields{
-		"code":   proc.ReturnCode,
-		"stdout": strings.TrimSpace(proc.Stdout),
-		"stderr": strings.TrimSpace(proc.Stderr),
-	}).Debugf("%s result", proc.Name)
+	if proc == nil {
+		log.Debugf("last process failed to complete coherently")
+	} else {
+		log.WithFields(log.Fields{
+			"code":   proc.ReturnCode,
+			"stdout": strings.TrimSpace(proc.Stdout),
+			"stderr": strings.TrimSpace(proc.Stderr),
+		}).Debugf("%s result", proc.Name)
+	}
 
 	return proc, err
 }

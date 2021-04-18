@@ -98,6 +98,7 @@ func (c *ascClient) UploadRoutingCoverage(ctx *context.Context, versionID string
 
 	commit := func(id string, checksum string) error {
 		_, _, err := c.client.Apps.CommitRoutingAppCoverage(ctx, id, asc.Bool(true), &checksum)
+
 		return err
 	}
 

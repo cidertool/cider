@@ -71,6 +71,7 @@ func (t *Template) WithFields(fields Fields) *Template {
 // WithEnv replaces the configured env of the template with the given key-value map.
 func (t *Template) WithEnv(env map[string]string) *Template {
 	t.fields[envKey] = env
+
 	return t
 }
 

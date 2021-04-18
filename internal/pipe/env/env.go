@@ -92,9 +92,11 @@ func loadEnvFromPath(env string, required bool) (string, error) {
 
 	f, err := os.Open(filepath.Clean(val))
 
-	if err != nil && required {
-		return "", err
-	} else if err != nil {
+	if err != nil {
+		if required {
+			return "", err
+		}
+
 		return "", nil
 	}
 

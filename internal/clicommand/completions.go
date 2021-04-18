@@ -54,6 +54,7 @@ func newCompletionsCmd() *completionsCmd {
 			case "powershell":
 				return cmd.Root().GenPowerShellCompletion(os.Stdout)
 			}
+
 			return ErrUnsupportedShell
 		},
 	}

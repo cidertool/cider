@@ -112,6 +112,7 @@ More info: https://developer.apple.com/documentation/appstoreconnectapi/creating
 			}
 
 			log.Info(color.New(color.Bold).Sprintf("release succeeded after %0.2fs", time.Since(start).Seconds()))
+
 			return nil
 		},
 	}
@@ -269,6 +270,7 @@ func releaseProject(options releaseOpts) (*context.Context, error) {
 				return err
 			}
 		}
+
 		return nil
 	})
 }

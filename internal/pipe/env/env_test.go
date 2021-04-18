@@ -106,8 +106,8 @@ tra43bY9mLeVK0zrTn/3jvjTHEdD3HcRJgau1jshXG4IHXSW9yXj9x3V
 
 // rmFile closes an open descriptor.
 func rmFile(f *os.File) {
-	err := os.Remove(f.Name())
-	if err != nil {
+	if err := os.Remove(f.Name()); err != nil {
+		// nolint: forbidigo
 		fmt.Println(err)
 	}
 }

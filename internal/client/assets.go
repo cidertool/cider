@@ -20,8 +20,9 @@ along with Cider.  If not, see <http://www.gnu.org/licenses/>.
 
 package client
 
+// nolint: gosec
 import (
-	"crypto/md5" // #nosec
+	"crypto/md5"
 	"fmt"
 	"io"
 	"os"

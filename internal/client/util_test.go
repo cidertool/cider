@@ -160,6 +160,8 @@ func (t *mockTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 }
 
 func newTestAsset(t *testing.T, name string) *testAsset {
+	t.Helper()
+
 	var path = filepath.Join(t.TempDir(), name)
 
 	err := os.WriteFile(path, []byte("TEST"), 0600)

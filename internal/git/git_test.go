@@ -31,12 +31,16 @@ import (
 )
 
 func newMockGit(t *testing.T, commands ...shelltest.Command) *Git {
+	t.Helper()
+
 	ctx := context.New(config.Project{})
 
-	return newMockGitWithContext(ctx, t, commands...)
+	return newMockGitWithContext(t, ctx, commands...)
 }
 
-func newMockGitWithContext(ctx *context.Context, t *testing.T, commands ...shelltest.Command) *Git {
+func newMockGitWithContext(t *testing.T, ctx *context.Context, commands ...shelltest.Command) *Git {
+	t.Helper()
+
 	return &Git{
 		Shell: &shelltest.Shell{
 			T:        t,
@@ -67,8 +71,8 @@ func TestSanitizeProcess(t *testing.T) {
 	ctx := context.New(config.Project{})
 	ctx.CurrentDirectory = "test"
 	client := newMockGitWithContext(
-		ctx,
 		t,
+		ctx,
 		shelltest.Command{Stdout: "true", Stderr: "false"},
 		shelltest.Command{ReturnCode: 1, Stdout: "true", Stderr: "false"},
 	)

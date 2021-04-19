@@ -31,22 +31,30 @@ import (
 var errTestError = errors.New("test error")
 
 func TestValidConfiguration(t *testing.T) {
+	t.Parallel()
+
 	f, err := Load("testdata/valid.yml")
 	assert.NoError(t, err)
 	assert.Len(t, f, 1)
 }
 
 func TestMissingConfiguration(t *testing.T) {
+	t.Parallel()
+
 	_, err := Load("testdata/doesnotexist.yml")
 	assert.Error(t, err)
 }
 
 func TestInvalidConfiguration(t *testing.T) {
+	t.Parallel()
+
 	_, err := Load("testdata/invalid.yml")
 	assert.Error(t, err)
 }
 
 func TestMarshalledIsValidConfiguration(t *testing.T) {
+	t.Parallel()
+
 	f, err := Load("testdata/valid.yml")
 	assert.NoError(t, err)
 	str, err := f.String()
@@ -57,6 +65,8 @@ func TestMarshalledIsValidConfiguration(t *testing.T) {
 }
 
 func TestBrokenFile(t *testing.T) {
+	t.Parallel()
+
 	_, err := LoadReader(errReader(0))
 	assert.Error(t, err)
 }
@@ -68,6 +78,8 @@ func (errReader) Read(p []byte) (int, error) {
 }
 
 func TestCopy(t *testing.T) {
+	t.Parallel()
+
 	p := Project{
 		"App1": {},
 		"App2": {},
@@ -80,6 +92,8 @@ func TestCopy(t *testing.T) {
 }
 
 func TestCopy_Err(t *testing.T) {
+	t.Parallel()
+
 	p := Project{
 		"App1": {},
 		"App2": {},
@@ -92,6 +106,8 @@ func TestCopy_Err(t *testing.T) {
 }
 
 func TestAppsMatching(t *testing.T) {
+	t.Parallel()
+
 	p := Project{
 		"App1": {},
 		"App2": {},

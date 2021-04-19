@@ -31,11 +31,15 @@ import (
 )
 
 func TestPublish_String(t *testing.T) {
+	t.Parallel()
+
 	p := Pipe{}
 	assert.Equal(t, "publishing from app store connect", p.String())
 }
 
 func TestPublish_Happy_Testflight(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.New(config.Project{
 		"TEST": {},
 	})
@@ -50,6 +54,8 @@ func TestPublish_Happy_Testflight(t *testing.T) {
 }
 
 func TestPublish_Happy_Store(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.New(config.Project{
 		"TEST": {},
 	})
@@ -64,6 +70,8 @@ func TestPublish_Happy_Store(t *testing.T) {
 }
 
 func TestPublish_Happy_NoApps(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.New(config.Project{})
 	p := Pipe{}
 
@@ -72,6 +80,8 @@ func TestPublish_Happy_NoApps(t *testing.T) {
 }
 
 func TestPublish_Err_NoPublishMode(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.New(config.Project{})
 	ctx.AppsToRelease = []string{"TEST"}
 	p := Pipe{}
@@ -81,6 +91,8 @@ func TestPublish_Err_NoPublishMode(t *testing.T) {
 }
 
 func TestPublish_Err_AppMismatchTestflight(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.New(config.Project{
 		"TEST_": {},
 	})
@@ -95,6 +107,8 @@ func TestPublish_Err_AppMismatchTestflight(t *testing.T) {
 }
 
 func TestPublish_Err_AppMismatchStore(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.New(config.Project{
 		"TEST_": {},
 	})

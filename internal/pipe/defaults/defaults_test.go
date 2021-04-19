@@ -33,6 +33,8 @@ import (
 var errTestError = errors.New("TEST")
 
 func TestDefaults(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.New(config.Project{})
 	pipe := Pipe{}
 

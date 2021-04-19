@@ -25,6 +25,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"sync"
 
 	"github.com/apex/log"
 	"github.com/apex/log/handlers/cli"
@@ -32,14 +33,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// nolint: gochecknoglobals
+// It's strange these need to be global.
+var (
+	loggerMu sync.Mutex
+)
+
 // Execute is the primary function to initiate the command line interface for Cider.
 func Execute(version string, exit func(int), args []string) {
-	if os.Getenv("CI") != "" {
-		color.NoColor = false
-	}
-
-	log.SetHandler(cli.Default)
-
 	// nolint: forbidigo
 	fmt.Println()
 	// nolint: forbidigo
@@ -68,7 +69,7 @@ func NewRoot(version string, exit func(int)) *Root {
 		SilenceUsage:      true,
 		SilenceErrors:     true,
 		DisableAutoGenTag: true,
-		PersistentPreRun:  root.setDebug,
+		PersistentPreRun:  root.customizeLogger,
 	}
 
 	cmd.PersistentFlags().BoolVar(&root.debug, "debug", false, "Enable debug mode")
@@ -110,7 +111,16 @@ func (cmd *Root) Execute(args []string) {
 	}
 }
 
-func (cmd *Root) setDebug(c *cobra.Command, args []string) {
+func (cmd *Root) customizeLogger(c *cobra.Command, args []string) {
+	loggerMu.Lock()
+	defer loggerMu.Unlock()
+
+	if os.Getenv("CI") != "" {
+		color.NoColor = false
+	}
+
+	log.SetHandler(cli.Default)
+
 	if cmd.debug {
 		log.SetLevel(log.DebugLevel)
 		log.Debug("debug logs enabled")

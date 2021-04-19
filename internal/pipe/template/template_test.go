@@ -38,11 +38,15 @@ const (
 )
 
 func TestTemplatePipeHeader(t *testing.T) {
+	t.Parallel()
+
 	pipe := Pipe{}
 	assert.Equal(t, "applying template values", pipe.String())
 }
 
 func TestTemplateEmptyProjectPasses(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.New(config.Project{})
 	pipe := Pipe{}
 	err := pipe.Run(ctx)
@@ -52,6 +56,8 @@ func TestTemplateEmptyProjectPasses(t *testing.T) {
 }
 
 func TestTemplateFullyDefinedProjectWithGoodTemplatesPasses(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.New(fullyPopulatedProject(true))
 	expected := ctx.Version
 
@@ -132,6 +138,8 @@ func TestTemplateFullyDefinedProjectWithGoodTemplatesPasses(t *testing.T) {
 }
 
 func TestTemplateWithBadPatterns(t *testing.T) {
+	t.Parallel()
+
 	proj := fullyPopulatedProject(false)
 	ctx := context.New(proj)
 	pipe := Pipe{}

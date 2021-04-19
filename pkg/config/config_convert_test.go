@@ -28,6 +28,8 @@ import (
 )
 
 func TestPlatformAPIValue(t *testing.T) {
+	t.Parallel()
+
 	var plat Platform
 	plat = PlatformiOS
 	assert.Equal(t, *plat.APIValue(), asc.PlatformIOS)
@@ -45,6 +47,8 @@ func TestPlatformAPIValue(t *testing.T) {
 }
 
 func TestReleaseTypeAPIValue(t *testing.T) {
+	t.Parallel()
+
 	var release releaseType
 	release = ReleaseTypeManual
 	assert.Equal(t, *release.APIValue(), "MANUAL")
@@ -62,6 +66,8 @@ func TestReleaseTypeAPIValue(t *testing.T) {
 }
 
 func TestContentIntensityAPIValue(t *testing.T) {
+	t.Parallel()
+
 	var intensity contentIntensity
 	intensity = ContentIntensityNone
 	assert.Equal(t, *intensity.APIValue(), "NONE")
@@ -79,6 +85,8 @@ func TestContentIntensityAPIValue(t *testing.T) {
 }
 
 func TestKidsAgeBandAPIValue(t *testing.T) {
+	t.Parallel()
+
 	var band kidsAgeBand
 	band = KidsAgeBandFiveAndUnder
 	assert.Equal(t, *band.APIValue(), asc.KidsAgeBandFiveAndUnder)
@@ -96,6 +104,8 @@ func TestKidsAgeBandAPIValue(t *testing.T) {
 }
 
 func TestPreviewTypeAPIValue(t *testing.T) {
+	t.Parallel()
+
 	var preview previewType
 	preview = PreviewTypeAppleTV
 	assert.Equal(t, *preview.APIValue(), asc.PreviewTypeAppleTV)
@@ -137,6 +147,8 @@ func TestPreviewTypeAPIValue(t *testing.T) {
 }
 
 func TestScreenshotTypeAPIValue(t *testing.T) {
+	t.Parallel()
+
 	var screenshot screenshotType
 	screenshot = ScreenshotTypeAppleTV
 	assert.Equal(t, *screenshot.APIValue(), asc.ScreenshotDisplayTypeAppAppleTV)
@@ -198,6 +210,8 @@ func TestScreenshotTypeAPIValue(t *testing.T) {
 }
 
 func TestPreviewSetsGetPreviews(t *testing.T) {
+	t.Parallel()
+
 	sets := make(PreviewSets)
 
 	sets[PreviewTypeAppleTV] = []Preview{}
@@ -234,6 +248,8 @@ func TestPreviewSetsGetPreviews(t *testing.T) {
 }
 
 func TestGetScreenshotSetsGetScreenshots(t *testing.T) {
+	t.Parallel()
+
 	sets := make(ScreenshotSets)
 
 	sets[ScreenshotTypeAppleTV] = []File{}

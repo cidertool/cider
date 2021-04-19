@@ -29,21 +29,25 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var errTestError = errors.New("TEST")
+// nolint: gochecknoglobals
+var (
+	errTestError = errors.New("TEST")
+	groupMu      sync.Mutex
+)
 
 func TestGroup(t *testing.T) {
-	var g = New(4)
+	t.Parallel()
 
-	var lock sync.Mutex
+	var g = New(4)
 
 	var counter int
 
 	for i := 0; i < 10; i++ {
 		g.Go(func() error {
 			time.Sleep(10 * time.Millisecond)
-			lock.Lock()
+			groupMu.Lock()
 			counter++
-			lock.Unlock()
+			groupMu.Unlock()
 
 			return nil
 		})
@@ -53,6 +57,8 @@ func TestGroup(t *testing.T) {
 }
 
 func TestGroupOrder(t *testing.T) {
+	t.Parallel()
+
 	var num = 10
 
 	var g = New(1)
@@ -73,6 +79,8 @@ func TestGroupOrder(t *testing.T) {
 }
 
 func TestGroupOrderError(t *testing.T) {
+	t.Parallel()
+
 	var g = New(1)
 
 	var output = []int{}

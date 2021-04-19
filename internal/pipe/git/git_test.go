@@ -35,6 +35,8 @@ import (
 )
 
 func TestGit_Happy(t *testing.T) {
+	t.Parallel()
+
 	expected := context.GitInfo{
 		CurrentTag:  "1.0.0",
 		Commit:      "abcdef1234567890abcdef1234567890abcdef12",
@@ -64,6 +66,8 @@ func TestGit_Happy(t *testing.T) {
 }
 
 func TestGit_RealGitClient(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.New(config.Project{})
 	ctx.CurrentDirectory = "TEST"
 	p := Pipe{}
@@ -72,6 +76,8 @@ func TestGit_RealGitClient(t *testing.T) {
 }
 
 func TestGit_SkipGit(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.New(config.Project{})
 	ctx.Version = "1.0"
 	ctx.SkipGit = true
@@ -82,6 +88,8 @@ func TestGit_SkipGit(t *testing.T) {
 }
 
 func TestGit_Happy_EnvCurrentTag(t *testing.T) {
+	t.Parallel()
+
 	expected := context.GitInfo{
 		CurrentTag:  "1.0.0",
 		Commit:      "abcdef1234567890abcdef1234567890abcdef12",
@@ -114,6 +122,8 @@ func TestGit_Happy_EnvCurrentTag(t *testing.T) {
 }
 
 func TestGit_Err_NoGit(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.New(config.Project{})
 	p := Pipe{}
 	p.client = &git.Git{
@@ -131,6 +141,8 @@ func TestGit_Err_NoGit(t *testing.T) {
 }
 
 func TestGit_Err_NotInRepo(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.New(config.Project{})
 	p := Pipe{}
 	p.client = newMockGitWithContext(ctx,
@@ -142,6 +154,8 @@ func TestGit_Err_NotInRepo(t *testing.T) {
 }
 
 func TestGit_Err_BadCommit(t *testing.T) {
+	t.Parallel()
+
 	expected := context.GitInfo{
 		ShortCommit: "abcdef12",
 	}
@@ -164,6 +178,8 @@ func TestGit_Err_BadCommit(t *testing.T) {
 }
 
 func TestGit_Err_BadTime(t *testing.T) {
+	t.Parallel()
+
 	expected := context.GitInfo{
 		ShortCommit: "abcdef12",
 		FullCommit:  "abcdef1234567890abcdef1234567890abcdef12",
@@ -199,6 +215,8 @@ func TestGit_Err_BadTime(t *testing.T) {
 }
 
 func TestGit_Err_BadTag(t *testing.T) {
+	t.Parallel()
+
 	expected := context.GitInfo{
 		CurrentTag:  "1.0.0",
 		Commit:      "abcdef1234567890abcdef1234567890abcdef12",
@@ -223,6 +241,8 @@ func TestGit_Err_BadTag(t *testing.T) {
 }
 
 func TestGit_Err_DirtyWorkingCopy(t *testing.T) {
+	t.Parallel()
+
 	expected := context.GitInfo{
 		CurrentTag:  "1.0.0",
 		Commit:      "abcdef1234567890abcdef1234567890abcdef12",
@@ -248,6 +268,8 @@ func TestGit_Err_DirtyWorkingCopy(t *testing.T) {
 }
 
 func TestGit_Err_InvalidTag(t *testing.T) {
+	t.Parallel()
+
 	expected := context.GitInfo{
 		CurrentTag:  "1.0.0",
 		Commit:      "abcdef1234567890abcdef1234567890abcdef12",

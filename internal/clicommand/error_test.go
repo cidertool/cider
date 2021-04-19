@@ -30,6 +30,8 @@ import (
 var errTestError = errors.New("TEST")
 
 func TestErrors(t *testing.T) {
+	t.Parallel()
+
 	err := wrapError(errTestError, "TEST")
 	assert.Error(t, err)
 	assert.Equal(t, "TEST", err.Error())

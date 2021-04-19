@@ -29,6 +29,8 @@ import (
 )
 
 func TestShell(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.New(config.Project{})
 	ctx.CurrentDirectory = "TEST"
 	sh := Shell{

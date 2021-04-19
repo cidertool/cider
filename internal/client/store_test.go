@@ -33,6 +33,8 @@ import (
 // Test UpdateApp
 
 func TestUpdateApp_Happy(t *testing.T) {
+	t.Parallel()
+
 	now := time.Now()
 
 	ctx, client := newTestContext(
@@ -86,6 +88,8 @@ func TestUpdateApp_Happy(t *testing.T) {
 // Test UpdateAppLocalizations
 
 func TestUpdateAppLocalizations_Happy(t *testing.T) {
+	t.Parallel()
+
 	prepareForSubmission := asc.AppStoreVersionStatePrepareForSubmission
 	readyForSale := asc.AppStoreVersionStateReadyForSale
 	ctx, client := newTestContext(
@@ -149,6 +153,8 @@ func TestUpdateAppLocalizations_Happy(t *testing.T) {
 // Test CreateVersionIfNeeded
 
 func TestCreateVersionIfNeeded_Happy(t *testing.T) {
+	t.Parallel()
+
 	now := time.Now()
 	ctx, client := newTestContext(
 		response{
@@ -173,6 +179,8 @@ func TestCreateVersionIfNeeded_Happy(t *testing.T) {
 // Test UpdateVersionLocalizations
 
 func TestUpdateVersionLocalizations_Happy(t *testing.T) {
+	t.Parallel()
+
 	asset := newTestAsset(t, "TEST")
 	previewID := "TEST-Preview-en_US"
 	screenshotID := "TEST-Screenshot-en_US"
@@ -403,6 +411,8 @@ func TestUpdateVersionLocalizations_Happy(t *testing.T) {
 // Test UpdateIDFADeclaration
 
 func TestUpdateIDFADeclaration_Happy(t *testing.T) {
+	t.Parallel()
+
 	ctx, client := newTestContext(
 		response{
 			Response: asc.IDFADeclarationResponse{
@@ -422,6 +432,8 @@ func TestUpdateIDFADeclaration_Happy(t *testing.T) {
 }
 
 func TestUpdateIDFADeclaration_ErrUpdate(t *testing.T) {
+	t.Parallel()
+
 	ctx, client := newTestContext(
 		response{
 			RawResponse: `{"data":{"id":"TEST"}}`,
@@ -438,6 +450,8 @@ func TestUpdateIDFADeclaration_ErrUpdate(t *testing.T) {
 }
 
 func TestUpdateIDFADeclaration_ErrCreate(t *testing.T) {
+	t.Parallel()
+
 	ctx, client := newTestContext(
 		response{
 			StatusCode:  http.StatusNotFound,
@@ -457,6 +471,8 @@ func TestUpdateIDFADeclaration_ErrCreate(t *testing.T) {
 // Test UpdateReviewDetails
 
 func TestUpdateReviewDetails_Happy(t *testing.T) {
+	t.Parallel()
+
 	asset := newTestAsset(t, "TEST")
 	attachmentID := "TEST-Attachment-1"
 
@@ -531,6 +547,8 @@ func TestUpdateReviewDetails_Happy(t *testing.T) {
 }
 
 func TestUpdateReviewDetails_ErrUpdate(t *testing.T) {
+	t.Parallel()
+
 	ctx, client := newTestContext(
 		response{
 			RawResponse: `{"data":{"id":"TEST"}}`,
@@ -547,6 +565,8 @@ func TestUpdateReviewDetails_ErrUpdate(t *testing.T) {
 }
 
 func TestUpdateReviewDetails_ErrCreate(t *testing.T) {
+	t.Parallel()
+
 	ctx, client := newTestContext(
 		response{
 			StatusCode:  http.StatusNotFound,
@@ -569,6 +589,8 @@ func TestUpdateReviewDetails_ErrCreate(t *testing.T) {
 // Test EnablePhasedRelease
 
 func TestEnablePhasedRelease_Update(t *testing.T) {
+	t.Parallel()
+
 	ctx, client := newTestContext(
 		response{
 			Response: asc.AppStoreVersionPhasedReleaseResponse{
@@ -588,6 +610,8 @@ func TestEnablePhasedRelease_Update(t *testing.T) {
 }
 
 func TestEnablePhasedRelease_Create(t *testing.T) {
+	t.Parallel()
+
 	ctx, client := newTestContext(
 		response{
 			RawResponse: `{}`,
@@ -605,6 +629,8 @@ func TestEnablePhasedRelease_Create(t *testing.T) {
 // Test SubmitApp
 
 func TestSubmitApp_Happy(t *testing.T) {
+	t.Parallel()
+
 	ctx, client := newTestContext(
 		response{
 			RawResponse: `{}`,
@@ -617,6 +643,8 @@ func TestSubmitApp_Happy(t *testing.T) {
 }
 
 func TestSubmitApp_Err(t *testing.T) {
+	t.Parallel()
+
 	ctx, client := newTestContext(
 		response{
 			StatusCode:  http.StatusNotFound,

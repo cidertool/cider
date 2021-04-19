@@ -27,6 +27,8 @@ import (
 )
 
 func TestNewCredentials(t *testing.T) {
+	t.Parallel()
+
 	privateKey := []byte(`
 -----BEGIN PRIVATE KEY-----
 MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgTHOfkv1Dj2Yp8hyT

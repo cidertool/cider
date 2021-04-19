@@ -36,6 +36,8 @@ const (
 // Test UpdateBetaAppLocalizations
 
 func TestUpdateBetaAppLocalizations_Happy(t *testing.T) {
+	t.Parallel()
+
 	localizations := config.TestflightLocalizations{
 		"en-US": {
 			Description:       "TEST",
@@ -88,6 +90,8 @@ func TestUpdateBetaAppLocalizations_Happy(t *testing.T) {
 }
 
 func TestUpdateBetaAppLocalizations_ErrList(t *testing.T) {
+	t.Parallel()
+
 	ctx, client := newTestContext(
 		response{
 			StatusCode:  http.StatusNotFound,
@@ -101,6 +105,8 @@ func TestUpdateBetaAppLocalizations_ErrList(t *testing.T) {
 }
 
 func TestUpdateBetaAppLocalizations_ErrUpdate(t *testing.T) {
+	t.Parallel()
+
 	localizations := config.TestflightLocalizations{
 		"en-US": {
 			Description: "TEST",
@@ -133,6 +139,8 @@ func TestUpdateBetaAppLocalizations_ErrUpdate(t *testing.T) {
 }
 
 func TestUpdateBetaAppLocalizations_ErrCreate(t *testing.T) {
+	t.Parallel()
+
 	localizations := config.TestflightLocalizations{
 		"en-US": {
 			Description: "TEST",
@@ -174,6 +182,8 @@ func TestUpdateBetaAppLocalizations_ErrCreate(t *testing.T) {
 // Test UpdateBetaBuildDetails
 
 func TestUpdateBetaBuildDetails_Happy(t *testing.T) {
+	t.Parallel()
+
 	ctx, client := newTestContext(
 		response{
 			RawResponse: `{}`,
@@ -186,6 +196,8 @@ func TestUpdateBetaBuildDetails_Happy(t *testing.T) {
 }
 
 func TestUpdateBetaBuildDetails_Err(t *testing.T) {
+	t.Parallel()
+
 	ctx, client := newTestContext(
 		response{
 			StatusCode:  http.StatusNotFound,
@@ -203,6 +215,8 @@ func TestUpdateBetaBuildDetails_Err(t *testing.T) {
 // Test UpdateBetaBuildLocalizations
 
 func TestUpdateBetaBuildLocalizations_Happy(t *testing.T) {
+	t.Parallel()
+
 	localizations := config.TestflightLocalizations{
 		"en-US": {
 			Description: "TEST",
@@ -247,6 +261,8 @@ func TestUpdateBetaBuildLocalizations_Happy(t *testing.T) {
 }
 
 func TestUpdateBetaBuildLocalizations_ErrList(t *testing.T) {
+	t.Parallel()
+
 	ctx, client := newTestContext(
 		response{
 			StatusCode:  http.StatusNotFound,
@@ -260,6 +276,8 @@ func TestUpdateBetaBuildLocalizations_ErrList(t *testing.T) {
 }
 
 func TestUpdateBetaBuildLocalizations_ErrUpdate(t *testing.T) {
+	t.Parallel()
+
 	localizations := config.TestflightLocalizations{
 		"en-US": {
 			Description: "TEST",
@@ -292,6 +310,8 @@ func TestUpdateBetaBuildLocalizations_ErrUpdate(t *testing.T) {
 }
 
 func TestUpdateBetaBuildLocalizations_ErrCreate(t *testing.T) {
+	t.Parallel()
+
 	localizations := config.TestflightLocalizations{
 		"en-US": {
 			Description: "TEST",
@@ -333,6 +353,8 @@ func TestUpdateBetaBuildLocalizations_ErrCreate(t *testing.T) {
 // Test UpdateBetaLicenseAgreement
 
 func TestUpdateBetaLicenseAgreement_Happy(t *testing.T) {
+	t.Parallel()
+
 	ctx, client := newTestContext(
 		response{
 			RawResponse: `{"data":{"id":"TEST"}}`,
@@ -348,6 +370,8 @@ func TestUpdateBetaLicenseAgreement_Happy(t *testing.T) {
 }
 
 func TestUpdateBetaLicenseAgreement_NoLicense(t *testing.T) {
+	t.Parallel()
+
 	ctx, client := newTestContext()
 	defer ctx.Close()
 
@@ -356,6 +380,8 @@ func TestUpdateBetaLicenseAgreement_NoLicense(t *testing.T) {
 }
 
 func TestUpdateBetaLicenseAgreement_ErrGet(t *testing.T) {
+	t.Parallel()
+
 	ctx, client := newTestContext(
 		response{
 			StatusCode:  http.StatusNotFound,
@@ -369,6 +395,8 @@ func TestUpdateBetaLicenseAgreement_ErrGet(t *testing.T) {
 }
 
 func TestUpdateBetaLicenseAgreement_ErrUpdate(t *testing.T) {
+	t.Parallel()
+
 	ctx, client := newTestContext(
 		response{
 			RawResponse: `{"data":{"id":"TEST"}}`,
@@ -387,6 +415,8 @@ func TestUpdateBetaLicenseAgreement_ErrUpdate(t *testing.T) {
 // Test AssignBetaGroups
 
 func TestAssignBetaGroups_Happy(t *testing.T) {
+	t.Parallel()
+
 	testEmail := asc.Email("email2@test.com")
 	ctx, client := newTestContext(
 		response{
@@ -474,6 +504,8 @@ func TestAssignBetaGroups_Happy(t *testing.T) {
 }
 
 func TestAssignBetaGroups_WarnNoGroupsInput(t *testing.T) {
+	t.Parallel()
+
 	ctx, client := newTestContext()
 	defer ctx.Close()
 
@@ -482,6 +514,8 @@ func TestAssignBetaGroups_WarnNoGroupsInput(t *testing.T) {
 }
 
 func TestAssignBetaGroups_ErrList(t *testing.T) {
+	t.Parallel()
+
 	ctx, client := newTestContext(
 		response{
 			StatusCode:  http.StatusNotFound,
@@ -495,6 +529,8 @@ func TestAssignBetaGroups_ErrList(t *testing.T) {
 }
 
 func TestAssignBetaGroups_ErrUpdate(t *testing.T) {
+	t.Parallel()
+
 	ctx, client := newTestContext(
 		response{
 			Response: asc.BetaGroupsResponse{
@@ -522,6 +558,8 @@ func TestAssignBetaGroups_ErrUpdate(t *testing.T) {
 }
 
 func TestAssignBetaGroups_ErrAssign(t *testing.T) {
+	t.Parallel()
+
 	ctx, client := newTestContext(
 		response{
 			Response: asc.BetaGroupsResponse{
@@ -547,6 +585,8 @@ func TestAssignBetaGroups_ErrAssign(t *testing.T) {
 }
 
 func TestAssignBetaGroups_ErrCreate(t *testing.T) {
+	t.Parallel()
+
 	ctx, client := newTestContext(
 		response{
 			RawResponse: `{"data":[]}`,
@@ -567,6 +607,8 @@ func TestAssignBetaGroups_ErrCreate(t *testing.T) {
 // Test AssignBetaTesters
 
 func TestAssignBetaTesters_Happy(t *testing.T) {
+	t.Parallel()
+
 	ctx, client := newTestContext(
 		response{
 			Response: asc.BetaTestersResponse{
@@ -609,6 +651,8 @@ func TestAssignBetaTesters_Happy(t *testing.T) {
 }
 
 func TestAssignBetaTesters_WarnNoTestersInput(t *testing.T) {
+	t.Parallel()
+
 	ctx, client := newTestContext()
 	defer ctx.Close()
 
@@ -617,6 +661,8 @@ func TestAssignBetaTesters_WarnNoTestersInput(t *testing.T) {
 }
 
 func TestAssignBetaTesters_ErrList(t *testing.T) {
+	t.Parallel()
+
 	ctx, client := newTestContext(
 		response{
 			StatusCode:  http.StatusNotFound,
@@ -630,6 +676,8 @@ func TestAssignBetaTesters_ErrList(t *testing.T) {
 }
 
 func TestAssignBetaTesters_WarnNoTestersMatching(t *testing.T) {
+	t.Parallel()
+
 	ctx, client := newTestContext(
 		response{
 			RawResponse: `{"data":[]}`,
@@ -642,6 +690,8 @@ func TestAssignBetaTesters_WarnNoTestersMatching(t *testing.T) {
 }
 
 func TestAssignBetaTesters_ErrAssign(t *testing.T) {
+	t.Parallel()
+
 	testEmail := asc.Email("test@email.com")
 	ctx, client := newTestContext(
 		response{
@@ -671,6 +721,8 @@ func TestAssignBetaTesters_ErrAssign(t *testing.T) {
 // Test UpdateBetaReviewDetails
 
 func TestUpdateBetaReviewDetails_Happy(t *testing.T) {
+	t.Parallel()
+
 	ctx, client := newTestContext(
 		response{
 			RawResponse: `{"data":{"id":"TEST"}}`,
@@ -692,6 +744,8 @@ func TestUpdateBetaReviewDetails_Happy(t *testing.T) {
 }
 
 func TestUpdateBetaReviewDetails_ErrGet(t *testing.T) {
+	t.Parallel()
+
 	ctx, client := newTestContext(
 		response{
 			StatusCode:  http.StatusNotFound,
@@ -705,6 +759,8 @@ func TestUpdateBetaReviewDetails_ErrGet(t *testing.T) {
 }
 
 func TestUpdateBetaReviewDetails_ErrUpdate(t *testing.T) {
+	t.Parallel()
+
 	ctx, client := newTestContext(
 		response{
 			RawResponse: `{"data":{"id":"TEST"}}`,
@@ -723,6 +779,8 @@ func TestUpdateBetaReviewDetails_ErrUpdate(t *testing.T) {
 // Test SubmitBetaApp
 
 func TestSubmitBetaApp_Happy(t *testing.T) {
+	t.Parallel()
+
 	ctx, client := newTestContext(
 		response{
 			RawResponse: `{}`,
@@ -735,6 +793,8 @@ func TestSubmitBetaApp_Happy(t *testing.T) {
 }
 
 func TestSubmitBetaApp_Err(t *testing.T) {
+	t.Parallel()
+
 	ctx, client := newTestContext(
 		response{
 			StatusCode:  http.StatusNotFound,

@@ -31,12 +31,16 @@ import (
 var errTestError = errors.New("TEST")
 
 func TestInterruptOK(t *testing.T) {
+	t.Parallel()
+
 	assert.NoError(t, NewInterrupt().Run(context.Background(), func() error {
 		return nil
 	}))
 }
 
 func TestInterruptErrors(t *testing.T) {
+	t.Parallel()
+
 	assert.EqualError(t, NewInterrupt().Run(context.Background(), func() error {
 		return errTestError
 	}), errTestError.Error())

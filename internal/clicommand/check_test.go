@@ -30,6 +30,8 @@ import (
 )
 
 func TestCheckCmd(t *testing.T) {
+	t.Parallel()
+
 	var cmd = newCheckCmd()
 
 	var path = filepath.Join(t.TempDir(), "foo.yaml")

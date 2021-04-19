@@ -29,6 +29,8 @@ import (
 )
 
 func TestTemplate(t *testing.T) {
+	t.Parallel()
+
 	tmpl, err := New(context.New(config.Project{})).
 		WithEnv(map[string]string{
 			"DOG": "HAPPY",
@@ -44,11 +46,15 @@ func TestTemplate(t *testing.T) {
 }
 
 func TestInvalidTemplate(t *testing.T) {
+	t.Parallel()
+
 	_, err := New(context.New(config.Project{})).Apply(`{{ .timestamp`)
 	assert.Error(t, err)
 }
 
 func TestEmptyTemplate(t *testing.T) {
+	t.Parallel()
+
 	tmpl, err := New(context.New(config.Project{})).Apply("")
 	assert.NoError(t, err)
 	assert.Empty(t, tmpl)

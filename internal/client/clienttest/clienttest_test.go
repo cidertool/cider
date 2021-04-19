@@ -30,6 +30,8 @@ import (
 )
 
 func TestClient(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.New(config.Project{})
 	c := clienttest.Client{}
 
@@ -107,6 +109,8 @@ func TestClient(t *testing.T) {
 }
 
 func TestCredentials(t *testing.T) {
+	t.Parallel()
+
 	c := clienttest.Credentials{}
 	assert.NotNil(t, c.Client())
 }

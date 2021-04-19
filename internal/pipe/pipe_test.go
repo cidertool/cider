@@ -27,6 +27,8 @@ import (
 )
 
 func TestPipeSkip(t *testing.T) {
+	t.Parallel()
+
 	skip := Skip("TEST")
 
 	var err error = ErrSkip{reason: "TEST"}
@@ -39,6 +41,8 @@ func TestPipeSkip(t *testing.T) {
 }
 
 func TestErrMissingApp(t *testing.T) {
+	t.Parallel()
+
 	err := ErrMissingApp{Name: "TEST"}
 	assert.Error(t, err)
 	assert.EqualError(t, err, "no app defined in configuration matching the name TEST")

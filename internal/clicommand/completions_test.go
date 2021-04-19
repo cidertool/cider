@@ -27,6 +27,8 @@ import (
 )
 
 func TestCompletionsCmd(t *testing.T) {
+	t.Parallel()
+
 	cmd := newCompletionsCmd()
 
 	cmd.cmd.SetArgs([]string{})

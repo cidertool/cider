@@ -29,6 +29,8 @@ import (
 )
 
 func TestExec(t *testing.T) {
+	t.Parallel()
+
 	sh := New(context.New(config.Project{}))
 	cmd := sh.NewCommand("echo", "dogs")
 	ps, err := sh.Exec(cmd)
@@ -37,6 +39,8 @@ func TestExec(t *testing.T) {
 }
 
 func TestExec_Error(t *testing.T) {
+	t.Parallel()
+
 	sh := New(context.New(config.Project{}))
 	cmd := sh.NewCommand("exit", "1")
 	ps, err := sh.Exec(cmd)
@@ -45,6 +49,8 @@ func TestExec_Error(t *testing.T) {
 }
 
 func TestEscapeArgs(t *testing.T) {
+	t.Parallel()
+
 	original := []string{"dan", "wears", "big jorts"}
 	expected := []string{"dan", "wears", "'big jorts'"}
 	actual := escapeArgs(original)
@@ -52,12 +58,16 @@ func TestEscapeArgs(t *testing.T) {
 }
 
 func TestExists(t *testing.T) {
+	t.Parallel()
+
 	sh := New(context.New(config.Project{}))
 	assert.True(t, sh.Exists("git"))
 	assert.False(t, sh.Exists("nonexistent_program.exe"))
 }
 
 func TestCurrentDirectory(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.New(config.Project{})
 	ctx.CurrentDirectory = "TEST"
 	sh := New(ctx)

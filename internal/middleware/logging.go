@@ -21,6 +21,8 @@ along with Cider.  If not, see <http://www.gnu.org/licenses/>.
 package middleware
 
 import (
+	"sync"
+
 	"github.com/apex/log"
 	"github.com/apex/log/handlers/cli"
 	"github.com/cidertool/cider/pkg/context"
@@ -36,6 +38,9 @@ const DefaultInitialPadding Padding = 3
 // ExtraPadding is the double of the DefaultInitialPadding.
 const ExtraPadding Padding = DefaultInitialPadding * 2
 
+// nolint: gochecknoglobals
+var loggerMu sync.Mutex
+
 // Logging pretty prints the given action and its title.
 // You can have different padding levels by providing different initial
 // paddings. The middleware will print the title in the given padding and the
@@ -44,6 +49,9 @@ const ExtraPadding Padding = DefaultInitialPadding * 2
 // The middleware always resets to the default padding.
 func Logging(title string, next Action, padding Padding) Action {
 	return func(ctx *context.Context) error {
+		loggerMu.Lock()
+		defer loggerMu.Unlock()
+
 		defer func() {
 			cli.Default.Padding = int(DefaultInitialPadding)
 		}()

@@ -31,6 +31,8 @@ import (
 // Test UploadRoutingCoverage
 
 func TestUploadRoutingCoverage_Happy(t *testing.T) {
+	t.Parallel()
+
 	asset := newTestAsset(t, "TEST")
 	ctx, client := newTestContext(
 		response{

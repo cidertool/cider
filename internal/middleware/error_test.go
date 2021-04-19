@@ -33,6 +33,8 @@ import (
 var errTestError = errors.New("TEST")
 
 func TestErrHandler_WrapsError(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.New(config.Project{})
 	wrapped := ErrHandler(func(ctx *context.Context) error {
 		return errTestError
@@ -42,6 +44,8 @@ func TestErrHandler_WrapsError(t *testing.T) {
 }
 
 func TestErrHandler_IgnoresNoError(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.New(config.Project{})
 	wrapped := ErrHandler(func(ctx *context.Context) error {
 		return nil
@@ -51,6 +55,8 @@ func TestErrHandler_IgnoresNoError(t *testing.T) {
 }
 
 func TestErrHandler_HandlesSkip(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.New(config.Project{})
 	wrapped := ErrHandler(func(ctx *context.Context) error {
 		return pipe.Skip("TEST")

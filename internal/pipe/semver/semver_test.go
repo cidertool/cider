@@ -29,6 +29,8 @@ import (
 )
 
 func TestSemver(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.New(config.Project{})
 	pipe := Pipe{}
 

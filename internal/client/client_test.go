@@ -32,6 +32,8 @@ import (
 // Test GetApp
 
 func TestGetApp_Happy(t *testing.T) {
+	t.Parallel()
+
 	expectedBundleID := "com.app.bundleid"
 	ctx, client := newTestContext(response{
 		Response: asc.AppsResponse{
@@ -54,6 +56,8 @@ func TestGetApp_Happy(t *testing.T) {
 }
 
 func TestGetApp_Err(t *testing.T) {
+	t.Parallel()
+
 	ctx, client := newTestContext(response{
 		StatusCode:  http.StatusNotFound,
 		RawResponse: `{}`,
@@ -66,6 +70,8 @@ func TestGetApp_Err(t *testing.T) {
 }
 
 func TestGetApp_ErrNoApps(t *testing.T) {
+	t.Parallel()
+
 	ctx, client := newTestContext(response{
 		RawResponse: `{"data":[]}`,
 	})
@@ -79,6 +85,8 @@ func TestGetApp_ErrNoApps(t *testing.T) {
 // Test GetAppInfo
 
 func TestGetAppInfo_Happy(t *testing.T) {
+	t.Parallel()
+
 	expectedState := asc.AppStoreVersionStatePrepareForSubmission
 	app := asc.App{}
 	ctx, client := newTestContext(response{
@@ -106,6 +114,8 @@ func TestGetAppInfo_Happy(t *testing.T) {
 }
 
 func TestGetAppInfo_Err(t *testing.T) {
+	t.Parallel()
+
 	app := asc.App{}
 	ctx, client := newTestContext(response{
 		StatusCode:  http.StatusNotFound,
@@ -120,6 +130,8 @@ func TestGetAppInfo_Err(t *testing.T) {
 }
 
 func TestGetAppInfo_ErrNoData(t *testing.T) {
+	t.Parallel()
+
 	app := asc.App{}
 	ctx, client := newTestContext(response{
 		RawResponse: `{}`,
@@ -139,6 +151,8 @@ const (
 )
 
 func TestGetBuild_Happy(t *testing.T) {
+	t.Parallel()
+
 	expectedProcessingState := validProcessingState
 	app := asc.App{
 		Attributes: &asc.AppAttributes{
@@ -167,6 +181,8 @@ func TestGetBuild_Happy(t *testing.T) {
 }
 
 func TestGetBuild_HappyOverrideBuild(t *testing.T) {
+	t.Parallel()
+
 	expectedProcessingState := validProcessingState
 	app := asc.App{
 		Attributes: &asc.AppAttributes{
@@ -196,6 +212,8 @@ func TestGetBuild_HappyOverrideBuild(t *testing.T) {
 }
 
 func TestGetBuild_ErrNoVersion(t *testing.T) {
+	t.Parallel()
+
 	app := asc.App{
 		Attributes: &asc.AppAttributes{
 			BundleID: asc.String("com.app.bundleid"),
@@ -214,6 +232,8 @@ func TestGetBuild_ErrNoVersion(t *testing.T) {
 }
 
 func TestGetBuild_Err(t *testing.T) {
+	t.Parallel()
+
 	app := asc.App{
 		Attributes: &asc.AppAttributes{
 			BundleID: asc.String("com.app.bundleid"),
@@ -234,6 +254,8 @@ func TestGetBuild_Err(t *testing.T) {
 }
 
 func TestGetBuild_ErrNoBuilds(t *testing.T) {
+	t.Parallel()
+
 	app := asc.App{
 		Attributes: &asc.AppAttributes{
 			BundleID: asc.String("com.app.bundleid"),
@@ -253,6 +275,8 @@ func TestGetBuild_ErrNoBuilds(t *testing.T) {
 }
 
 func TestGetBuild_ErrNoAttributes(t *testing.T) {
+	t.Parallel()
+
 	app := asc.App{
 		Attributes: &asc.AppAttributes{
 			BundleID: asc.String("com.app.bundleid"),
@@ -272,6 +296,8 @@ func TestGetBuild_ErrNoAttributes(t *testing.T) {
 }
 
 func TestGetBuild_ErrNoProcessingState(t *testing.T) {
+	t.Parallel()
+
 	app := asc.App{
 		Attributes: &asc.AppAttributes{
 			BundleID: asc.String("com.app.bundleid"),
@@ -291,6 +317,8 @@ func TestGetBuild_ErrNoProcessingState(t *testing.T) {
 }
 
 func TestGetBuild_ErrInvalidProcessingState(t *testing.T) {
+	t.Parallel()
+
 	app := asc.App{
 		Attributes: &asc.AppAttributes{
 			BundleID: asc.String("com.app.bundleid"),
@@ -312,6 +340,8 @@ func TestGetBuild_ErrInvalidProcessingState(t *testing.T) {
 // Test ReleaseForAppIsInitial
 
 func TestReleaseForAppIsInitial_HappyInitial(t *testing.T) {
+	t.Parallel()
+
 	app := asc.App{}
 	ctx, client := newTestContext(response{
 		Response: asc.AppStoreVersionsResponse{
@@ -329,6 +359,8 @@ func TestReleaseForAppIsInitial_HappyInitial(t *testing.T) {
 }
 
 func TestReleaseForAppIsInitial_Err(t *testing.T) {
+	t.Parallel()
+
 	app := asc.App{}
 	ctx, client := newTestContext(response{
 		StatusCode:  http.StatusNotFound,
@@ -343,6 +375,8 @@ func TestReleaseForAppIsInitial_Err(t *testing.T) {
 }
 
 func TestReleaseForAppIsInitial_HappyNotInitial(t *testing.T) {
+	t.Parallel()
+
 	app := asc.App{}
 	ctx, client := newTestContext(response{
 		Response: asc.AppStoreVersionsResponse{

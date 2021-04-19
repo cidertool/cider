@@ -28,6 +28,8 @@ import (
 )
 
 func TestInitCmd(t *testing.T) {
+	t.Parallel()
+
 	var folder = t.TempDir()
 
 	var cmd = newInitCmd().cmd

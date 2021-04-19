@@ -29,6 +29,8 @@ import (
 )
 
 func TestLogging(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.New(config.Project{})
 	wrapped := Logging("TEST", func(ctx *context.Context) error {
 		return nil

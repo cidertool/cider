@@ -31,6 +31,8 @@ import (
 )
 
 func TestTestflight_Happy(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.New(config.Project{
 		"TEST": {
 			BundleID: "com.test.TEST",
@@ -62,6 +64,8 @@ func TestTestflight_Happy(t *testing.T) {
 }
 
 func TestTestflight_Happy_Skips(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.New(config.Project{
 		"TEST": {
 			BundleID: "com.test.TEST",
@@ -78,6 +82,8 @@ func TestTestflight_Happy_Skips(t *testing.T) {
 }
 
 func TestTestflight_Happy_NoApps(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.New(config.Project{})
 	ctx.Credentials = &clienttest.Credentials{}
 	p := Pipe{}

@@ -27,39 +27,51 @@ import (
 )
 
 func TestVersion(t *testing.T) {
-	for name, tt := range map[string]struct {
+	t.Parallel()
+
+	testCases := []struct {
+		name                           string
 		version, commit, date, builtBy string
 		out                            string
 	}{
-		"all empty": {
-			out: "",
+		{
+			name: "all empty",
+			out:  "",
 		},
-		"complete": {
+		{
+			name:    "complete",
 			version: "1.2.3",
 			date:    "12/12/12",
 			commit:  "aaaa",
 			builtBy: "me",
 			out:     "1.2.3\ncommit: aaaa\nbuilt at: 12/12/12\nbuilt by: me",
 		},
-		"only version": {
+		{
+			name:    "only version",
 			version: "1.2.3",
 			out:     "1.2.3",
 		},
-		"version and date": {
+		{
+			name:    "version and date",
 			version: "1.2.3",
 			date:    "12/12/12",
 			out:     "1.2.3\nbuilt at: 12/12/12",
 		},
-		"version, date, built by": {
+		{
+			name:    "version, date, built by",
 			version: "1.2.3",
 			date:    "12/12/12",
 			builtBy: "me",
 			out:     "1.2.3\nbuilt at: 12/12/12\nbuilt by: me",
 		},
-	} {
+	}
+
+	for _, tt := range testCases {
 		tt := tt
 
-		t.Run(name, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			assert.Equal(t, tt.out+licenseDisclaimer, buildVersion(tt.version, tt.commit, tt.date, tt.builtBy))
 		})
 	}

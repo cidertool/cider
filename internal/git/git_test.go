@@ -47,6 +47,8 @@ func newMockGitWithContext(ctx *context.Context, t *testing.T, commands ...shell
 }
 
 func TestNew(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.New(config.Project{})
 	client := New(ctx)
 	ok := client.IsRepo()
@@ -54,6 +56,8 @@ func TestNew(t *testing.T) {
 }
 
 func TestSanitizeProcess(t *testing.T) {
+	t.Parallel()
+
 	runFunc := func(client *Git) (*shell.CompletedProcess, error) {
 		return client.RunInEnv(map[string]string{
 			"TEST": "TEST",
@@ -87,6 +91,8 @@ func TestSanitizeProcess(t *testing.T) {
 }
 
 func TestShowRef(t *testing.T) {
+	t.Parallel()
+
 	// Selected the initial commit of this repo, because I needed a sha1 hash.
 	expected := "eac16d260ebf8af83873c9704169cf40a5501f84"
 	client := newMockGit(
@@ -99,6 +105,8 @@ func TestShowRef(t *testing.T) {
 }
 
 func TestExtractRemoteFromConfig_Happy(t *testing.T) {
+	t.Parallel()
+
 	expected := Repo{
 		Name:  "cider",
 		Owner: "cidertool",
@@ -115,6 +123,8 @@ func TestExtractRemoteFromConfig_Happy(t *testing.T) {
 }
 
 func TestExtractRemoteFromConfig_ErrIsNotRepo(t *testing.T) {
+	t.Parallel()
+
 	client := newMockGit(
 		t,
 		shelltest.Command{Stdout: "false"},
@@ -125,6 +135,8 @@ func TestExtractRemoteFromConfig_ErrIsNotRepo(t *testing.T) {
 }
 
 func TestExtractRemoteFromConfig_ErrNoRemoteNamedOrigin(t *testing.T) {
+	t.Parallel()
+
 	client := newMockGit(
 		t,
 		shelltest.Command{Stdout: "true"},
@@ -136,6 +148,8 @@ func TestExtractRemoteFromConfig_ErrNoRemoteNamedOrigin(t *testing.T) {
 }
 
 func TestExtractRepoFromURL(t *testing.T) {
+	t.Parallel()
+
 	var repo Repo
 
 	expected := Repo{

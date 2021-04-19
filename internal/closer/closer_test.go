@@ -30,6 +30,8 @@ import (
 var errAlreadyClosed = errors.New("already closed")
 
 func TestClose(t *testing.T) {
+	t.Parallel()
+
 	var expectingErr bool
 
 	onCloseErr = func(err error) {

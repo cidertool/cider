@@ -30,6 +30,8 @@ import (
 )
 
 func TestNew(t *testing.T) {
+	t.Parallel()
+
 	assert.NoError(t, os.Setenv("TEST", "DOG"))
 
 	ctx := New(config.Project{})
@@ -37,6 +39,8 @@ func TestNew(t *testing.T) {
 }
 
 func TestNewWithTimeout(t *testing.T) {
+	t.Parallel()
+
 	ctx, cancel := NewWithTimeout(config.Project{}, time.Second)
 	assert.NotEmpty(t, ctx.Env)
 	cancel()
@@ -45,6 +49,8 @@ func TestNewWithTimeout(t *testing.T) {
 }
 
 func TestEnv(t *testing.T) {
+	t.Parallel()
+
 	var env = Env{"DOG": "FRIEND"}
 	anotherEnv := env.Copy()
 	assert.Equal(t, env, anotherEnv)
@@ -53,6 +59,8 @@ func TestEnv(t *testing.T) {
 }
 
 func TestPublishMode(t *testing.T) {
+	t.Parallel()
+
 	var mode PublishMode
 	mode = PublishModeAppStore
 	assert.Equal(t, "appstore", mode.String())

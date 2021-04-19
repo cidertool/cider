@@ -28,6 +28,8 @@ import (
 )
 
 func TestRootCmd(t *testing.T) {
+	t.Parallel()
+
 	exit := func(code int) {
 		assert.Equal(t, 0, code)
 	}
@@ -37,6 +39,8 @@ func TestRootCmd(t *testing.T) {
 }
 
 func TestRootCmd_Error(t *testing.T) {
+	t.Parallel()
+
 	exit := func(code int) {
 		assert.NotEqual(t, 0, code)
 	}

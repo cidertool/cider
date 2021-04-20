@@ -41,9 +41,8 @@ const configDocString = `# This is a template .cider.yaml file with some sane de
 `
 
 type initCmd struct {
-	cmd            *cobra.Command
-	debugFlagValue *bool
-	opts           initOpts
+	cmd  *cobra.Command
+	opts initOpts
 }
 
 type initOpts struct {

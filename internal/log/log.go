@@ -18,7 +18,7 @@ You should have received a copy of the GNU General Public License
 along with Cider.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// Package logger is a substitute for the global apex/log that is not thread safe
+// Package log is a substitute for the global apex/log that is not thread safe.
 package log
 
 import (
@@ -29,6 +29,7 @@ import (
 	"github.com/fatih/color"
 )
 
+// Interface is an extension of log.Interface.
 type Interface interface {
 	log.Interface
 	SetColorMode(v bool)
@@ -36,13 +37,16 @@ type Interface interface {
 	SetPadding(v int)
 }
 
+// Fields re-exports log.Fields from github.com/apex/log.
 type Fields = log.Fields
 
+// Log is a thread-safe wrapper for log.Logger.
 type Log struct {
 	log.Logger
 	mu sync.RWMutex
 }
 
+// New creates a new Log instance.
 func New() *Log {
 	return &Log{
 		Logger: log.Logger{
@@ -52,20 +56,27 @@ func New() *Log {
 	}
 }
 
+// SetColorMode sets the global color mode for the logger.
 func (l *Log) SetColorMode(v bool) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
-	color.NoColor = false
+	color.NoColor = v
 }
 
+// SetDebug sets the log level to Debug or Info.
 func (l *Log) SetDebug(v bool) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
-	l.Logger.Level = log.DebugLevel
+	if v {
+		l.Logger.Level = log.DebugLevel
+	} else {
+		l.Logger.Level = log.InfoLevel
+	}
 }
 
+// SetPadding sets the padding of the log handler in a thread-safe way.
 func (l *Log) SetPadding(v int) {
 	l.mu.Lock()
 	defer l.mu.Unlock()

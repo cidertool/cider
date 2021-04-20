@@ -23,7 +23,6 @@ package clicommand
 import (
 	"fmt"
 
-	"github.com/apex/log"
 	"github.com/cidertool/cider/internal/pipe/defaults"
 	"github.com/cidertool/cider/pkg/context"
 	"github.com/fatih/color"
@@ -31,12 +30,13 @@ import (
 )
 
 type checkCmd struct {
-	cmd    *cobra.Command
-	config string
+	cmd            *cobra.Command
+	debugFlagValue *bool
+	config         string
 }
 
-func newCheckCmd() *checkCmd {
-	var root = &checkCmd{}
+func newCheckCmd(debugFlagValue *bool) *checkCmd {
+	var root = &checkCmd{debugFlagValue: debugFlagValue}
 
 	var cmd = &cobra.Command{
 		Use:           "check",
@@ -45,27 +45,7 @@ func newCheckCmd() *checkCmd {
 		Example:       "cider check",
 		SilenceUsage:  true,
 		SilenceErrors: true,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			cfg, err := loadConfig(root.config, "")
-			if err != nil {
-				return err
-			}
-			var ctx = context.New(cfg)
-
-			if err := context.NewInterrupt().Run(ctx, func() error {
-				log.Info(color.New(color.Bold).Sprint("checking config:"))
-
-				return defaults.Pipe{}.Run(ctx)
-			}); err != nil {
-				log.WithError(err).Error(color.New(color.Bold).Sprintf("config is invalid"))
-
-				return fmt.Errorf("invalid config: %w", err)
-			}
-
-			log.Info(color.New(color.Bold).Sprintf("config is valid"))
-
-			return nil
-		},
+		RunE:          root.Run,
 	}
 
 	cmd.Flags().StringVarP(&root.config, "config", "f", "", "Configuration file to check")
@@ -73,4 +53,29 @@ func newCheckCmd() *checkCmd {
 	root.cmd = cmd
 
 	return root
+}
+
+func (cmd *checkCmd) Run(c *cobra.Command, args []string) error {
+	logger := newLogger(cmd.debugFlagValue)
+
+	cfg, err := loadConfig(cmd.config, "")
+	if err != nil {
+		return err
+	}
+
+	var ctx = context.New(cfg)
+
+	if err := context.NewInterrupt().Run(ctx, func() error {
+		logger.Info(color.New(color.Bold).Sprint("checking config:"))
+
+		return defaults.Pipe{}.Run(ctx)
+	}); err != nil {
+		logger.WithError(err).Error(color.New(color.Bold).Sprintf("config is invalid"))
+
+		return fmt.Errorf("invalid config: %w", err)
+	}
+
+	logger.Info(color.New(color.Bold).Sprintf("config is valid"))
+
+	return nil
 }

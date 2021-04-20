@@ -21,8 +21,8 @@ along with Cider.  If not, see <http://www.gnu.org/licenses/>.
 package client
 
 import (
-	"github.com/apex/log"
 	"github.com/cidertool/asc-go/asc"
+	"github.com/cidertool/cider/internal/log"
 	"github.com/cidertool/cider/internal/parallel"
 	"github.com/cidertool/cider/pkg/config"
 	"github.com/cidertool/cider/pkg/context"
@@ -41,11 +41,11 @@ func (c *ascClient) UpdateBetaAppLocalizations(ctx *context.Context, appID strin
 	for i := range locListResp.Data {
 		loc := locListResp.Data[i]
 		locale := *loc.Attributes.Locale
-		log.WithField("locale", locale).Debug("found beta app locale")
+		ctx.Log.WithField("locale", locale).Debug("found beta app locale")
 		locConfig, ok := config[locale]
 
 		if !ok {
-			log.WithField("locale", locale).Debug("not in configuration. skipping...")
+			ctx.Log.WithField("locale", locale).Debug("not in configuration. skipping...")
 
 			continue
 		}
@@ -150,15 +150,15 @@ func (c *ascClient) UpdateBetaBuildLocalizations(ctx *context.Context, buildID s
 	for i := range locListResp.Data {
 		loc := locListResp.Data[i]
 		locale := *loc.Attributes.Locale
-		log.WithField("locale", locale).Debug("found beta build locale")
+		ctx.Log.WithField("locale", locale).Debug("found beta build locale")
 		locConfig, ok := config[locale]
 
 		if !ok {
-			log.WithField("locale", locale).Debug("not in configuration. skipping...")
+			ctx.Log.WithField("locale", locale).Debug("not in configuration. skipping...")
 
 			continue
 		} else if locConfig.WhatsNew == "" {
-			log.WithField("locale", locale).Warn("skipping updating beta build localization due to empty What's New text")
+			ctx.Log.WithField("locale", locale).Warn("skipping updating beta build localization due to empty What's New text")
 
 			continue
 		}
@@ -181,7 +181,7 @@ func (c *ascClient) UpdateBetaBuildLocalizations(ctx *context.Context, buildID s
 		locConfig := config[locale]
 
 		if locConfig.WhatsNew == "" {
-			log.WithField("locale", locale).Warn("skipping updating beta build localization due to empty What's New text")
+			ctx.Log.WithField("locale", locale).Warn("skipping updating beta build localization due to empty What's New text")
 
 			continue
 		}
@@ -215,7 +215,7 @@ func (c *ascClient) AssignBetaGroups(ctx *context.Context, appID string, buildID
 	var g = parallel.New(ctx.MaxProcesses)
 
 	if len(groups) == 0 {
-		log.Debug("no groups in configuration")
+		ctx.Log.Debug("no groups in configuration")
 
 		return nil
 	}
@@ -249,13 +249,13 @@ func (c *ascClient) AssignBetaGroups(ctx *context.Context, appID string, buildID
 		configGroup, ok := groupConfigs[name]
 
 		if !ok {
-			log.WithField("group", name).Debug("not in configuration. skipping...")
+			ctx.Log.WithField("group", name).Debug("not in configuration. skipping...")
 
 			continue
 		}
 
 		g.Go(func() error {
-			log.WithField("group", name).Debug("update beta group")
+			ctx.Log.WithField("group", name).Debug("update beta group")
 
 			return c.updateBetaGroup(ctx, g, appID, group.ID, buildID, configGroup)
 		})
@@ -264,7 +264,7 @@ func (c *ascClient) AssignBetaGroups(ctx *context.Context, appID string, buildID
 	for i := range groups {
 		group := groups[i]
 		if group.Name == "" {
-			log.Warn("skipping a beta group with a missing name")
+			ctx.Log.Warn("skipping a beta group with a missing name")
 
 			continue
 		} else if found[group.Name] {
@@ -272,7 +272,7 @@ func (c *ascClient) AssignBetaGroups(ctx *context.Context, appID string, buildID
 		}
 
 		g.Go(func() error {
-			log.WithField("group", group.Name).Debug("create beta group")
+			ctx.Log.WithField("group", group.Name).Debug("create beta group")
 
 			return c.createBetaGroup(ctx, g, appID, buildID, group)
 		})
@@ -345,7 +345,7 @@ func (c *ascClient) updateBetaTestersForGroup(ctx *context.Context, g parallel.G
 	for i := range testers {
 		tester := testers[i]
 		if tester.Email == "" {
-			log.Warnf("skipping a beta tester in beta group %s with a missing email", groupID)
+			ctx.Log.Warnf("skipping a beta tester in beta group %s with a missing email", groupID)
 
 			continue
 		} else if found[tester.Email] {
@@ -418,7 +418,7 @@ func (c *ascClient) AssignBetaTesters(ctx *context.Context, appID string, buildI
 		found[email] = true
 
 		g.Go(func() error {
-			log.
+			ctx.Log.
 				WithFields(log.Fields{
 					"email": email,
 					"build": buildID,
@@ -433,7 +433,7 @@ func (c *ascClient) AssignBetaTesters(ctx *context.Context, appID string, buildI
 	for i := range testers {
 		tester := testers[i]
 		if tester.Email == "" {
-			log.Warn("beta tester email missing")
+			ctx.Log.Warn("beta tester email missing")
 
 			continue
 		} else if found[tester.Email] {
@@ -441,7 +441,7 @@ func (c *ascClient) AssignBetaTesters(ctx *context.Context, appID string, buildI
 		}
 
 		g.Go(func() error {
-			log.WithField("email", tester.Email).Debug("create individual beta tester")
+			ctx.Log.WithField("email", tester.Email).Debug("create individual beta tester")
 
 			return c.createBetaTester(ctx, tester, nil, []string{buildID})
 		})
@@ -484,7 +484,7 @@ func (c *ascClient) listBetaTesters(ctx *context.Context, appID string, config [
 
 func (c *ascClient) createBetaTester(ctx *context.Context, tester config.BetaTester, betaGroupIDs []string, buildIDs []string) error {
 	if betaGroupIDs != nil && buildIDs != nil {
-		log.WithField("tester", tester).Warn("authors note: you can't define betaGroupIDs and buildIDs at the same time")
+		ctx.Log.WithField("tester", tester).Warn("authors note: you can't define betaGroupIDs and buildIDs at the same time")
 	}
 
 	_, _, err := c.client.TestFlight.CreateBetaTester(ctx, asc.BetaTesterCreateRequestAttributes{
@@ -520,7 +520,7 @@ func (c *ascClient) UpdateBetaReviewDetails(ctx *context.Context, appID string, 
 	attrs.Notes = &config.Notes
 
 	if len(config.Attachments) > 0 {
-		log.Warn("attachments are not supported for beta review details and will be ignored")
+		ctx.Log.Warn("attachments are not supported for beta review details and will be ignored")
 	}
 
 	_, _, err = c.client.TestFlight.UpdateBetaAppReviewDetail(ctx, detailsResp.Data.ID, &attrs)

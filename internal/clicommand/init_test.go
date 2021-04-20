@@ -32,7 +32,9 @@ func TestInitCmd(t *testing.T) {
 
 	var folder = t.TempDir()
 
-	var cmd = newInitCmd().cmd
+	var noDebug bool
+
+	var cmd = newInitCmd(&noDebug).cmd
 
 	var path = filepath.Join(folder, "foo.yaml")
 

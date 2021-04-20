@@ -54,6 +54,7 @@ func TestNew(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.New(config.Project{})
+
 	client := New(ctx)
 	ok := client.IsRepo()
 	assert.True(t, ok)
@@ -69,6 +70,7 @@ func TestSanitizeProcess(t *testing.T) {
 	}
 
 	ctx := context.New(config.Project{})
+
 	ctx.CurrentDirectory = "test"
 	client := newMockGitWithContext(
 		t,

@@ -27,7 +27,7 @@ import (
 	"strings"
 
 	"github.com/alessio/shellescape"
-	"github.com/apex/log"
+	"github.com/cidertool/cider/internal/log"
 	"github.com/cidertool/cider/pkg/context"
 )
 
@@ -116,15 +116,15 @@ func escapeArgs(args []string) []string {
 
 // Exec executes a command.
 func (sh *loginShell) Exec(cmd *exec.Cmd) (proc *CompletedProcess, err error) {
-	log.WithField("args", cmd.Args).Debug(cmd.Path)
+	sh.Context.Log.WithField("args", cmd.Args).Debug(cmd.Path)
 
 	err = cmd.Run()
 	proc = newCompletedProcess(cmd)
 
 	if proc == nil {
-		log.Debugf("last process failed to complete coherently")
+		sh.Context.Log.Debugf("last process failed to complete coherently")
 	} else {
-		log.WithFields(log.Fields{
+		sh.Context.Log.WithFields(log.Fields{
 			"code":   proc.ReturnCode,
 			"stdout": strings.TrimSpace(proc.Stdout),
 			"stderr": strings.TrimSpace(proc.Stderr),

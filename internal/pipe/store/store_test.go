@@ -61,6 +61,7 @@ func TestStore_Happy(t *testing.T) {
 		},
 	})
 	ctx.AppsToRelease = []string{"TEST"}
+
 	p := Pipe{}
 	p.Client = &clienttest.Client{}
 
@@ -82,6 +83,7 @@ func TestStore_Happy_Skips(t *testing.T) {
 	ctx.SkipUpdatePricing = true
 	ctx.SkipUpdateMetadata = true
 	ctx.SkipSubmit = true
+
 	p := Pipe{}
 	p.Client = &clienttest.Client{}
 
@@ -94,6 +96,7 @@ func TestStore_Happy_NoApps(t *testing.T) {
 
 	ctx := context.New(config.Project{})
 	ctx.Credentials = &clienttest.Credentials{}
+
 	p := Pipe{}
 
 	err := p.Publish(ctx)

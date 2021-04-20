@@ -28,8 +28,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/apex/log"
 	"github.com/cidertool/cider/internal/git"
+	"github.com/cidertool/cider/internal/log"
 	"github.com/cidertool/cider/internal/pipe"
 	"github.com/cidertool/cider/pkg/context"
 )
@@ -76,7 +76,7 @@ func (p Pipe) Run(ctx *context.Context) error {
 
 	ctx.Git = info
 
-	log.WithFields(log.Fields{
+	ctx.Log.WithFields(log.Fields{
 		"commit": info.Commit,
 		"tag":    info.CurrentTag,
 		"date":   info.CommitDate.String(),
@@ -93,7 +93,7 @@ func (p Pipe) Run(ctx *context.Context) error {
 		ctx.Version = strings.TrimPrefix(tag, "v")
 	}
 
-	log.WithFields(log.Fields{
+	ctx.Log.WithFields(log.Fields{
 		"version": ctx.Version,
 		"commit":  info.Commit,
 		"workdir": ctx.CurrentDirectory,

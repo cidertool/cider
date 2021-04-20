@@ -24,7 +24,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/apex/log"
+	"github.com/cidertool/cider/internal/log"
 	"github.com/cidertool/cider/internal/middleware"
 	"github.com/cidertool/cider/internal/pipeline"
 	"github.com/cidertool/cider/pkg/config"
@@ -62,7 +62,7 @@ type releaseOpts struct {
 	currentDirectory    string
 }
 
-func newReleaseCmd() *releaseCmd {
+func newReleaseCmd(debugFlagValue *bool) *releaseCmd {
 	var root = &releaseCmd{}
 
 	var cmd = &cobra.Command{
@@ -94,6 +94,8 @@ More info: https://developer.apple.com/documentation/appstoreconnectapi/creating
 		SilenceUsage:  true,
 		SilenceErrors: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			logger := newLogger(debugFlagValue)
+
 			if len(args) > 0 {
 				root.opts.currentDirectory = args[0]
 			}
@@ -104,14 +106,14 @@ More info: https://developer.apple.com/documentation/appstoreconnectapi/creating
 
 			start := time.Now()
 
-			log.Info(color.New(color.Bold).Sprint("releasing..."))
+			logger.Info(color.New(color.Bold).Sprint("releasing..."))
 
-			_, err := releaseProject(root.opts)
+			_, err := releaseProject(root.opts, logger)
 			if err != nil {
 				return wrapError(err, color.New(color.Bold).Sprintf("release failed after %0.2fs", time.Since(start).Seconds()))
 			}
 
-			log.Info(color.New(color.Bold).Sprintf("release succeeded after %0.2fs", time.Since(start).Seconds()))
+			logger.Info(color.New(color.Bold).Sprintf("release succeeded after %0.2fs", time.Since(start).Seconds()))
 
 			return nil
 		},
@@ -241,14 +243,14 @@ using the configuration file.`,
 	return root
 }
 
-func releaseProject(options releaseOpts) (*context.Context, error) {
+func releaseProject(options releaseOpts, logger log.Interface) (*context.Context, error) {
 	var forceAllSkips bool
 
 	cfg, err := loadConfig(options.config, options.currentDirectory)
 	if err != nil {
 		if errors.Is(err, ErrConfigNotFound) {
-			log.Warn(err.Error())
-			log.Warn("using defaults and enabling all skips to avoid dangerous consequences...")
+			logger.Warn(err.Error())
+			logger.Warn("using defaults and enabling all skips to avoid dangerous consequences...")
 
 			forceAllSkips = true
 		} else {
@@ -258,7 +260,7 @@ func releaseProject(options releaseOpts) (*context.Context, error) {
 
 	ctx, cancel := context.NewWithTimeout(cfg, options.timeout)
 	defer cancel()
-	setupReleaseContext(ctx, options, forceAllSkips)
+	setupReleaseContext(ctx, options, forceAllSkips, logger)
 
 	return ctx, context.NewInterrupt().Run(ctx, func() error {
 		for _, pipe := range pipeline.Pipeline {
@@ -275,7 +277,7 @@ func releaseProject(options releaseOpts) (*context.Context, error) {
 	})
 }
 
-func setupReleaseContext(ctx *context.Context, options releaseOpts, forceAllSkips bool) *context.Context {
+func setupReleaseContext(ctx *context.Context, options releaseOpts, forceAllSkips bool, logger log.Interface) *context.Context {
 	ctx.AppsToRelease = ctx.Config.AppsMatching(options.appsToRelease, options.releaseAllApps)
 	if options.publishMode == "" {
 		ctx.PublishMode = context.PublishModeTestflight
@@ -283,6 +285,7 @@ func setupReleaseContext(ctx *context.Context, options releaseOpts, forceAllSkip
 		ctx.PublishMode = options.publishMode
 	}
 
+	ctx.Log = logger
 	ctx.MaxProcesses = options.maxProcesses
 	ctx.SkipGit = options.skipGit || forceAllSkips
 	ctx.SkipUpdatePricing = options.skipUpdatePricing || forceAllSkips

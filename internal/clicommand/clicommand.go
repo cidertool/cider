@@ -18,28 +18,25 @@ You should have received a copy of the GNU General Public License
 along with Cider.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package middleware
+package clicommand
 
 import (
-	"github.com/cidertool/cider/internal/pipe"
-	"github.com/cidertool/cider/pkg/context"
+	"os"
+
+	"github.com/cidertool/cider/internal/log"
 )
 
-// ErrHandler handles an action error, ignoring and logging pipe skipped
-// errors.
-func ErrHandler(action Action) Action {
-	return func(ctx *context.Context) error {
-		var err = action(ctx)
-		if err == nil {
-			return nil
-		}
+func newLogger(debugFlagValue *bool) *log.Log {
+	logger := log.New()
 
-		if pipe.IsSkip(err) {
-			ctx.Log.WithError(err).Warn("pipe skipped")
-
-			return nil
-		}
-
-		return err
+	if os.Getenv("CI") != "" {
+		logger.SetColorMode(false)
 	}
+
+	if debugFlagValue != nil {
+		logger.SetDebug(*debugFlagValue)
+		logger.Debug("debug logs enabled")
+	}
+
+	return logger
 }

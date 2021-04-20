@@ -36,9 +36,11 @@ func TestErrHandler_WrapsError(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.New(config.Project{})
+
 	wrapped := ErrHandler(func(ctx *context.Context) error {
 		return errTestError
 	})
+
 	err := wrapped(ctx)
 	assert.Error(t, err)
 }
@@ -47,9 +49,11 @@ func TestErrHandler_IgnoresNoError(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.New(config.Project{})
+
 	wrapped := ErrHandler(func(ctx *context.Context) error {
 		return nil
 	})
+
 	err := wrapped(ctx)
 	assert.NoError(t, err)
 }
@@ -58,9 +62,11 @@ func TestErrHandler_HandlesSkip(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.New(config.Project{})
+
 	wrapped := ErrHandler(func(ctx *context.Context) error {
 		return pipe.Skip("TEST")
 	})
+
 	err := wrapped(ctx)
 	assert.NoError(t, err)
 }

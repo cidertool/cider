@@ -31,7 +31,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/apex/log"
+	"github.com/cidertool/cider/internal/log"
 	"github.com/cidertool/cider/pkg/config"
 	"github.com/cidertool/cider/pkg/context"
 	"github.com/stretchr/testify/assert"
@@ -67,7 +67,9 @@ type testAsset struct {
 
 func newTestContext(resp ...response) (*testContext, Client) {
 	ctx := testContext{}
+
 	ctx.Context = context.New(config.Project{})
+
 	server := httptest.NewServer(&ctx)
 	ctx.Context.Credentials = &mockCredentials{
 		url:    server.URL,
@@ -86,14 +88,14 @@ func (c *testContext) Close() {
 
 func (c *testContext) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if c.CurrentResponseIndex >= len(c.Responses) {
-		log.WithFields(log.Fields{
+		c.Context.Log.WithFields(log.Fields{
 			"currentResponseIndex": c.CurrentResponseIndex,
 			"responsesCount":       len(c.Responses),
 			"url":                  r.URL,
 		}).Fatal("index out of bounds")
 	}
 
-	log.WithFields(log.Fields{
+	c.Context.Log.WithFields(log.Fields{
 		"progress":   fmt.Sprintf("(%d/%d)", c.CurrentResponseIndex, len(c.Responses)),
 		"req_method": r.Method,
 		"req_url":    r.URL,

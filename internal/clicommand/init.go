@@ -25,8 +25,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/apex/log"
 	"github.com/cidertool/cider/internal/closer"
+	"github.com/cidertool/cider/internal/log"
 	"github.com/cidertool/cider/pkg/config"
 	"github.com/fatih/color"
 	"github.com/manifoldco/promptui"
@@ -41,8 +41,9 @@ const configDocString = `# This is a template .cider.yaml file with some sane de
 `
 
 type initCmd struct {
-	cmd  *cobra.Command
-	opts initOpts
+	cmd            *cobra.Command
+	debugFlagValue *bool
+	opts           initOpts
 }
 
 type initOpts struct {
@@ -50,7 +51,7 @@ type initOpts struct {
 	skipPrompt bool
 }
 
-func newInitCmd() *initCmd {
+func newInitCmd(debugFlagValue *bool) *initCmd {
 	var root = &initCmd{}
 
 	var cmd = &cobra.Command{
@@ -62,7 +63,9 @@ func newInitCmd() *initCmd {
 		SilenceUsage:  true,
 		SilenceErrors: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return initProject(root.opts)
+			logger := newLogger(debugFlagValue)
+
+			return initProject(root.opts, logger)
 		},
 	}
 
@@ -74,17 +77,17 @@ func newInitCmd() *initCmd {
 	return root
 }
 
-func initProject(opts initOpts) (err error) {
-	file, err := createFileIfNeeded(opts.config, opts.skipPrompt)
+func initProject(opts initOpts, logger log.Interface) (err error) {
+	file, err := createFileIfNeeded(opts.config, opts.skipPrompt, logger)
 	if err != nil {
 		return err
 	}
 
 	defer closer.Close(file)
 
-	log.Info(color.New(color.Bold).Sprintf("Populating project file at %s", opts.config))
+	logger.Info(color.New(color.Bold).Sprintf("Populating project file at %s", opts.config))
 
-	project, err := newProject(opts.skipPrompt)
+	project, err := newProject(opts.skipPrompt, logger)
 	if err != nil {
 		return err
 	}
@@ -93,16 +96,16 @@ func initProject(opts initOpts) (err error) {
 		return err
 	}
 
-	log.
+	logger.
 		WithField("file", file.Name()).
 		Info("config created")
-	log.Info("Please edit accordingly to fit your needs.")
-	log.Info("For additional configuration options, see: https://cidertool.github.io/cider/configuration")
+	logger.Info("Please edit accordingly to fit your needs.")
+	logger.Info("For additional configuration options, see: https://cidertool.github.io/cider/configuration")
 
 	return nil
 }
 
-func createFileIfNeeded(path string, skipPrompt bool) (*os.File, error) {
+func createFileIfNeeded(path string, skipPrompt bool, logger log.Interface) (*os.File, error) {
 	f, err := os.OpenFile(filepath.Clean(path), os.O_WRONLY|os.O_CREATE|os.O_TRUNC|os.O_EXCL, 0600)
 	if err == nil {
 		return f, nil
@@ -113,7 +116,7 @@ func createFileIfNeeded(path string, skipPrompt bool) (*os.File, error) {
 	}
 
 	if skipPrompt {
-		log.Warn("file exists, overwriting")
+		logger.Warn("file exists, overwriting")
 	} else {
 		prompt := promptui.Prompt{
 			Label:     "Overwrite file?",
@@ -128,7 +131,7 @@ func createFileIfNeeded(path string, skipPrompt bool) (*os.File, error) {
 	return os.OpenFile(filepath.Clean(path), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 }
 
-func newProject(skipPrompt bool) (*config.Project, error) {
+func newProject(skipPrompt bool, logger log.Interface) (*config.Project, error) {
 	var project *config.Project
 
 	var err error
@@ -136,18 +139,18 @@ func newProject(skipPrompt bool) (*config.Project, error) {
 	if skipPrompt {
 		project = newProjectFromDefaults()
 	} else {
-		project, err = newProjectFromPrompts()
+		project, err = newProjectFromPrompts(logger)
 	}
 
 	return project, err
 }
 
-func newProjectFromPrompts() (*config.Project, error) {
+func newProjectFromPrompts(logger log.Interface) (*config.Project, error) {
 	values := projectInitValues{}
 
 	var continueAppsSetup = true
 	for continueAppsSetup {
-		name, app, err := promptAppValues()
+		name, app, err := promptAppValues(logger)
 		if err != nil {
 			return nil, err
 		}
@@ -167,7 +170,7 @@ func newProjectFromPrompts() (*config.Project, error) {
 	return &proj, nil
 }
 
-func promptAppValues() (name string, app *projectInitAppValues, err error) {
+func promptAppValues(logger log.Interface) (name string, app *projectInitAppValues, err error) {
 	var prompt promptui.Prompt
 
 	var selec promptui.Select
@@ -180,7 +183,7 @@ func promptAppValues() (name string, app *projectInitAppValues, err error) {
 		PhasedReleaseEnabled:         true,
 	}
 
-	log.Info("Let's set up an app in your project!")
+	logger.Info("Let's set up an app in your project!")
 
 	prompt = promptui.Prompt{Label: "App Name"}
 

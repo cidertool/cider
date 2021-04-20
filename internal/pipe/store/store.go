@@ -22,9 +22,9 @@ along with Cider.  If not, see <http://www.gnu.org/licenses/>.
 package store
 
 import (
-	"github.com/apex/log"
 	"github.com/cidertool/asc-go/asc"
 	"github.com/cidertool/cider/internal/client"
+	"github.com/cidertool/cider/internal/log"
 	"github.com/cidertool/cider/internal/pipe"
 	"github.com/cidertool/cider/pkg/config"
 	"github.com/cidertool/cider/pkg/context"
@@ -52,7 +52,7 @@ func (p *Pipe) Publish(ctx *context.Context) error {
 			return pipe.ErrMissingApp{Name: name}
 		}
 
-		log.WithField("app", name).Info("updating metadata")
+		ctx.Log.WithField("app", name).Info("updating metadata")
 
 		err := p.doRelease(ctx, app)
 		if err != nil {
@@ -86,16 +86,16 @@ func (p *Pipe) doRelease(ctx *context.Context, config config.App) error {
 		return err
 	}
 
-	log.WithFields(log.Fields{
+	ctx.Log.WithFields(log.Fields{
 		"app":     *app.Attributes.BundleID,
 		"build":   *build.Attributes.Version,
 		"version": *version.Attributes.VersionString,
 	}).Info("found resources")
 
 	if ctx.SkipUpdateMetadata {
-		log.Warn("skipping updating metdata")
+		ctx.Log.Warn("skipping updating metdata")
 	} else {
-		log.Info("updating metadata")
+		ctx.Log.Info("updating metadata")
 		if err := p.updateVersionDetails(ctx, config, app, version); err != nil {
 			return err
 		}
@@ -106,14 +106,14 @@ func (p *Pipe) doRelease(ctx *context.Context, config config.App) error {
 	}
 
 	if config.Versions.PhasedReleaseEnabled && !ctx.VersionIsInitialRelease {
-		log.Info("preparing phased release details")
+		ctx.Log.Info("preparing phased release details")
 
 		if err := p.Client.EnablePhasedRelease(ctx, version.ID); err != nil {
 			return err
 		}
 	}
 
-	log.
+	ctx.Log.
 		WithField("version", *version.Attributes.VersionString).
 		Info("submitting to app store")
 
@@ -126,26 +126,26 @@ func (p *Pipe) updateVersionDetails(ctx *context.Context, config config.App, app
 		return err
 	}
 
-	log.Info("updating app details")
+	ctx.Log.Info("updating app details")
 
 	if err := p.Client.UpdateApp(ctx, app.ID, appInfo.ID, version.ID, config); err != nil {
 		return err
 	}
 
-	log.Infof("updating %d app localizations", len(config.Localizations))
+	ctx.Log.Infof("updating %d app localizations", len(config.Localizations))
 
 	if err := p.Client.UpdateAppLocalizations(ctx, app.ID, config.Localizations); err != nil {
 		return err
 	}
 
-	log.Infof("updating %d app store version localizations", len(config.Versions.Localizations))
+	ctx.Log.Infof("updating %d app store version localizations", len(config.Versions.Localizations))
 
 	if err := p.Client.UpdateVersionLocalizations(ctx, version.ID, config.Versions.Localizations); err != nil {
 		return err
 	}
 
 	if config.Versions.IDFADeclaration != nil {
-		log.Info("updating IDFA declaration")
+		ctx.Log.Info("updating IDFA declaration")
 
 		if err := p.Client.UpdateIDFADeclaration(ctx, version.ID, *config.Versions.IDFADeclaration); err != nil {
 			return err
@@ -153,7 +153,7 @@ func (p *Pipe) updateVersionDetails(ctx *context.Context, config config.App, app
 	}
 
 	if config.Versions.RoutingCoverage != nil {
-		log.Info("uploading routing coverage asset")
+		ctx.Log.Info("uploading routing coverage asset")
 
 		if err := p.Client.UploadRoutingCoverage(ctx, version.ID, *config.Versions.RoutingCoverage); err != nil {
 			return err
@@ -161,7 +161,7 @@ func (p *Pipe) updateVersionDetails(ctx *context.Context, config config.App, app
 	}
 
 	if config.Versions.ReviewDetails != nil {
-		log.Info("updating review details")
+		ctx.Log.Info("updating review details")
 
 		if err := p.Client.UpdateReviewDetails(ctx, version.ID, *config.Versions.ReviewDetails); err != nil {
 			return err

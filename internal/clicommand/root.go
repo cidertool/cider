@@ -28,6 +28,7 @@ import (
 	"sync"
 
 	"github.com/apex/log"
+	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 )
 
@@ -114,7 +115,7 @@ func (cmd *Root) customizeLogger(c *cobra.Command, args []string) {
 	defer loggerMu.Unlock()
 
 	if os.Getenv("CI") != "" {
-		// color.NoColor = false
+		color.NoColor = false
 	}
 
 	// log.SetHandler(cli.Default)

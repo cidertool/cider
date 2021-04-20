@@ -75,7 +75,7 @@ jobs:
 
       - name: Run gendoc tool
         run: go run ./tools/gendoc
-      
+
       - name: Run licensing tool
         run: go run ./tools/licensing
 

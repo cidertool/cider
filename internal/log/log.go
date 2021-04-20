@@ -22,6 +22,7 @@ along with Cider.  If not, see <http://www.gnu.org/licenses/>.
 package log
 
 import (
+	"os"
 	"sync"
 
 	"github.com/apex/log"
@@ -50,7 +51,7 @@ type Log struct {
 func New() *Log {
 	return &Log{
 		Logger: log.Logger{
-			Handler: cli.Default,
+			Handler: cli.New(os.Stderr),
 			Level:   log.InfoLevel,
 		},
 	}
@@ -81,5 +82,8 @@ func (l *Log) SetPadding(v int) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
-	cli.Default.Padding = v
+	if handler, ok := l.Handler.(*cli.Handler); ok {
+		handler.Padding = v
+		l.Handler = handler
+	}
 }

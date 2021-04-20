@@ -121,7 +121,7 @@ func (cmd *Root) customizeLogger(c *cobra.Command, args []string) {
 	// log.SetHandler(cli.Default)
 
 	if cmd.debug {
-		// log.SetLevel(log.DebugLevel)
+		log.SetLevel(log.DebugLevel)
 		log.Debug("debug logs enabled")
 	}
 }

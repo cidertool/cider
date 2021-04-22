@@ -39,13 +39,7 @@ jobs:
             ${{ runner.os }}-go-
 
       - name: Run Tests
-        run: go test -race -coverprofile coverage.out -covermode atomic -json ./... > cider.testresults
-
-      - name: Annotate Test Results
-        if: always()
-        uses: guyarb/golang-test-annoations@v0.4.0
-        with:
-          test-results: cider.testresults
+        run: go test -race -coverprofile coverage.out -covermode atomic ./...
 
       - name: Upload Coverage to Codecov
         if: success()

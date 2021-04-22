@@ -31,9 +31,7 @@ import (
 func TestExec(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.New(config.Project{})
-
-	sh := New(ctx)
+	sh := New(context.New(config.Project{}))
 	cmd := sh.NewCommand("echo", "dogs")
 	ps, err := sh.Exec(cmd)
 	assert.NoError(t, err)
@@ -43,9 +41,7 @@ func TestExec(t *testing.T) {
 func TestExec_Error(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.New(config.Project{})
-
-	sh := New(ctx)
+	sh := New(context.New(config.Project{}))
 	cmd := sh.NewCommand("exit", "1")
 	ps, err := sh.Exec(cmd)
 	assert.Error(t, err)

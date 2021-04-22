@@ -39,7 +39,7 @@ jobs:
             ${{ runner.os }}-go-
 
       - name: Run Tests
-        run: go test -v -race -coverprofile coverage.out -covermode atomic -json ./... > cider.testresults
+        run: go test -race -coverprofile coverage.out -covermode atomic -json ./... > cider.testresults
 
       - name: Annotate Test Results
         if: always()

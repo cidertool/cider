@@ -21,7 +21,6 @@ along with Cider.  If not, see <http://www.gnu.org/licenses/>.
 package git
 
 import (
-	"os"
 	"strconv"
 	"testing"
 	"time"
@@ -89,42 +88,6 @@ func TestGit_SkipGit(t *testing.T) {
 
 	err := p.Run(ctx)
 	assert.EqualError(t, err, pipe.ErrSkipGitEnabled.Error())
-}
-
-func TestGit_Happy_EnvCurrentTag(t *testing.T) {
-	t.Parallel()
-
-	expected := context.GitInfo{
-		CurrentTag:  "1.0.0",
-		Commit:      "abcdef1234567890abcdef1234567890abcdef12",
-		ShortCommit: "abcdef12",
-		FullCommit:  "abcdef1234567890abcdef1234567890abcdef12",
-		CommitDate:  time.Unix(1600914830, 0).UTC(),
-		URL:         "git@github.com:cidertool/cider.git",
-	}
-
-	ctx := context.New(config.Project{})
-
-	p := Pipe{}
-	p.client = newMockGitWithContext(ctx,
-		shelltest.Command{Stdout: "true"},
-		shelltest.Command{Stdout: expected.ShortCommit},
-		shelltest.Command{Stdout: expected.FullCommit},
-		shelltest.Command{Stdout: strconv.FormatInt(expected.CommitDate.Unix(), 10)},
-		shelltest.Command{Stdout: expected.URL},
-		shelltest.Command{},
-		shelltest.Command{Stdout: expected.CurrentTag},
-	)
-
-	err := os.Setenv("CIDER_CURRENT_TAG", expected.CurrentTag)
-	assert.NoError(t, err)
-
-	err = p.Run(ctx)
-	assert.NoError(t, err)
-	assert.Equal(t, expected, ctx.Git)
-
-	err = os.Unsetenv("CIDER_CURRENT_TAG")
-	assert.NoError(t, err)
 }
 
 func TestGit_Err_NoGit(t *testing.T) {

@@ -71,9 +71,9 @@ func (l *Log) SetDebug(v bool) {
 	defer l.mu.Unlock()
 
 	if v {
-		l.Logger.Level = log.DebugLevel
+		l.Level = log.DebugLevel
 	} else {
-		l.Logger.Level = log.InfoLevel
+		l.Level = log.InfoLevel
 	}
 }
 

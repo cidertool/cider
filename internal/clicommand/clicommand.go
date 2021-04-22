@@ -22,16 +22,18 @@ along with Cider.  If not, see <http://www.gnu.org/licenses/>.
 package clicommand
 
 import (
+	"os"
+
 	"github.com/cidertool/cider/internal/log"
+	"github.com/fatih/color"
 )
 
 func newLogger(debugFlagValue *bool) *log.Log {
 	logger := log.New()
 
-	// Comment this out as it's causing issues during parallel testing
-	// if os.Getenv("CI") != "" {
-	// 	logger.SetColorMode(false)
-	// }
+	if os.Getenv("CI") != "" && color.NoColor {
+		logger.SetColorMode(false)
+	}
 
 	if debugFlagValue != nil {
 		logger.SetDebug(*debugFlagValue)

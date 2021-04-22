@@ -20,4 +20,28 @@ along with Cider.  If not, see <http://www.gnu.org/licenses/>.
 
 package log
 
-// this package has no testable statements
+import (
+	"testing"
+
+	alog "github.com/apex/log"
+	"github.com/fatih/color"
+	"github.com/stretchr/testify/assert"
+)
+
+func TestLog(t *testing.T) {
+	t.Parallel()
+
+	log := New()
+
+	log.SetPadding(4)
+
+	log.SetColorMode(false)
+	assert.False(t, color.NoColor)
+	log.SetColorMode(true)
+	assert.True(t, color.NoColor)
+
+	log.SetDebug(true)
+	assert.Equal(t, log.Level, alog.DebugLevel)
+	log.SetDebug(false)
+	assert.Equal(t, log.Level, alog.InfoLevel)
+}

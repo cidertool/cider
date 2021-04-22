@@ -18,25 +18,13 @@ You should have received a copy of the GNU General Public License
 along with Cider.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// Package clicommand declares the command line interface for Cider.
 package clicommand
 
 import (
 	"errors"
 	"fmt"
-	"os"
-	"sync"
 
-	"github.com/apex/log"
-	"github.com/apex/log/handlers/cli"
-	"github.com/fatih/color"
 	"github.com/spf13/cobra"
-)
-
-// nolint: gochecknoglobals
-// It's strange these need to be global.
-var (
-	loggerMu sync.Mutex
 )
 
 // Execute is the primary function to initiate the command line interface for Cider.
@@ -51,9 +39,8 @@ func Execute(version string, exit func(int), args []string) {
 
 // Root defines a rough structure for a root command type.
 type Root struct {
-	Cmd   *cobra.Command
-	debug bool
-	exit  func(int)
+	Cmd  *cobra.Command
+	exit func(int)
 }
 
 // NewRoot creates a new instance of the root command for the cider executable.
@@ -62,6 +49,8 @@ func NewRoot(version string, exit func(int)) *Root {
 		exit: exit,
 	}
 
+	var debug bool
+
 	var cmd = &cobra.Command{
 		Use:               "cider",
 		Short:             "Submit your builds to the Apple App Store in seconds",
@@ -69,15 +58,14 @@ func NewRoot(version string, exit func(int)) *Root {
 		SilenceUsage:      true,
 		SilenceErrors:     true,
 		DisableAutoGenTag: true,
-		PersistentPreRun:  root.customizeLogger,
 	}
 
-	cmd.PersistentFlags().BoolVar(&root.debug, "debug", false, "Enable debug mode")
+	cmd.PersistentFlags().BoolVar(&debug, "debug", false, "Enable debug mode")
 
 	cmd.AddCommand(
-		newInitCmd().cmd,
-		newCheckCmd().cmd,
-		newReleaseCmd().cmd,
+		newInitCmd(&debug).cmd,
+		newCheckCmd(&debug).cmd,
+		newReleaseCmd(&debug).cmd,
 		newCompletionsCmd().cmd,
 	)
 
@@ -105,24 +93,8 @@ func (cmd *Root) Execute(args []string) {
 			}
 		}
 
-		log.WithError(err).Error(msg)
+		newLogger(nil).WithError(err).Error(msg)
 
 		cmd.exit(code)
-	}
-}
-
-func (cmd *Root) customizeLogger(c *cobra.Command, args []string) {
-	loggerMu.Lock()
-	defer loggerMu.Unlock()
-
-	if os.Getenv("CI") != "" {
-		color.NoColor = false
-	}
-
-	log.SetHandler(cli.Default)
-
-	if cmd.debug {
-		log.SetLevel(log.DebugLevel)
-		log.Debug("debug logs enabled")
 	}
 }

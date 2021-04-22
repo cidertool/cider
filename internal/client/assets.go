@@ -28,9 +28,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/apex/log"
 	"github.com/cidertool/asc-go/asc"
 	"github.com/cidertool/cider/internal/closer"
+	"github.com/cidertool/cider/internal/log"
 	"github.com/cidertool/cider/internal/parallel"
 	"github.com/cidertool/cider/pkg/config"
 	"github.com/cidertool/cider/pkg/context"
@@ -74,7 +74,7 @@ func (c *ascClient) UploadRoutingCoverage(ctx *context.Context, versionID string
 	prepare := func(name string, checksum string) (shouldContinue bool, err error) {
 		covResp, _, err := c.client.Apps.GetRoutingAppCoverageForAppStoreVersion(ctx, versionID, nil)
 		if err != nil {
-			log.Warn(err.Error())
+			ctx.Log.Warn(err.Error())
 		}
 
 		if covResp == nil {
@@ -165,7 +165,7 @@ func (c *ascClient) UploadPreviews(ctx *context.Context, g parallel.Group, previ
 
 		if preview.Attributes.SourceFileChecksum != nil &&
 			*preview.Attributes.SourceFileChecksum == checksum {
-			log.WithFields(log.Fields{
+			ctx.Log.WithFields(log.Fields{
 				"id":       preview.ID,
 				"checksum": checksum,
 			}).Debug("skip existing preview")
@@ -173,7 +173,7 @@ func (c *ascClient) UploadPreviews(ctx *context.Context, g parallel.Group, previ
 			return false, nil
 		}
 
-		log.WithFields(log.Fields{
+		ctx.Log.WithFields(log.Fields{
 			"name": name,
 			"id":   preview.ID,
 		}).Debug("delete preview")
@@ -186,7 +186,7 @@ func (c *ascClient) UploadPreviews(ctx *context.Context, g parallel.Group, previ
 	}
 
 	create := func(name string, size int64) (id string, ops []asc.UploadOperation, err error) {
-		log.WithFields(log.Fields{
+		ctx.Log.WithFields(log.Fields{
 			"name": name,
 		}).Debug("create preview")
 
@@ -201,7 +201,7 @@ func (c *ascClient) UploadPreviews(ctx *context.Context, g parallel.Group, previ
 	for i := range previewConfigs {
 		previewConfig := previewConfigs[i]
 		commit := func(id string, checksum string) error {
-			log.WithFields(log.Fields{
+			ctx.Log.WithFields(log.Fields{
 				"id": id,
 			}).Debug("commit preview")
 
@@ -277,7 +277,7 @@ func (c *ascClient) UploadScreenshots(ctx *context.Context, g parallel.Group, sc
 
 		if shot.Attributes.SourceFileChecksum != nil &&
 			*shot.Attributes.SourceFileChecksum == checksum {
-			log.WithFields(log.Fields{
+			ctx.Log.WithFields(log.Fields{
 				"id":       shot.ID,
 				"checksum": checksum,
 			}).Debug("skip existing screenshot")
@@ -285,7 +285,7 @@ func (c *ascClient) UploadScreenshots(ctx *context.Context, g parallel.Group, sc
 			return false, nil
 		}
 
-		log.WithFields(log.Fields{
+		ctx.Log.WithFields(log.Fields{
 			"name": name,
 			"id":   shot.ID,
 		}).Debug("delete screenshot")
@@ -298,7 +298,7 @@ func (c *ascClient) UploadScreenshots(ctx *context.Context, g parallel.Group, sc
 	}
 
 	create := func(name string, size int64) (id string, ops []asc.UploadOperation, err error) {
-		log.WithFields(log.Fields{
+		ctx.Log.WithFields(log.Fields{
 			"name": name,
 		}).Debug("create screenshot")
 
@@ -311,7 +311,7 @@ func (c *ascClient) UploadScreenshots(ctx *context.Context, g parallel.Group, sc
 	}
 
 	commit := func(id string, checksum string) error {
-		log.WithFields(log.Fields{
+		ctx.Log.WithFields(log.Fields{
 			"id": id,
 		}).Debug("commit screenshot")
 
@@ -362,7 +362,7 @@ func (c *ascClient) UploadReviewAttachments(ctx *context.Context, reviewDetailID
 
 		if attachment.Attributes.SourceFileChecksum != nil &&
 			*attachment.Attributes.SourceFileChecksum == checksum {
-			log.WithFields(log.Fields{
+			ctx.Log.WithFields(log.Fields{
 				"id":       attachment.ID,
 				"checksum": checksum,
 			}).Debug("skip existing attachment")
@@ -370,7 +370,7 @@ func (c *ascClient) UploadReviewAttachments(ctx *context.Context, reviewDetailID
 			return false, nil
 		}
 
-		log.WithFields(log.Fields{
+		ctx.Log.WithFields(log.Fields{
 			"name": name,
 			"id":   attachment.ID,
 		}).Debug("delete attachment")
@@ -383,7 +383,7 @@ func (c *ascClient) UploadReviewAttachments(ctx *context.Context, reviewDetailID
 	}
 
 	create := func(name string, size int64) (id string, ops []asc.UploadOperation, err error) {
-		log.WithFields(log.Fields{
+		ctx.Log.WithFields(log.Fields{
 			"name": name,
 		}).Debug("create attachment")
 
@@ -396,7 +396,7 @@ func (c *ascClient) UploadReviewAttachments(ctx *context.Context, reviewDetailID
 	}
 
 	commit := func(id string, checksum string) error {
-		log.WithFields(log.Fields{
+		ctx.Log.WithFields(log.Fields{
 			"id": id,
 		}).Debug("commit attachment")
 

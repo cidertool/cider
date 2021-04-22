@@ -28,6 +28,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/cidertool/cider/internal/log"
 	"github.com/cidertool/cider/pkg/config"
 )
 
@@ -61,6 +62,7 @@ type Context struct {
 	Credentials             Credentials
 	AppsToRelease           []string
 	PublishMode             PublishMode
+	Log                     log.Interface
 	MaxProcesses            int
 	SkipGit                 bool
 	SkipUpdatePricing       bool
@@ -116,6 +118,7 @@ func Wrap(ctx ctx.Context, config config.Project) *Context {
 		RawConfig:    config,
 		Env:          splitEnv(os.Environ()),
 		Date:         time.Now(),
+		Log:          log.New(),
 		MaxProcesses: 1,
 	}
 }

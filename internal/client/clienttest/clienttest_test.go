@@ -33,6 +33,7 @@ func TestClient(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.New(config.Project{})
+
 	c := clienttest.Client{}
 
 	app, err := c.GetAppForBundleID(ctx, "TEST")

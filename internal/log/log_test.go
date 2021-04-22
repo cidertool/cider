@@ -18,28 +18,6 @@ You should have received a copy of the GNU General Public License
 along with Cider.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package middleware
+package log
 
-import (
-	"github.com/cidertool/cider/internal/pipe"
-	"github.com/cidertool/cider/pkg/context"
-)
-
-// ErrHandler handles an action error, ignoring and logging pipe skipped
-// errors.
-func ErrHandler(action Action) Action {
-	return func(ctx *context.Context) error {
-		var err = action(ctx)
-		if err == nil {
-			return nil
-		}
-
-		if pipe.IsSkip(err) {
-			ctx.Log.WithError(err).Warn("pipe skipped")
-
-			return nil
-		}
-
-		return err
-	}
-}
+// this package has no testable statements

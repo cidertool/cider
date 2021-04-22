@@ -17,8 +17,8 @@ Documentation is hosted at <https://cidertool.github.io/cider>. Check out our in
 
 ## Integrations
 
--   [GitHub Action](https://github.com/marketplace/actions/cider-action)
--   [Buildkite Plugin](https://github.com/cidertool/cider-buildkite-plugin)
+- [GitHub Action](https://github.com/marketplace/actions/cider-action)
+- [Buildkite Plugin](https://github.com/cidertool/cider-buildkite-plugin)
 
 ## Badges
 
@@ -37,7 +37,7 @@ This project's primary goal is to simplify the process to release on the App Sto
 
 Special thanks to:
 
--   [GoReleaser](https://goreleaser.com/) for inspiring the architecture and open sourcing several components used in Cider
+- [GoReleaser](https://goreleaser.com/) for inspiring the architecture and open sourcing several components used in Cider
 
 ## License
 

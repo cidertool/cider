@@ -23,7 +23,6 @@ package client
 import (
 	"fmt"
 
-	"github.com/apex/log"
 	"github.com/cidertool/asc-go/asc"
 	"github.com/cidertool/cider/internal/parallel"
 	"github.com/cidertool/cider/pkg/config"
@@ -236,11 +235,11 @@ func (c *ascClient) UpdateAppLocalizations(ctx *context.Context, appID string, c
 		for i := range appLocResp.Data {
 			loc := appLocResp.Data[i]
 			locale := *loc.Attributes.Locale
-			log.WithField("locale", locale).Debug("found app locale")
+			ctx.Log.WithField("locale", locale).Debug("found app locale")
 			locConfig, ok := config[locale]
 
 			if !ok {
-				log.WithField("locale", locale).Debug("not in configuration. skipping...")
+				ctx.Log.WithField("locale", locale).Debug("not in configuration. skipping...")
 
 				continue
 			}
@@ -339,11 +338,11 @@ func (c *ascClient) UpdateVersionLocalizations(ctx *context.Context, versionID s
 	for i := range locListResp.Data {
 		loc := locListResp.Data[i]
 		locale := *loc.Attributes.Locale
-		log.WithField("locale", locale).Debug("found version locale")
+		ctx.Log.WithField("locale", locale).Debug("found version locale")
 		locConfig, ok := config[locale]
 
 		if !ok {
-			log.WithField("locale", locale).Debug("not in configuration. skipping...")
+			ctx.Log.WithField("locale", locale).Debug("not in configuration. skipping...")
 
 			continue
 		}
@@ -351,7 +350,7 @@ func (c *ascClient) UpdateVersionLocalizations(ctx *context.Context, versionID s
 		found[locale] = true
 
 		g.Go(func() error {
-			log.WithField("locale", locale).Debug("update version locale")
+			ctx.Log.WithField("locale", locale).Debug("update version locale")
 			updatedLocResp, _, err := c.client.Apps.UpdateAppStoreVersionLocalization(ctx, loc.ID, appStoreVersionLocalizationUpdateRequestAttributes(ctx, locConfig))
 			if err != nil {
 				return err
@@ -370,7 +369,7 @@ func (c *ascClient) UpdateVersionLocalizations(ctx *context.Context, versionID s
 		locConfig := config[locale]
 
 		g.Go(func() error {
-			log.WithField("locale", locale).Debug("create version locale")
+			ctx.Log.WithField("locale", locale).Debug("create version locale")
 			locResp, _, err := c.client.Apps.CreateAppStoreVersionLocalization(ctx.Context, appStoreVersionLocalizationCreateRequestAttributes(ctx, locale, locConfig), versionID)
 			if err != nil {
 				return err

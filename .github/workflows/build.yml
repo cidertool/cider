@@ -39,7 +39,7 @@ jobs:
             ${{ runner.os }}-go-
 
       - name: Run Tests
-        run: go test -v -race -coverprofile coverage.out -covermode atomic ./...
+        run: go test -race -coverprofile coverage.out -covermode atomic ./...
 
       - name: Upload Coverage to Codecov
         if: success()
@@ -60,7 +60,7 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@master
         with:
-          version: v1.37
+          version: v1.39
           skip-go-installation: true
 
   verify_doc_tools:
@@ -75,7 +75,7 @@ jobs:
 
       - name: Run gendoc tool
         run: go run ./tools/gendoc
-      
+
       - name: Run licensing tool
         run: go run ./tools/licensing
 

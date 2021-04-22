@@ -32,9 +32,11 @@ func TestLogging(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.New(config.Project{})
+
 	wrapped := Logging("TEST", func(ctx *context.Context) error {
 		return nil
 	}, DefaultInitialPadding)
+
 	err := wrapped(ctx)
 	assert.NoError(t, err)
 }

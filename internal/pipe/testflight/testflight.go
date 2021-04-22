@@ -24,9 +24,9 @@ package testflight
 import (
 	"fmt"
 
-	"github.com/apex/log"
 	"github.com/cidertool/asc-go/asc"
 	"github.com/cidertool/cider/internal/client"
+	"github.com/cidertool/cider/internal/log"
 	"github.com/cidertool/cider/internal/pipe"
 	"github.com/cidertool/cider/pkg/config"
 	"github.com/cidertool/cider/pkg/context"
@@ -54,7 +54,7 @@ func (p *Pipe) Publish(ctx *context.Context) error {
 			return pipe.ErrMissingApp{Name: name}
 		}
 
-		log.WithField("name", name).Info("preparing")
+		ctx.Log.WithField("name", name).Info("preparing")
 
 		err := p.doRelease(ctx, app)
 		if err != nil {
@@ -78,15 +78,15 @@ func (p *Pipe) doRelease(ctx *context.Context, config config.App) error {
 
 	buildVersionLog := fmt.Sprintf("%s (%s)", ctx.Version, *build.Attributes.Version)
 
-	log.WithFields(log.Fields{
+	ctx.Log.WithFields(log.Fields{
 		"app":   *app.Attributes.BundleID,
 		"build": buildVersionLog,
 	}).Info("found resources")
 
 	if ctx.SkipUpdateMetadata {
-		log.Warn("skipping updating metdata")
+		ctx.Log.Warn("skipping updating metdata")
 	} else {
-		log.Info("updating metadata")
+		ctx.Log.Info("updating metadata")
 		if err := p.updateBetaDetails(ctx, config, app, build); err != nil {
 			return err
 		}
@@ -108,7 +108,7 @@ func (p *Pipe) doRelease(ctx *context.Context, config config.App) error {
 		return pipe.ErrSkipSubmitEnabled
 	}
 
-	log.
+	ctx.Log.
 		WithField("build", buildVersionLog).
 		Info("submitting to testflight")
 
@@ -116,32 +116,32 @@ func (p *Pipe) doRelease(ctx *context.Context, config config.App) error {
 }
 
 func (p *Pipe) updateBetaDetails(ctx *context.Context, config config.App, app *asc.App, build *asc.Build) error {
-	log.Infof("updating %d beta app localizations", len(config.Testflight.Localizations))
+	ctx.Log.Infof("updating %d beta app localizations", len(config.Testflight.Localizations))
 
 	if err := p.Client.UpdateBetaAppLocalizations(ctx, app.ID, config.Testflight.Localizations); err != nil {
 		return err
 	}
 
-	log.Info("updating beta build details")
+	ctx.Log.Info("updating beta build details")
 
 	if err := p.Client.UpdateBetaBuildDetails(ctx, build.ID, config.Testflight); err != nil {
 		return err
 	}
 
-	log.Infof("updating %d beta build localizations", len(config.Testflight.Localizations))
+	ctx.Log.Infof("updating %d beta build localizations", len(config.Testflight.Localizations))
 
 	if err := p.Client.UpdateBetaBuildLocalizations(ctx, build.ID, config.Testflight.Localizations); err != nil {
 		return err
 	}
 
-	log.Info("updating beta license agreement")
+	ctx.Log.Info("updating beta license agreement")
 
 	if err := p.Client.UpdateBetaLicenseAgreement(ctx, app.ID, config.Testflight); err != nil {
 		return err
 	}
 
 	if config.Testflight.ReviewDetails != nil {
-		log.Info("updating beta review details")
+		ctx.Log.Info("updating beta review details")
 
 		if err := p.Client.UpdateBetaReviewDetails(ctx, app.ID, *config.Testflight.ReviewDetails); err != nil {
 			return err
@@ -152,13 +152,13 @@ func (p *Pipe) updateBetaDetails(ctx *context.Context, config config.App, app *a
 }
 
 func (p *Pipe) updateBetaGroups(ctx *context.Context, config config.App, app *asc.App, build *asc.Build) error {
-	log.Info("updating build beta groups")
+	ctx.Log.Info("updating build beta groups")
 
 	return p.Client.AssignBetaGroups(ctx, app.ID, build.ID, config.Testflight.BetaGroups)
 }
 
 func (p *Pipe) updateBetaTesters(ctx *context.Context, config config.App, app *asc.App, build *asc.Build) error {
-	log.Info("updating build beta testers")
+	ctx.Log.Info("updating build beta testers")
 
 	return p.Client.AssignBetaTesters(ctx, app.ID, build.ID, config.Testflight.BetaTesters)
 }

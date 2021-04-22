@@ -21,7 +21,6 @@ along with Cider.  If not, see <http://www.gnu.org/licenses/>.
 package context
 
 import (
-	"os"
 	"testing"
 	"time"
 
@@ -32,10 +31,8 @@ import (
 func TestNew(t *testing.T) {
 	t.Parallel()
 
-	assert.NoError(t, os.Setenv("TEST", "DOG"))
-
 	ctx := New(config.Project{})
-	assert.Equal(t, "DOG", ctx.Env["TEST"])
+	assert.Equal(t, 1, ctx.MaxProcesses)
 }
 
 func TestNewWithTimeout(t *testing.T) {

@@ -21,7 +21,6 @@ along with Cider.  If not, see <http://www.gnu.org/licenses/>.
 package git
 
 import (
-	"os"
 	"strconv"
 	"testing"
 	"time"
@@ -45,7 +44,9 @@ func TestGit_Happy(t *testing.T) {
 		CommitDate:  time.Unix(1600914830, 0).UTC(),
 		URL:         "git@github.com:cidertool/cider.git",
 	}
+
 	ctx := context.New(config.Project{})
+
 	p := Pipe{}
 	p.client = newMockGitWithContext(ctx,
 		shelltest.Command{Stdout: "true"},
@@ -70,6 +71,7 @@ func TestGit_RealGitClient(t *testing.T) {
 
 	ctx := context.New(config.Project{})
 	ctx.CurrentDirectory = "TEST"
+
 	p := Pipe{}
 	err := p.Run(ctx)
 	assert.EqualError(t, err, "the directory at TEST is not a git repository")
@@ -81,50 +83,18 @@ func TestGit_SkipGit(t *testing.T) {
 	ctx := context.New(config.Project{})
 	ctx.Version = "1.0"
 	ctx.SkipGit = true
+
 	p := Pipe{}
 
 	err := p.Run(ctx)
 	assert.EqualError(t, err, pipe.ErrSkipGitEnabled.Error())
 }
 
-func TestGit_Happy_EnvCurrentTag(t *testing.T) {
-	t.Parallel()
-
-	expected := context.GitInfo{
-		CurrentTag:  "1.0.0",
-		Commit:      "abcdef1234567890abcdef1234567890abcdef12",
-		ShortCommit: "abcdef12",
-		FullCommit:  "abcdef1234567890abcdef1234567890abcdef12",
-		CommitDate:  time.Unix(1600914830, 0).UTC(),
-		URL:         "git@github.com:cidertool/cider.git",
-	}
-	ctx := context.New(config.Project{})
-	p := Pipe{}
-	p.client = newMockGitWithContext(ctx,
-		shelltest.Command{Stdout: "true"},
-		shelltest.Command{Stdout: expected.ShortCommit},
-		shelltest.Command{Stdout: expected.FullCommit},
-		shelltest.Command{Stdout: strconv.FormatInt(expected.CommitDate.Unix(), 10)},
-		shelltest.Command{Stdout: expected.URL},
-		shelltest.Command{},
-		shelltest.Command{Stdout: expected.CurrentTag},
-	)
-
-	err := os.Setenv("CIDER_CURRENT_TAG", expected.CurrentTag)
-	assert.NoError(t, err)
-
-	err = p.Run(ctx)
-	assert.NoError(t, err)
-	assert.Equal(t, expected, ctx.Git)
-
-	err = os.Unsetenv("CIDER_CURRENT_TAG")
-	assert.NoError(t, err)
-}
-
 func TestGit_Err_NoGit(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.New(config.Project{})
+
 	p := Pipe{}
 	p.client = &git.Git{
 		Shell: &shelltest.Shell{
@@ -144,6 +114,7 @@ func TestGit_Err_NotInRepo(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.New(config.Project{})
+
 	p := Pipe{}
 	p.client = newMockGitWithContext(ctx,
 		shelltest.Command{ReturnCode: 128, Stdout: "fatal"},
@@ -159,7 +130,9 @@ func TestGit_Err_BadCommit(t *testing.T) {
 	expected := context.GitInfo{
 		ShortCommit: "abcdef12",
 	}
+
 	ctx := context.New(config.Project{})
+
 	p := Pipe{}
 	p.client = newMockGitWithContext(ctx,
 		shelltest.Command{Stdout: "true"},
@@ -184,7 +157,9 @@ func TestGit_Err_BadTime(t *testing.T) {
 		ShortCommit: "abcdef12",
 		FullCommit:  "abcdef1234567890abcdef1234567890abcdef12",
 	}
+
 	ctx := context.New(config.Project{})
+
 	p := Pipe{}
 	p.client = newMockGitWithContext(ctx,
 		shelltest.Command{Stdout: "true"},
@@ -225,7 +200,9 @@ func TestGit_Err_BadTag(t *testing.T) {
 		CommitDate:  time.Unix(1600914830, 0).UTC(),
 		URL:         "git@github.com:cidertool/cider.git",
 	}
+
 	ctx := context.New(config.Project{})
+
 	p := Pipe{}
 	p.client = newMockGitWithContext(ctx,
 		shelltest.Command{Stdout: "true"},
@@ -251,7 +228,9 @@ func TestGit_Err_DirtyWorkingCopy(t *testing.T) {
 		CommitDate:  time.Unix(1600914830, 0).UTC(),
 		URL:         "git@github.com:cidertool/cider.git",
 	}
+
 	ctx := context.New(config.Project{})
+
 	p := Pipe{}
 	p.client = newMockGitWithContext(ctx,
 		shelltest.Command{Stdout: "true"},
@@ -278,7 +257,9 @@ func TestGit_Err_InvalidTag(t *testing.T) {
 		CommitDate:  time.Unix(1600914830, 0).UTC(),
 		URL:         "git@github.com:cidertool/cider.git",
 	}
+
 	ctx := context.New(config.Project{})
+
 	p := Pipe{}
 	p.client = newMockGitWithContext(ctx,
 		shelltest.Command{Stdout: "true"},

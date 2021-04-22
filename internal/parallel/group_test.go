@@ -29,14 +29,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// nolint: gochecknoglobals
-var (
-	errTestError = errors.New("TEST")
-	groupMu      sync.Mutex
-)
+var errTestError = errors.New("TEST")
 
 func TestGroup(t *testing.T) {
 	t.Parallel()
+
+	var groupMu sync.Mutex
 
 	var g = New(4)
 

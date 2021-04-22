@@ -49,11 +49,6 @@ You should have received a copy of the GNU General Public License
 along with Cider.  If not, see <http://www.gnu.org/licenses/>.
 */`
 
-type exitFunc func(int)
-
-// nolint:gochecknoglobals
-var exit exitFunc = os.Exit
-
 func main() {
 	var cmd = &cobra.Command{
 		Use:               "licensing",
@@ -72,7 +67,7 @@ func main() {
 
 		log.WithError(err).Error(msg)
 
-		exit(code)
+		os.Exit(code)
 	}
 }
 

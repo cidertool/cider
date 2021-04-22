@@ -46,6 +46,7 @@ func TestPublish_Happy_Testflight(t *testing.T) {
 	ctx.AppsToRelease = []string{"TEST"}
 	ctx.Credentials = &clienttest.Credentials{}
 	ctx.PublishMode = context.PublishModeTestflight
+
 	p := Pipe{}
 	p.client = &clienttest.Client{}
 
@@ -62,6 +63,7 @@ func TestPublish_Happy_Store(t *testing.T) {
 	ctx.AppsToRelease = []string{"TEST"}
 	ctx.Credentials = &clienttest.Credentials{}
 	ctx.PublishMode = context.PublishModeAppStore
+
 	p := Pipe{}
 	p.client = &clienttest.Client{}
 
@@ -73,6 +75,7 @@ func TestPublish_Happy_NoApps(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.New(config.Project{})
+
 	p := Pipe{}
 
 	err := p.Run(ctx)
@@ -84,6 +87,7 @@ func TestPublish_Err_NoPublishMode(t *testing.T) {
 
 	ctx := context.New(config.Project{})
 	ctx.AppsToRelease = []string{"TEST"}
+
 	p := Pipe{}
 
 	err := p.Run(ctx)
@@ -99,6 +103,7 @@ func TestPublish_Err_AppMismatchTestflight(t *testing.T) {
 	ctx.AppsToRelease = []string{"_TEST"}
 	ctx.Credentials = &clienttest.Credentials{}
 	ctx.PublishMode = context.PublishModeTestflight
+
 	p := Pipe{}
 	p.client = &clienttest.Client{}
 
@@ -115,6 +120,7 @@ func TestPublish_Err_AppMismatchStore(t *testing.T) {
 	ctx.AppsToRelease = []string{"_TEST"}
 	ctx.Credentials = &clienttest.Credentials{}
 	ctx.PublishMode = context.PublishModeAppStore
+
 	p := Pipe{}
 	p.client = &clienttest.Client{}
 

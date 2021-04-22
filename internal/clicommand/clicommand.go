@@ -18,10 +18,10 @@ You should have received a copy of the GNU General Public License
 along with Cider.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+// Package clicommand declares the command line interface for Cider.
 package clicommand
 
 import (
-	"flag"
 	"os"
 
 	"github.com/cidertool/cider/internal/log"
@@ -30,13 +30,13 @@ import (
 func newLogger(debugFlagValue *bool) *log.Log {
 	logger := log.New()
 
+	if os.Getenv("CI") != "" {
+		logger.SetColorMode(false)
+	}
+
 	if debugFlagValue != nil {
 		logger.SetDebug(*debugFlagValue)
 		logger.Debug("debug logs enabled")
-	}
-
-	if os.Getenv("CI") != "" && flag.Lookup("test.v") == nil {
-		logger.SetColorMode(false)
 	}
 
 	return logger

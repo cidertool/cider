@@ -82,7 +82,7 @@ They each correspond to an element of authorization described by the Apple Devel
 
 - ` + "`ASC_KEY_ID`" + `: The key's ID.
 - ` + "`ASC_ISSUER_ID`" + `: Your team's issuer ID.
-- ` + "`ASC_PRIVATE_KEY`" + ` or ` + "`ASC_PRIVATE_KEY_PATH`" + `: The .p8 private key issued by Apple.
+- ` + "`ASC_PRIVATE_KEY`" + ` or ` + "`ASC_PRIVATE_KEY_PATH`" + `: The .p8 private key issued by Apple. Must belong to an App Manager, Admin, or Account Holder.
 
 These three values each have varying degrees of sensetivity and should be treated as secrets. Store
 them securely in your environment so Cider can leverage them safely.

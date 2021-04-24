@@ -12,7 +12,7 @@ Cider is not designed to replace `altool`, the recommended Apple-provided tool f
 
 ## Can I use an Apple ID to authenticate?
 
-No. Cider is built on the backbone of Apple's official App Store Connect API, and a valid [JSON Web Token](https://tools.ietf.org/html/rfc7519) generated from an issuer ID, key ID and private key are essential components in generating a compliant token. Create a key for a user on your team [following Apple's documentation](https://developer.apple.com/documentation/appstoreconnectapi/creating_api_keys_for_app_store_connect_api) and use those credentials in your CI environment. If you ever need to revoke these credentials, you can do so by following [these instructions](https://developer.apple.com/documentation/appstoreconnectapi/revoking_api_keys).
+No. Cider is built on the backbone of Apple's official App Store Connect API, and a valid [JSON Web Token](https://tools.ietf.org/html/rfc7519) generated from an issuer ID, key ID and private key are essential components in generating a compliant token. Create a key for a user on your team with the **App Manager** role by [following Apple's documentation](https://developer.apple.com/documentation/appstoreconnectapi/creating_api_keys_for_app_store_connect_api) and use those credentials in your CI environment. If you ever need to revoke these credentials, you can do so by following [these instructions](https://developer.apple.com/documentation/appstoreconnectapi/revoking_api_keys).
 
 ## How is this different from Fastlane/Spaceship?
 
